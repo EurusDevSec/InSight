@@ -1,0 +1,39 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Python
+__pycache__/
+*.py[cod]
+.env
+venv/
+.venv/
+
+# Java
+target/
+*.class
+*.jar
+*.log
+
+# Flutter
+mobile/insight_app/build/
+mobile/insight_app/.dart_tool/
+mobile/insight_app/.packages
+
+# Data (không push ảnh lên Git)
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Docker
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+*.env
+secrets/
