@@ -1,5 +1,5 @@
 # IDE
-.idea/
+.ide/
 .vscode/
 *.iml
 
@@ -21,7 +21,7 @@ mobile/insight_app/build/
 mobile/insight_app/.dart_tool/
 mobile/insight_app/.packages
 
-# Data (không push ảnh lên Git)
+# Data (Image shout not push on git)
 data/raw/*
 data/processed/*
 !data/raw/.gitkeep
