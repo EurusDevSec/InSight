@@ -1,0 +1,32 @@
+{
+  "version": "1.0",
+  "created_at": "2026-01-30",
+  "created_by": "HI",
+  "samples": [
+    {
+      "id": "pho_bo_001",
+      "image_file": "raw/pho_bo_001.jpg",
+      "food_name": "Phở bò",
+      "food_category": "noodle",
+
+      "ground_truth": {
+        "total_volume_ml": 450,
+        "solid_weight_g": 135,
+        "liquid_weight_g": 315,
+        "total_weight_g": 450,
+        "measurement_method": "water_displacement"
+      },
+
+      "reference_object": {
+        "type": "spoon",
+        "known_length_cm": 15.0
+      },
+
+      "metadata": {
+        "restaurant": "Phở Thìn",
+        "portion_size": "normal",
+        "notes": "Bánh phở vừa"
+      }
+    }
+  ]
+}
