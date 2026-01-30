@@ -10,9 +10,6 @@ jobs:
   # ===== BACKEND JAVA =====
   backend-java:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend/api-gateway
 
     steps:
       - uses: actions/checkout@v4
@@ -26,18 +23,16 @@ jobs:
 
       - name: Build with Maven
         run: |
-          if [ -f pom.xml ]; then
+          if [ -d "backend/api-gateway" ] && [ -f "backend/api-gateway/pom.xml" ]; then
+            cd backend/api-gateway
             mvn clean verify -DskipTests
           else
-            echo "No pom.xml found, skipping Java build"
+            echo "Java backend (api-gateway) not initialized or missing pom.xml. Skipping."
           fi
 
   # ===== BACKEND PYTHON =====
   backend-python:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend/vision-service
 
     steps:
       - uses: actions/checkout@v4
@@ -49,27 +44,23 @@ jobs:
 
       - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then
+          if [ -d "backend/vision-service" ] && [ -f "backend/vision-service/requirements.txt" ]; then
+            cd backend/vision-service
             pip install -r requirements.txt
             pip install pytest
+            
+            if [ -d "tests" ]; then
+                pytest tests/
+            else
+                echo "No tests found in vision-service"
+            fi
           else
-            echo "No requirements.txt found, skipping Python setup"
-          fi
-
-      - name: Run tests
-        run: |
-          if [ -d tests ]; then
-            pytest tests/
-          else
-            echo "No tests found, skipping"
+            echo "Python backend (vision-service) not initialized or missing requirements.txt. Skipping."
           fi
 
   # ===== MOBILE FLUTTER =====
   mobile:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: mobile/insight_app
 
     steps:
       - uses: actions/checkout@v4
@@ -82,11 +73,12 @@ jobs:
 
       - name: Check Flutter
         run: |
-          if [ -f pubspec.yaml ]; then
+          if [ -d "mobile/insight_app" ] && [ -f "mobile/insight_app/pubspec.yaml" ]; then
+            cd mobile/insight_app
             flutter pub get
             flutter analyze
           else
-            echo "No pubspec.yaml found, skipping Flutter build"
+             echo "Mobile app (insight_app) not initialized or missing pubspec.yaml. Skipping."
           fi
 
   # ===== DOCKER COMPOSE =====
