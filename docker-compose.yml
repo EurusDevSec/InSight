@@ -7,9 +7,9 @@ services:
     image: postgres:16-alpine
     container_name: insight-postgres
     environment:
-      - POSTGRES_USER: insight
-      - POSTGRES_PASSWORD: insight123
-      - POSTGRES_DB: insight_db
+      - POSTGRES_USER=insight
+      - POSTGRES_PASSWORD=insight123
+      - POSTGRES_DB=insight_db
     ports:
       - "5432:5432"
     volumes:
