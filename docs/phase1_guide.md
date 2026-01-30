@@ -1098,6 +1098,383 @@ git push origin develop
 
 ---
 
+## 🧪 Sprint 1.5: POC với dữ liệu mẫu (Trước Sprint 2)
+
+> **Thời gian:** 1-2 ngày
+> **Mục tiêu:** Kiểm tra pipeline hoạt động với dữ liệu giả TRƯỚC khi đầu tư thời gian đi thu thập thực tế
+
+### Tại sao cần bước này?
+
+```
+❌ Rủi ro nếu bỏ qua:
+   Thu thập 25 mẫu (4 ngày) → Phát hiện script lỗi → Mất công
+
+✅ Lợi ích của POC:
+   Test với 5 mẫu giả (2 giờ) → Fix bug → Thu thập thật → Smooth
+```
+
+---
+
+### Task 1: Tải ảnh mẫu từ Internet
+
+**Mục tiêu:** Có 5 ảnh món ăn để test pipeline
+
+#### Nguồn ảnh miễn phí (không vi phạm bản quyền):
+
+| Nguồn             | Link                                         | Ghi chú                  |
+| ----------------- | -------------------------------------------- | ------------------------ |
+| **Unsplash**      | https://unsplash.com/s/photos/pho            | Ảnh chất lượng cao, free |
+| **Pexels**        | https://pexels.com/search/vietnamese%20food/ | Free, nhiều món Việt     |
+| **Pixabay**       | https://pixabay.com/images/search/pho/       | Free, commercial use OK  |
+| **Google Images** | Tìm "phở bò" + filter "Creative Commons"     | Cẩn thận license         |
+
+#### Danh sách 5 ảnh mẫu cần tải:
+
+| #   | Món       | Tên file                     | Nguồn gợi ý |
+| --- | --------- | ---------------------------- | ----------- |
+| 1   | Phở bò    | `poc_pho_bo_001_main.jpg`    | Unsplash    |
+| 2   | Cơm trắng | `poc_com_trang_001_main.jpg` | Pexels      |
+| 3   | Bánh mì   | `poc_banh_mi_001_main.jpg`   | Unsplash    |
+| 4   | Trà sữa   | `poc_tra_sua_001_main.jpg`   | Pexels      |
+| 5   | Bún bò    | `poc_bun_bo_001_main.jpg`    | Pixabay     |
+
+**Lưu vào:** `data/poc/raw/`
+
+```bash
+# Tạo thư mục
+mkdir -p data/poc/raw
+mkdir -p data/poc/annotations
+
+# Tải ảnh và lưu vào data/poc/raw/ với đúng tên file
+```
+
+---
+
+### Task 2: Tạo Mock Ground Truth
+
+**Mục tiêu:** Tạo file `ground_truth.json` giả với số liệu ước lượng
+
+Tạo file `data/poc/annotations/ground_truth.json`:
+
+```json
+{
+  "version": "1.0-poc",
+  "created_at": "2026-01-30",
+  "created_by": "POC_TEST",
+  "description": "Dữ liệu POC với giá trị ước lượng, KHÔNG phải đo thực tế",
+  "total_samples": 5,
+  "samples": [
+    {
+      "id": "poc_pho_bo_001",
+      "image_file": "raw/poc_pho_bo_001_main.jpg",
+      "food_name": "Phở bò",
+      "food_category": "noodle",
+      "ground_truth": {
+        "total_weight_g": 450,
+        "solid_weight_g": 140,
+        "liquid_volume_ml": 310,
+        "is_liquid": true,
+        "measurement_method": "estimated_for_poc"
+      },
+      "reference_object": {
+        "type": "spoon",
+        "known_length_cm": 15.0
+      },
+      "metadata": {
+        "restaurant": "Internet Sample",
+        "notes": "Ảnh từ Unsplash, giá trị ước lượng dựa trên portion size trung bình"
+      }
+    },
+    {
+      "id": "poc_com_trang_001",
+      "image_file": "raw/poc_com_trang_001_main.jpg",
+      "food_name": "Cơm trắng",
+      "food_category": "rice",
+      "ground_truth": {
+        "total_weight_g": 200,
+        "solid_weight_g": 200,
+        "liquid_volume_ml": 0,
+        "is_liquid": false,
+        "measurement_method": "estimated_for_poc"
+      },
+      "reference_object": {
+        "type": "spoon",
+        "known_length_cm": 15.0
+      },
+      "metadata": {
+        "restaurant": "Internet Sample",
+        "notes": "1 chén cơm trung bình ~200g"
+      }
+    },
+    {
+      "id": "poc_banh_mi_001",
+      "image_file": "raw/poc_banh_mi_001_main.jpg",
+      "food_name": "Bánh mì thịt",
+      "food_category": "bread",
+      "ground_truth": {
+        "total_weight_g": 250,
+        "solid_weight_g": 250,
+        "liquid_volume_ml": 0,
+        "is_liquid": false,
+        "measurement_method": "estimated_for_poc"
+      },
+      "reference_object": {
+        "type": "none",
+        "known_length_cm": 0
+      },
+      "metadata": {
+        "restaurant": "Internet Sample",
+        "notes": "1 ổ bánh mì tiêu chuẩn ~250g"
+      }
+    },
+    {
+      "id": "poc_tra_sua_001",
+      "image_file": "raw/poc_tra_sua_001_main.jpg",
+      "food_name": "Trà sữa trân châu",
+      "food_category": "drink",
+      "ground_truth": {
+        "total_weight_g": 500,
+        "solid_weight_g": 50,
+        "liquid_volume_ml": 450,
+        "is_liquid": true,
+        "measurement_method": "estimated_for_poc"
+      },
+      "reference_object": {
+        "type": "none",
+        "known_length_cm": 0
+      },
+      "metadata": {
+        "restaurant": "Internet Sample",
+        "size": "M",
+        "notes": "Size M ~500ml, trân châu ~50g"
+      }
+    },
+    {
+      "id": "poc_bun_bo_001",
+      "image_file": "raw/poc_bun_bo_001_main.jpg",
+      "food_name": "Bún bò Huế",
+      "food_category": "noodle",
+      "ground_truth": {
+        "total_weight_g": 500,
+        "solid_weight_g": 180,
+        "liquid_volume_ml": 320,
+        "is_liquid": true,
+        "measurement_method": "estimated_for_poc"
+      },
+      "reference_object": {
+        "type": "spoon",
+        "known_length_cm": 15.0
+      },
+      "metadata": {
+        "restaurant": "Internet Sample",
+        "notes": "Bún bò thường nhiều cái hơn phở"
+      }
+    }
+  ]
+}
+```
+
+---
+
+### Task 3: Test Validate Script
+
+**Mục tiêu:** Đảm bảo script validation hoạt động
+
+```bash
+# Tạo script validate cho POC
+python scripts/validate_dataset.py --path data/poc/annotations/ground_truth.json
+```
+
+Sửa script `scripts/validate_dataset.py` để nhận tham số:
+
+```python
+"""
+Kiểm tra tính toàn vẹn của dataset
+Chạy: python scripts/validate_dataset.py [--path <path_to_ground_truth>]
+"""
+
+import json
+import os
+import argparse
+from pathlib import Path
+
+def validate_dataset(gt_path: str = "data/annotations/ground_truth.json"):
+    errors = []
+    warnings = []
+
+    # Load ground truth
+    gt_file = Path(gt_path)
+    if not gt_file.exists():
+        print(f"❌ Không tìm thấy {gt_path}")
+        return False
+
+    with open(gt_file, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    samples = data['samples']
+    base_dir = gt_file.parent.parent  # data/poc/ hoặc data/
+
+    print(f"📊 Kiểm tra {len(samples)} mẫu từ {gt_path}...\n")
+
+    for sample in samples:
+        sample_id = sample['id']
+
+        # 1. Kiểm tra ảnh tồn tại
+        img_path = base_dir / sample['image_file']
+        if not img_path.exists():
+            errors.append(f"[{sample_id}] Thiếu ảnh: {img_path}")
+
+        # 2. Kiểm tra ground truth hợp lệ
+        gt = sample['ground_truth']
+        if gt['total_weight_g'] <= 0:
+            errors.append(f"[{sample_id}] Trọng lượng <= 0")
+
+        if gt['is_liquid'] and gt['liquid_volume_ml'] <= 0:
+            warnings.append(f"[{sample_id}] Món nước nhưng không có thể tích nước")
+
+        # 3. Kiểm tra metadata
+        if not sample['metadata'].get('restaurant'):
+            warnings.append(f"[{sample_id}] Thiếu thông tin quán")
+
+    # Report
+    print("=" * 50)
+    if errors:
+        print(f"❌ {len(errors)} LỖI:")
+        for e in errors:
+            print(f"   - {e}")
+    else:
+        print("✅ Không có lỗi nghiêm trọng!")
+
+    if warnings:
+        print(f"\n⚠️  {len(warnings)} CẢNH BÁO:")
+        for w in warnings:
+            print(f"   - {w}")
+
+    print("=" * 50)
+    valid = len(samples) - len(errors)
+    print(f"📈 Kết quả: {valid}/{len(samples)} mẫu hợp lệ")
+
+    return len(errors) == 0
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--path', default='data/annotations/ground_truth.json',
+                        help='Path to ground_truth.json')
+    args = parser.parse_args()
+
+    validate_dataset(args.path)
+```
+
+---
+
+### Task 4: Test Depth Estimation (Optional nhưng khuyến khích)
+
+**Mục tiêu:** Xác nhận Depth Anything V2 chạy được với ảnh mẫu
+
+```bash
+# Cài đặt dependencies
+pip install torch torchvision transformers pillow
+
+# Tạo script test nhanh
+```
+
+Tạo file `scripts/poc_depth_test.py`:
+
+```python
+"""
+POC: Test Depth Anything V2 với ảnh mẫu
+Chạy: python scripts/poc_depth_test.py data/poc/raw/poc_pho_bo_001_main.jpg
+"""
+
+import sys
+from pathlib import Path
+
+def test_depth_estimation(image_path: str):
+    print("🔄 Loading Depth Anything V2...")
+
+    try:
+        import torch
+        from transformers import pipeline
+        from PIL import Image
+
+        # Load model (sẽ download lần đầu ~350MB)
+        pipe = pipeline(
+            task="depth-estimation",
+            model="depth-anything/Depth-Anything-V2-Small-hf",
+            device="cuda" if torch.cuda.is_available() else "cpu"
+        )
+
+        print(f"✅ Model loaded on {'GPU' if torch.cuda.is_available() else 'CPU'}")
+
+        # Load image
+        image = Image.open(image_path)
+        print(f"📷 Image: {image.size[0]}x{image.size[1]}")
+
+        # Run inference
+        print("🔄 Running depth estimation...")
+        result = pipe(image)
+
+        depth_map = result["depth"]
+        print(f"✅ Depth map generated: {depth_map.size}")
+
+        # Save output
+        output_path = Path(image_path).stem + "_depth.png"
+        depth_map.save(output_path)
+        print(f"💾 Saved to: {output_path}")
+
+        return True
+
+    except ImportError as e:
+        print(f"❌ Missing dependency: {e}")
+        print("   Run: pip install torch torchvision transformers pillow")
+        return False
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python scripts/poc_depth_test.py <image_path>")
+        sys.exit(1)
+
+    test_depth_estimation(sys.argv[1])
+```
+
+---
+
+### Task 5: POC Checklist
+
+Hoàn thành các bước sau trước khi chuyển sang Sprint 2:
+
+- [ ] Tải được 5 ảnh mẫu vào `data/poc/raw/`
+- [ ] Tạo được `data/poc/annotations/ground_truth.json`
+- [ ] Script `validate_dataset.py` chạy không lỗi với POC data
+- [ ] (Optional) Depth Anything V2 chạy được, output depth map
+
+```bash
+# Quick test all
+python scripts/validate_dataset.py --path data/poc/annotations/ground_truth.json
+
+# Expected output:
+# ✅ Không có lỗi nghiêm trọng!
+# 📈 Kết quả: 5/5 mẫu hợp lệ
+```
+
+---
+
+### 🎯 Kết quả mong đợi sau Sprint 1.5
+
+| Câu hỏi                             | Trả lời được sau POC  |
+| ----------------------------------- | --------------------- |
+| Scripts có chạy được không?         | ✅ Đã test            |
+| Format JSON đúng chưa?              | ✅ Đã validate        |
+| Depth model load được không?        | ✅ Đã test (optional) |
+| Cần sửa gì trước khi thu thập thật? | ✅ Đã biết            |
+
+**Sau khi POC pass → Tự tin đi thu thập dữ liệu thật ở Sprint 2!**
+
+---
+
 ## Sprint 2: Thu thập dữ liệu (Tuần 3)
 
 ### Mục tiêu
@@ -1114,6 +1491,54 @@ git push origin develop
 | Chuẩn bị dụng cụ đo           | HI              | Ngày 1   |
 | Chụp ảnh + đo thể tích 10 món | HI              | Ngày 2-4 |
 | Validate và upload            | HI + Tôi        | Ngày 5   |
+
+---
+
+### ⚠️ Tại sao không dùng Dataset có sẵn (Food-101, VFN, etc.)?
+
+Đây là câu hỏi rất hay và quan trọng. Có 3 lý do chính:
+
+#### 1. Thiếu Ground-Truth về thể tích
+
+| Dataset có sẵn            | Có gì                      | Thiếu gì                                    |
+| ------------------------- | -------------------------- | ------------------------------------------- |
+| **Food-101**              | 101 loại thức ăn, 101K ảnh | ❌ Không có thể tích, không có trọng lượng  |
+| **VFN (Vietnamese Food)** | ~30 món Việt Nam           | ❌ Chỉ có nhãn tên món, không có dinh dưỡng |
+| **Nutrition5k**           | 5K ảnh + dinh dưỡng        | ❌ Món Mỹ, không có món Việt Nam            |
+| **MenuMatch**             | Ảnh + calo                 | ❌ Ảnh chất lượng thấp, không có thể tích   |
+
+**Vấn đề cốt lõi:** InSight cần **thể tích thực tế (ml)** để tính Carb → Insulin. Không có dataset nào cung cấp thông tin này cho món Việt Nam.
+
+#### 2. Bài toán của InSight khác biệt
+
+```
+Bài toán Food Recognition thông thường:
+  Ảnh → Tên món (Classification)
+
+Bài toán của InSight:
+  Ảnh → Tên món → Thể tích (ml) → Trọng lượng (g) → Carb (g) → Insulin (units)
+         ↑           ↑              ↑
+      Có dataset   KHÔNG CÓ      Tự tính từ
+      có sẵn       DATASET       bảng dinh dưỡng
+```
+
+#### 3. Tính đặc thù của món Việt Nam
+
+- **Phở/Bún:** Tỷ lệ nước/cái khác nhau tùy quán
+- **Trà sữa:** Size S/M/L khác nhau tùy thương hiệu
+- **Cơm bình dân:** Portion size không chuẩn hóa
+
+→ Cần dữ liệu thực tế từ các quán ăn Việt Nam để model học được sự đa dạng này.
+
+#### Kết luận: Chiến lược Hybrid
+
+| Giai đoạn              | Dữ liệu                    | Mục đích                                   |
+| ---------------------- | -------------------------- | ------------------------------------------ |
+| **Sprint 2 (Bây giờ)** | 25 mẫu tự thu thập         | Proof-of-concept, có ground-truth thể tích |
+| **Giai đoạn 2-3**      | Food-101 + VFN             | Pretrain/fine-tune model nhận diện tên món |
+| **Production**         | User feedback + Correction | Continuous learning                        |
+
+**Tóm lại:** Dataset có sẵn sẽ dùng sau để tăng độ chính xác nhận diện món. Nhưng bước đầu, chúng ta PHẢI tự thu thập để có ground-truth thể tích - thứ không ai có.
 
 ---
 
@@ -1232,58 +1657,252 @@ data/
 
 **Người thực hiện:** HI
 
-Checklist dụng cụ:
+#### Checklist dụng cụ (Bắt buộc)
 
-- [ ] Điện thoại có camera tốt (tối thiểu 12MP)
-- [ ] Cốc đo lường 500ml
-- [ ] Cân điện tử (độ chính xác 1g)
-- [ ] Thìa inox tiêu chuẩn (15cm)
-- [ ] Đũa tiêu chuẩn
-- [ ] Bát tiêu chuẩn (nhiều size)
-- [ ] Giấy note để ghi chú
+| Dụng cụ | Mục đích | Mua ở đâu | Giá ước tính |
+|---------|----------|-----------|--------------|
+| ✅ Điện thoại camera tốt | Chụp ảnh | Có sẵn | - |
+| ✅ Cốc đo lường 500ml | Đo thể tích nước | Shopee/Lazada | 30-50K |
+| ✅ Cân điện tử (độ chính xác 1g) | Cân thức ăn | Shopee/Lazada | 80-150K |
+| ✅ Thìa inox tiêu chuẩn 15cm | Vật tham chiếu | Có sẵn | - |
+| ✅ Đũa tiêu chuẩn 24cm | Vật tham chiếu | Có sẵn | - |
+| ✅ Tô/Bát nhiều size | Đựng thức ăn | Có sẵn | - |
+
+#### Checklist dụng cụ (Khuyến nghị)
+
+| Dụng cụ | Mục đích | Ghi chú |
+|---------|----------|---------|
+| 📱 Tripod điện thoại | Giữ góc chụp ổn định | Có thể dùng cốc kê tạm |
+| 💡 Đèn LED nhỏ | Đảm bảo ánh sáng | Chụp ban ngày gần cửa sổ thay thế |
+| 📝 Sổ ghi chép | Ghi nhanh số đo | Hoặc dùng Google Keep |
+
+#### Thiết lập "Góc chụp cố định"
+
+```
+┌─────────────────────────────────┐
+│                                 │
+│    [Đèn/Cửa sổ]                 │
+│         ↓ ánh sáng              │
+│                                 │
+│    ┌─────────┐                  │
+│    │  🍜 Tô  │ ← Đặt cố định    │
+│    │  ──────  │    tại 1 vị trí │
+│    │  🥄 Thìa │                  │
+│    └─────────┘                  │
+│         ↑                       │
+│    [Điện thoại] góc 45-60°      │
+│                                 │
+│    ════════════════             │
+│         Bàn                     │
+└─────────────────────────────────┘
+```
+
+**Tip:** Dùng băng keo đánh dấu vị trí đặt tô trên bàn để các ảnh có góc nhìn nhất quán.
 
 ---
 
-### Task 3: Quy trình chụp ảnh
+### Task 3: Quy trình chụp ảnh CHI TIẾT
 
 **Người thực hiện:** HI
 
-#### Bước 1: Setup
+#### 📋 Workflow tổng quan (cho MỖI mẫu)
 
-1. Đặt món ăn trên bàn có nền đơn sắc (trắng/gỗ)
-2. Đặt thìa/đũa cạnh bát (không chồng lên thức ăn)
-3. Đảm bảo ánh sáng đủ (dùng đèn nếu cần)
+```
+1. MUA/ĐẶT món ăn
+       ↓
+2. CHỤP ẢNH (trước khi ăn!)
+       ↓
+3. ĐO LƯỜNG (cân + đo thể tích)
+       ↓
+4. GHI CHÉP vào Google Sheet
+       ↓
+5. LƯU ẢNH đúng tên file
+```
+
+**Thời gian ước tính:** 5-10 phút/mẫu
+
+---
+
+#### Bước 1: Setup trước khi chụp
+
+**Checklist nhanh:**
+- [ ] Bàn sạch, nền đơn sắc (trắng/gỗ/xám)
+- [ ] Ánh sáng đủ (gần cửa sổ hoặc bật đèn)
+- [ ] Thìa 15cm đặt cạnh tô (KHÔNG đè lên thức ăn)
+- [ ] Điện thoại sạc đủ pin
+
+**Ví dụ setup đúng vs sai:**
+
+```
+✅ ĐÚNG:                          ❌ SAI:
+┌────────────────┐               ┌────────────────┐
+│   🍜           │               │   🍜    📱     │
+│      ────      │               │ shadows ░░░░░  │
+│   🥄           │               │   🥄 (đè lên)  │
+└────────────────┘               └────────────────┘
+ Nền sạch, thìa rõ               Có bóng, thìa bị che
+```
+
+---
 
 #### Bước 2: Chụp ảnh
 
-1. Đứng phía trên, nghiêng 45-60 độ
-2. Đảm bảo toàn bộ bát + thìa nằm trong khung hình
-3. Chụp 2-3 góc khác nhau cho mỗi mẫu
-4. Kiểm tra ảnh không bị mờ
+**Yêu cầu kỹ thuật:**
 
-#### Bước 3: Đo thể tích
+| Tiêu chí | Yêu cầu | Lý do |
+|----------|---------|-------|
+| Góc chụp | 45-60° từ trên xuống | Thấy được bề mặt + chiều sâu |
+| Khoảng cách | 30-50cm | Toàn bộ tô + thìa trong khung |
+| Focus | Vào món ăn | Không bị mờ |
+| Flash | TẮT | Tránh bóng đổ cứng |
 
-1. **Với món khô (Cơm, Xôi, Bánh mì):**
-   - Cân trọng lượng (g)
-   - Ghi nhận
+**Chụp 2 góc cho mỗi mẫu:**
 
-2. **Với món nước (Phở, Bún):**
-   - Cân tổng (g)
-   - Gạn riêng nước và cái
-   - Cân cái (g)
-   - Đo nước bằng cốc đo lường (ml)
+```
+Góc 1 (Chính):              Góc 2 (Phụ):
+     📱                          📱
+      \  45°                    /  60°
+       \                       /
+    ┌──────┐               ┌──────┐
+    │  🍜  │               │  🍜  │
+    └──────┘               └──────┘
+```
 
-3. **Với đồ uống:**
-   - Đo bằng cốc đo lường (ml)
-   - Ghi size (S/M/L)
+**Đặt tên file:**
+```
+{tên_món}_{số_thứ_tự}_{góc}.jpg
 
-#### Bước 4: Ghi nhận
+Ví dụ:
+- pho_bo_001_main.jpg
+- pho_bo_001_side.jpg
+- com_trang_002_main.jpg
+```
 
-Điền vào file Excel hoặc Google Sheet:
+---
 
-| ID | Tên món | Thể tích (ml) | Cái (g) | Nước (ml) | Ghi chú |
-|----|---------|---------------|---------|-----------|---------|
-| pho_bo_001 | Phở bò | 450 | 135 | 315 | Quán Phở Thìn |
+#### Bước 3: Đo lường (QUAN TRỌNG NHẤT)
+
+##### 3A. Với MÓN KHÔ (Cơm, Xôi, Bánh mì)
+
+```
+Quy trình:
+1. Cân tổng trọng lượng (bao gồm tô) → A gram
+2. Ăn xong, cân tô rỗng → B gram
+3. Trọng lượng thức ăn = A - B gram
+
+Ví dụ:
+- Tổng (cơm + tô): 450g
+- Tô rỗng: 200g
+- → Cơm = 250g
+```
+
+##### 3B. Với MÓN NƯỚC (Phở, Bún, Canh)
+
+```
+Quy trình phức tạp hơn:
+1. Cân TỔNG (tô + nước + cái) → A gram
+2. Dùng đũa gắp riêng PHẦN CÁI ra đĩa, cân → B gram
+3. Đổ NƯỚC vào cốc đo lường → C ml
+4. Cân tô rỗng → D gram
+
+Kết quả:
+- Tổng thể tích nước: C ml
+- Trọng lượng cái: B gram
+- Tổng trọng lượng: A - D gram
+
+Ví dụ Phở bò:
+- Tổng: 650g, Tô: 200g → Thức ăn: 450g
+- Phần cái (bánh + thịt + hành): 140g
+- Nước: 310ml
+```
+
+##### 3C. Với ĐỒ UỐNG (Trà sữa, Cà phê)
+
+```
+Quy trình:
+1. Ghi nhận SIZE (S/M/L) và THƯƠNG HIỆU
+2. Đổ ra cốc đo lường → A ml
+3. Nếu có topping (trân châu), gạn riêng và cân → B gram
+
+Ví dụ Trà sữa Gongcha M:
+- Thể tích: 450ml
+- Trân châu: 50g
+```
+
+---
+
+#### Bước 4: Ghi chép vào Google Sheet
+
+**Tạo Google Sheet với các cột sau:**
+
+| Cột | Tên cột | Ví dụ | Ghi chú |
+|-----|---------|-------|---------|
+| A | ID | pho_bo_001 | Theo format đặt tên file |
+| B | Tên món | Phở bò | Tiếng Việt |
+| C | Category | noodle | rice/noodle/bread/drink |
+| D | Tổng trọng lượng (g) | 450 | Không tính tô |
+| E | Phần cái (g) | 140 | Chỉ với món nước |
+| F | Phần nước (ml) | 310 | Chỉ với món nước |
+| G | Quán | Phở Thìn | Tên quán/thương hiệu |
+| H | Địa chỉ | 13 Lò Đúc | Optional |
+| I | Size | M | Với đồ uống |
+| J | Ghi chú | Bánh phở vừa | Mô tả thêm |
+| K | Ngày chụp | 2026-01-30 | |
+
+**Link mẫu:** [Tạo copy từ template này](https://docs.google.com/spreadsheets/d/create)
+
+---
+
+#### Bước 5: Upload và tổ chức file
+
+```bash
+# Cấu trúc thư mục
+data/
+├── raw/                          # Ảnh gốc chưa xử lý
+│   ├── pho_bo_001_main.jpg
+│   ├── pho_bo_001_side.jpg
+│   ├── pho_bo_002_main.jpg
+│   ├── com_trang_001_main.jpg
+│   └── ...
+├── annotations/
+│   └── ground_truth.json         # Export từ Google Sheet
+└── measurements.xlsx             # Backup từ Google Sheet
+```
+
+**Quy trình upload:**
+1. Kết nối điện thoại với máy tính
+2. Copy ảnh vào `data/raw/`
+3. Đổi tên file theo format
+4. Export Google Sheet → Excel → lưu vào `data/`
+
+---
+
+### 📅 Lịch thu thập đề xuất (4 ngày)
+
+| Ngày | Buổi | Món cần thu thập | Số mẫu | Ghi chú |
+|------|------|------------------|--------|---------|
+| **Ngày 1** | Sáng | Phở bò, Phở gà | 5 | Đi quán phở gần nhà |
+| | Trưa | Cơm trắng, Cơm tấm | 4 | Quán cơm bình dân |
+| **Ngày 2** | Sáng | Bánh mì thịt | 3 | Tiệm bánh mì |
+| | Trưa | Bún chả, Bún bò | 4 | |
+| **Ngày 3** | Sáng | Xôi | 2 | Quán xôi sáng |
+| | Chiều | Trà sữa (2 quán) | 4 | Gongcha + Phúc Long |
+| **Ngày 4** | Sáng | Cà phê sữa | 2 | Highlands hoặc quán quen |
+| | | **Buffer** | +1 | Chụp bù nếu thiếu |
+
+**Tổng: 25 mẫu trong 4 ngày**
+
+---
+
+### 🎯 Checklist TRƯỚC khi đi thu thập
+
+Mỗi lần ra ngoài, kiểm tra:
+
+- [ ] Điện thoại sạc đủ pin (>50%)
+- [ ] Bộ nhớ điện thoại còn trống (>2GB)
+- [ ] Mang theo: Cân điện tử, cốc đo lường, thìa 15cm
+- [ ] Mở sẵn Google Sheet trên điện thoại
+- [ ] Biết quán nào sẽ đến
 
 ---
 
@@ -1291,55 +1910,207 @@ Checklist dụng cụ:
 
 **Người thực hiện:** HI (với hỗ trợ của Tôi)
 
-Sau khi chụp xong, chuyển đổi Excel sang JSON theo format đã định nghĩa.
+Sau khi chụp xong, chuyển đổi Google Sheet sang JSON theo format đã định nghĩa.
+
+#### Script tự động chuyển đổi
+
+Tạo file `scripts/sheet_to_json.py`:
 
 ```python
-# scripts/excel_to_json.py
+"""
+Chuyển đổi Google Sheet/Excel sang ground_truth.json
+Chạy: python scripts/sheet_to_json.py data/measurements.xlsx
+"""
+
 import pandas as pd
 import json
+import sys
+from datetime import datetime
 
-# Đọc Excel
-df = pd.read_excel('data/measurements.xlsx')
+def convert_to_ground_truth(excel_path: str, output_path: str = "data/annotations/ground_truth.json"):
+    # Đọc Excel
+    df = pd.read_excel(excel_path)
 
-# Chuyển sang JSON
-samples = []
-for _, row in df.iterrows():
-    sample = {
-        "id": row['ID'],
-        "image_file": f"raw/{row['ID']}.jpg",
-        "food_name": row['Tên món'],
-        "food_category": row['Category'],
-        "ground_truth": {
-            "total_volume_ml": row['Thể tích (ml)'],
-            "solid_weight_g": row['Cái (g)'],
-            "liquid_weight_g": row['Nước (ml)'],
-            "total_weight_g": row['Cái (g)'] + row['Nước (ml)'],
-            "measurement_method": "water_displacement"
-        },
-        "reference_object": {
-            "type": "spoon",
-            "known_length_cm": 15.0
-        },
-        "metadata": {
-            "restaurant": row.get('Quán', ''),
-            "notes": row.get('Ghi chú', '')
+    samples = []
+    for _, row in df.iterrows():
+        # Xử lý món khô vs món nước
+        is_liquid = row.get('Category', '') in ['noodle', 'drink']
+
+        sample = {
+            "id": row['ID'],
+            "image_file": f"raw/{row['ID']}_main.jpg",
+            "food_name": row['Tên món'],
+            "food_category": row['Category'],
+
+            "ground_truth": {
+                "total_weight_g": float(row['Tổng trọng lượng (g)']),
+                "solid_weight_g": float(row.get('Phần cái (g)', row['Tổng trọng lượng (g)'])),
+                "liquid_volume_ml": float(row.get('Phần nước (ml)', 0)),
+                "is_liquid": is_liquid,
+                "measurement_method": "scale_and_measuring_cup"
+            },
+
+            "reference_object": {
+                "type": "spoon",
+                "known_length_cm": 15.0
+            },
+
+            "metadata": {
+                "restaurant": str(row.get('Quán', '')),
+                "address": str(row.get('Địa chỉ', '')),
+                "size": str(row.get('Size', '')),
+                "notes": str(row.get('Ghi chú', '')),
+                "captured_date": str(row.get('Ngày chụp', ''))
+            }
         }
+        samples.append(sample)
+
+    # Tạo output
+    output = {
+        "version": "1.0",
+        "created_at": datetime.now().strftime("%Y-%m-%d"),
+        "created_by": "HI",
+        "total_samples": len(samples),
+        "samples": samples
     }
-    samples.append(sample)
 
-# Xuất JSON
-output = {
-    "version": "1.0",
-    "created_at": "2026-01-30",
-    "created_by": "HI",
-    "samples": samples
-}
+    # Ghi file
+    import os
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-with open('data/annotations/ground_truth.json', 'w', encoding='utf-8') as f:
-    json.dump(output, f, ensure_ascii=False, indent=2)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(output, f, ensure_ascii=False, indent=2)
 
-print(f"✅ Exported {len(samples)} samples to ground_truth.json")
-````
+    print(f"✅ Exported {len(samples)} samples to {output_path}")
+
+    # Validate
+    print("\n📊 Thống kê:")
+    print(f"   - Tổng mẫu: {len(samples)}")
+    for cat in df['Category'].unique():
+        count = len(df[df['Category'] == cat])
+        print(f"   - {cat}: {count} mẫu")
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python scripts/sheet_to_json.py <path_to_excel>")
+        print("Example: python scripts/sheet_to_json.py data/measurements.xlsx")
+        sys.exit(1)
+
+    convert_to_ground_truth(sys.argv[1])
+```
+
+#### Chạy script
+
+```bash
+# Cài thư viện (nếu chưa có)
+pip install pandas openpyxl
+
+# Export Google Sheet về Excel, lưu vào data/measurements.xlsx
+
+# Chạy chuyển đổi
+python scripts/sheet_to_json.py data/measurements.xlsx
+```
+
+---
+
+### Task 5: Validate dữ liệu
+
+**Người thực hiện:** Tôi
+
+Tạo file `scripts/validate_dataset.py`:
+
+```python
+"""
+Kiểm tra tính toàn vẹn của dataset
+Chạy: python scripts/validate_dataset.py
+"""
+
+import json
+import os
+from pathlib import Path
+
+def validate_dataset():
+    errors = []
+    warnings = []
+
+    # Load ground truth
+    gt_path = Path("data/annotations/ground_truth.json")
+    if not gt_path.exists():
+        print("❌ Không tìm thấy ground_truth.json")
+        return
+
+    with open(gt_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    samples = data['samples']
+    print(f"📊 Kiểm tra {len(samples)} mẫu...\n")
+
+    for sample in samples:
+        sample_id = sample['id']
+
+        # 1. Kiểm tra ảnh tồn tại
+        img_path = Path("data") / sample['image_file']
+        if not img_path.exists():
+            errors.append(f"[{sample_id}] Thiếu ảnh: {sample['image_file']}")
+
+        # 2. Kiểm tra ground truth hợp lệ
+        gt = sample['ground_truth']
+        if gt['total_weight_g'] <= 0:
+            errors.append(f"[{sample_id}] Trọng lượng <= 0")
+
+        if gt['is_liquid'] and gt['liquid_volume_ml'] <= 0:
+            warnings.append(f"[{sample_id}] Món nước nhưng không có thể tích nước")
+
+        # 3. Kiểm tra metadata
+        if not sample['metadata'].get('restaurant'):
+            warnings.append(f"[{sample_id}] Thiếu thông tin quán")
+
+    # Report
+    print("=" * 50)
+    if errors:
+        print(f"❌ {len(errors)} LỖI:")
+        for e in errors:
+            print(f"   - {e}")
+    else:
+        print("✅ Không có lỗi!")
+
+    if warnings:
+        print(f"\n⚠️  {len(warnings)} CẢNH BÁO:")
+        for w in warnings:
+            print(f"   - {w}")
+
+    print("=" * 50)
+    valid = len(samples) - len(errors)
+    print(f"📈 Kết quả: {valid}/{len(samples)} mẫu hợp lệ")
+
+if __name__ == "__main__":
+    validate_dataset()
+```
+
+---
+
+### 🏁 Kết thúc Sprint 2: Checklist cuối cùng
+
+Trước khi chuyển sang Giai đoạn 2 (Vision Engine), đảm bảo:
+
+- [ ] Có ít nhất **20 mẫu hợp lệ** (cho phép 5 mẫu lỗi/loại bỏ)
+- [ ] Mỗi category (rice, noodle, bread, drink) có ít nhất **3 mẫu**
+- [ ] Tất cả ảnh đã được đổi tên đúng format
+- [ ] `ground_truth.json` được tạo và validate thành công
+- [ ] Script validate báo **0 lỗi**
+
+```bash
+# Chạy validate lần cuối
+python scripts/validate_dataset.py
+
+# Commit (KHÔNG commit ảnh nếu quá 100MB)
+git add data/annotations/
+git add scripts/sheet_to_json.py scripts/validate_dataset.py
+git commit -m "feat(data): add ground truth for 25 food samples"
+git push origin develop
+```
+
+**🎉 Hoàn thành Sprint 2 → Sẵn sàng cho Giai đoạn 2: Vision Engine!**`
 
 ---
 
@@ -1404,3 +2175,4 @@ docker logs insight-milvus
 **Hoàn thành Giai đoạn 1 → Sẵn sàng cho Giai đoạn 2: Vision Engine!**
 
 _Cập nhật: 28-01-2026_
+````

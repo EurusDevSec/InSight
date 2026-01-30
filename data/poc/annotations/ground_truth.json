@@ -1,0 +1,115 @@
+{
+  "version": "1.0-poc",
+  "created_at": "2026-01-30",
+  "created_by": "POC_TEST",
+  "description": "Dữ liệu POC với giá trị ước lượng, KHÔNG phải đo thực tế",
+  "total_samples": 5,
+  "samples": [
+    {
+      "id": "poc_pho_bo_001",
+      "image_file": "raw/poc_pho_bo_001_main.jpg",
+      "food_name": "Phở bò",
+      "food_category": "noodle",
+      "ground_truth": {
+        "total_weight_g": 450,
+        "solid_weight_g": 140,
+        "liquid_volume_ml": 310,
+        "is_liquid": true,
+        "measurement_method": "estimated_for_poc"
+      },
+      "reference_object": {
+        "type": "spoon",
+        "known_length_cm": 15.0
+      },
+      "metadata": {
+        "restaurant": "Internet Sample",
+        "notes": "Ảnh từ Unsplash, giá trị ước lượng dựa trên portion size trung bình"
+      }
+    },
+    {
+      "id": "poc_com_trang_001",
+      "image_file": "raw/poc_com_trang_001_main.jpg",
+      "food_name": "Cơm trắng",
+      "food_category": "rice",
+      "ground_truth": {
+        "total_weight_g": 200,
+        "solid_weight_g": 200,
+        "liquid_volume_ml": 0,
+        "is_liquid": false,
+        "measurement_method": "estimated_for_poc"
+      },
+      "reference_object": {
+        "type": "spoon",
+        "known_length_cm": 15.0
+      },
+      "metadata": {
+        "restaurant": "Internet Sample",
+        "notes": "1 chén cơm trung bình ~200g"
+      }
+    },
+    {
+      "id": "poc_banh_mi_001",
+      "image_file": "raw/poc_banh_mi_001_main.jpg",
+      "food_name": "Bánh mì thịt",
+      "food_category": "bread",
+      "ground_truth": {
+        "total_weight_g": 250,
+        "solid_weight_g": 250,
+        "liquid_volume_ml": 0,
+        "is_liquid": false,
+        "measurement_method": "estimated_for_poc"
+      },
+      "reference_object": {
+        "type": "none",
+        "known_length_cm": 0
+      },
+      "metadata": {
+        "restaurant": "Internet Sample",
+        "notes": "1 ổ bánh mì tiêu chuẩn ~250g"
+      }
+    },
+    {
+      "id": "poc_tra_sua_001",
+      "image_file": "raw/poc_tra_sua_001_main.jpg",
+      "food_name": "Trà sữa trân châu",
+      "food_category": "drink",
+      "ground_truth": {
+        "total_weight_g": 500,
+        "solid_weight_g": 50,
+        "liquid_volume_ml": 450,
+        "is_liquid": true,
+        "measurement_method": "estimated_for_poc"
+      },
+      "reference_object": {
+        "type": "none",
+        "known_length_cm": 0
+      },
+      "metadata": {
+        "restaurant": "Internet Sample",
+        "size": "M",
+        "notes": "Size M ~500ml, trân châu ~50g"
+      }
+    },
+    {
+      "id": "poc_bun_bo_001",
+      "image_file": "raw/poc_bun_bo_001_main.jpg",
+      "food_name": "Bún bò Huế",
+      "food_category": "noodle",
+      "ground_truth": {
+        "total_weight_g": 500,
+        "solid_weight_g": 180,
+        "liquid_volume_ml": 320,
+        "is_liquid": true,
+        "measurement_method": "estimated_for_poc"
+      },
+      "reference_object": {
+        "type": "spoon",
+        "known_length_cm": 15.0
+      },
+      "metadata": {
+        "restaurant": "Internet Sample",
+        "notes": "Bún bò thường nhiều cái hơn phở"
+      }
+    }
+  ]
+}
