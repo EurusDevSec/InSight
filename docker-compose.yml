@@ -95,6 +95,7 @@ services:
   milvus:
     image: milvusdb/milvus:v2.3.3
     container_name: insight-milvus
+    command: ["milvus", "run", "standalone"]
     environment:
       ETCD_ENDPOINTS: milvus-etcd:2379
       MINIO_ADDRESS: milvus-minio:9000
