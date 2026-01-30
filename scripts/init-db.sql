@@ -1,74 +1,74 @@
--- Insigh Database Schema
--- version: 1.0.0
-
+-- =============================================
+-- InSight Database Schema
+-- Version: 1.0.0
+-- =============================================
 
 -- Enable UUID extension
-
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- =============================================
 -- USERS TABLE
-
-CREATE TABLE user(
+-- =============================================
+CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(100) NOT NULL,
-
-
-    -- Thong tin y te
-    diabetes_type VARCHAR(20), -- 'TYPE1',' TYPE2'
-    insulin_type VARCHAR(50), --'rapid', 'long-acting', 'mixed'
+    
+    -- Thông tin y tế
+    diabetes_type VARCHAR(20), -- 'type1', 'type2'
+    insulin_type VARCHAR(50),  -- 'rapid', 'long-acting', 'mixed'
     insulin_ratio DECIMAL(5,2), -- Units per 10g Carb
     target_glucose_min INT DEFAULT 80,
     target_glucose_max INT DEFAULT 140,
-
+    
     -- CGM Integration
-    cgm_provider VARCHAR(50), --'freestyle_libre', 'dexcom', null
+    cgm_provider VARCHAR(50), -- 'freestyle_libre', 'dexcom', null
     cgm_access_token TEXT,
-
+    
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-
 );
 
--- FOOD TABLE
-CREATE TABLE foods(
+-- =============================================
+-- FOODS TABLE (Cơ sở dữ liệu món ăn)
+-- =============================================
+CREATE TABLE foods (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name_vi VARCHAR(100) NOT NULL,
     name_en VARCHAR(100),
-
-    --Dinh duong (per 100g)
-    car_per_100g DECIMAL(6,2) NOT NULL,
+    
+    -- Dinh dưỡng (per 100g)
+    carb_per_100g DECIMAL(6,2) NOT NULL,
     protein_per_100g DECIMAL(6,2),
     fat_per_100g DECIMAL(6,2),
     fiber_per_100g DECIMAL(6,2),
-
+    
     -- Glycemic Index
-
-    gi_value INT, --0-100
-    gi_category VARCHAR(10), --'low', 'medium', 'high'
-
-    -- Phan loai
-    category VARCHAR(50), --' rice', 'noodle', 'bread', 'drink', etc.
+    gi_value INT, -- 0-100
+    gi_category VARCHAR(10), -- 'low', 'medium', 'high'
+    
+    -- Phân loại
+    category VARCHAR(50), -- 'rice', 'noodle', 'bread', 'drink', etc.
     is_liquid BOOLEAN DEFAULT FALSE,
-
+    
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-)
-
+-- =============================================
 -- DENSITY FACTORS (Hệ số mật độ cho món nước)
 -- =============================================
 CREATE TABLE density_factors (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     food_id UUID REFERENCES foods(id),
-
+    
     variant VARCHAR(50), -- 'default', 'ít bánh', 'nhiều bánh'
     solid_ratio DECIMAL(4,2), -- 0.30 = 30% đặc, 70% nước
     density DECIMAL(4,2) DEFAULT 1.0, -- g/ml
-
+    
     -- Cho calibrate quán quen
     restaurant_name VARCHAR(100),
     user_id UUID REFERENCES users(id),
-
+    
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -78,29 +78,29 @@ CREATE TABLE density_factors (
 CREATE TABLE meal_logs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES users(id),
-
+    
     -- Thời gian
     logged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     meal_type VARCHAR(20), -- 'breakfast', 'lunch', 'dinner', 'snack'
-
+    
     -- Ảnh
     image_url TEXT,
-
+    
     -- Kết quả
     total_volume_ml DECIMAL(8,2),
     total_weight_g DECIMAL(8,2),
     total_carbs_g DECIMAL(8,2),
     total_gl DECIMAL(8,2),
-
+    
     -- AI Response
     insulin_suggestion DECIMAL(5,2),
     confidence_score DECIMAL(4,2),
     rag_response TEXT,
-
+    
     -- Tracking
     is_panic_mode BOOLEAN DEFAULT FALSE,
     disclaimer_shown BOOLEAN DEFAULT TRUE,
-
+    
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -111,19 +111,19 @@ CREATE TABLE meal_items (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     meal_log_id UUID REFERENCES meal_logs(id),
     food_id UUID REFERENCES foods(id),
-
+    
     -- Kết quả tính toán
     volume_ml DECIMAL(8,2),
     weight_g DECIMAL(8,2),
     carbs_g DECIMAL(8,2),
-
+    
     -- Thông tin bổ sung từ form
     portion_size VARCHAR(20), -- 'full', 'half', 'quarter'
     sweetness_level VARCHAR(20), -- 'full', 'less', 'none'
     sauce_amount VARCHAR(20), -- 'none', 'little', 'normal', 'extra'
-
+    
     confidence_score DECIMAL(4,2),
-
+    
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -133,15 +133,15 @@ CREATE TABLE meal_items (
 CREATE TABLE glucose_readings (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES users(id),
-
+    
     value_mgdl INT NOT NULL,
     measured_at TIMESTAMP NOT NULL,
     source VARCHAR(20), -- 'cgm', 'manual'
-
+    
     -- Liên kết với bữa ăn (nếu có)
     meal_log_id UUID REFERENCES meal_logs(id),
     reading_type VARCHAR(20), -- 'before_meal', 'after_meal_1h', 'after_meal_2h'
-
+    
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -151,13 +151,13 @@ CREATE TABLE glucose_readings (
 CREATE TABLE favorite_restaurants (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES users(id),
-
+    
     name VARCHAR(100) NOT NULL,
     address TEXT,
-
+    
     -- Custom density factors sẽ lưu trong bảng density_factors
     -- với restaurant_name và user_id
-
+    
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
