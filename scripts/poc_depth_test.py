@@ -6,7 +6,7 @@ Ví dụ:
     python scripts/poc_depth_test.py data/poc/raw/poc_pho_bo_001_main.jpg
 """
 
-import sys
+import sys #thu vien he thong
 from pathlib import Path
 
 
