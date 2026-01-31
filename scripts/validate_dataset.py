@@ -17,7 +17,7 @@ def validate_dataset(gt_path: str = "data/annotations/ground_truth.json"):
     if not gt_file.exists():
         print(f"❌ Không tìm thấy {gt_path}")
         return False
-
+    # mo ft_file
     with open(gt_file, "r", encoding="utf-8") as f:
         data = json.load(f)
 
