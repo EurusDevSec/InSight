@@ -14,7 +14,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check if Java project exists
+        id: check-java
+        run: |
+          if [ -f "backend/api-gateway/pom.xml" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Java backend not initialized yet. Skipping build."
+          fi
+
       - name: Set up JDK 21
+        if: steps.check-java.outputs.exists == 'true'
         uses: actions/setup-java@v4
         with:
           java-version: "21"
@@ -22,13 +33,10 @@ jobs:
           cache: maven
 
       - name: Build with Maven
+        if: steps.check-java.outputs.exists == 'true'
         run: |
-          if [ -d "backend/api-gateway" ] && [ -f "backend/api-gateway/pom.xml" ]; then
-            cd backend/api-gateway
-            mvn clean verify -DskipTests
-          else
-            echo "Java backend (api-gateway) not initialized or missing pom.xml. Skipping."
-          fi
+          cd backend/api-gateway
+          mvn clean verify -DskipTests
 
   # ===== BACKEND PYTHON =====
   backend-python:
