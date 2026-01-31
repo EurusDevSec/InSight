@@ -196,7 +196,7 @@ INSERT INTO foods (name_vi, name_en, carb_per_100g, gi_value, gi_category, categ
 ('Trà sữa trân châu (L)', 'Bubble Tea (L)', 45.0, 65, 'medium', 'drink', TRUE),
 ('Cà phê sữa đá', 'Vietnamese Iced Coffee', 25.0, 60, 'medium', 'drink', TRUE),
 ('Nước ngọt (lon)', 'Soft Drink (can)', 11.0, 63, 'medium', 'drink', TRUE);
-
+('Coca', 'Soft Drink (can)', 23.0, 32, 'small', 'drink', TRUE);
 -- =============================================
 -- SEED DATA: Density Factors mặc định
 -- =============================================
