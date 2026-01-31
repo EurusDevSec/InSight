@@ -55,5 +55,5 @@ print("✅ Milvus collection created successfully!")
 print(f"   Collection: {COLLECTION_NAME}")
 print(f"   Fields: {[f.name for f in fields]}")
 
-# Huy Ket noi Dissconnect
+# Disconected
 connections.disconnect("default")
