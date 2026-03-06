@@ -3,18 +3,78 @@
 syntax = "proto3";
 
 package insight;
- 
+
 option java_package = "com.insight.grpc";
 option java_multiple_files = true;
 
-// === VisionService
-
+//  VisionService
 service VisionService {
-    rpc EstimateVolume(VolumeRequest) returns(VolumeResponse);
+    // Ham uoc luong the tich
+  rpc EstimateVolume(VolumeRequest) returns(VolumeResponse);
 
 }
 
 message VolumeRequest {
-    bytes image_data = 1;
-    string food_type = 2;
+  bytes           image_data = 1; //Root Image(JPEG/PNG bytes)
+  string          food_type  = 2; // Loai mon
+  ReferenceObject reference  = 3; // Vat tham chieu
+}
+
+message ReferenceObject {
+  string type         = 1;
+  float  width_px     = 2;
+  float  height_px_cm = 3;
+  float  real_size_cm = 4;
+}
+
+message VolumeResponse {
+  float  volume_ml     = 1; //the tich(ml)
+  float  confidence    = 2; //Do tin cay (0-1)
+  bytes  depth_map     = 3 ; //Depth  map
+  string error_message = 4; // Loi neu co
+
+}
+
+// GL calculation
+service GLService {
+    // Ham tinh GL
+  rpc CalculateGL(GLRequest) returns (GLResponse);
+}
+
+message GLRequest {
+  float              volume_ml = 1;
+  string             food_id   = 2;
+  string             food_type = 3;
+  map<string,string> form_data = 4;
+}
+
+message GLResponse {
+  float  total_carbs        = 1;
+  float  glycemic_load      = 2 ;
+  float  glycemic_index     = 3;
+  string insulin_suggestion = 4; // goi y tu RAG Agent
+  string disclaimer         = 5;
+  float  confidence         = 6;
+}
+
+// Rag Advisor
+service RAGService{
+    // Ham lay loi khuyen tiem Insulin
+  rpc GetAdvice(AdviceRequest) returns (AdviceResponse);
+}
+
+message AdviceRequest {
+  float           total_carbs     = 1;
+  float           current_glucose = 2;
+  repeated string medications     = 3;
+  string          meal_context    = 4;
+
+}
+
+message AdviceResponse {
+  string          advice           = 1;
+  string          reasoning        = 2;
+  repeated string sources          = 3;
+  bool            is_emergency     = 4;
+  string          emergency_action = 5;
 }
