@@ -5,16 +5,19 @@
 
 # Python
 __pycache__/
+*.pyc 
 *.py[cod]
 .env
 venv/
 .venv/
+
 
 # Java
 target/
 *.class
 *.jar
 *.log
+.gradle/
 
 # Flutter
 mobile/insight_app/build/
@@ -26,6 +29,10 @@ data/raw/*
 data/processed/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
+*.h5
+*.pt 
+*.pth 
+*.onnx
 
 # Docker
 *.log
@@ -36,9 +43,11 @@ Thumbs.db
 
 # Secrets
 *.env
+.env
 secrets/
-
+node_modules/
 
 #Example
 
 example/
+

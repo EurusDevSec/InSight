@@ -1,20 +1,20 @@
-InSight
+# 🔬 InSight — Insulin Insight System
 
-## Giới thiệu
+> Hệ thống ước lượng Glycemic Load thời gian thực cho bệnh nhân tiểu đường
+> Sử dụng Computer Vision 3D và RAG Agent cá nhân hóa
 
-InSight giúp bệnh nhân tiểu đường ước lượng lượng Carbohydrate và Glycemic Load của món ăn thông qua camera điện thoại, từ đó tính toán liều Insulin cần tiêm.
+## 🚀 Quick Start
 
-## Công nghệ
+### Prerequisites
+- Docker & Docker Compose
+- Java 21+ (API Gateway, RAG Service)
+- Python 3.11+ (Vision Service)
+- Flutter 3.x (Mobile App)
 
-- **Mobile:** Flutter + ONNX Runtime
-- **Backend:** Java 21 + Spring Boot 3.3
-- **Vision:** Python + Depth Anything V2
-- **AI:** LangChain4j + Milvus
-- **Database:** PostgreSQL, Redis
-- **Message Queue:** Apache Kafka
+### Run Development Environment
+```bash
+# Start all services
+docker compose up -d
 
-Team:
-
-- LeVanHoang
-- NguyenTuanViet
-- DiepDaiLeHoai
+# Check health
+docker compose ps
