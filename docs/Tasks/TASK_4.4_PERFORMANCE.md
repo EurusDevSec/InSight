@@ -5,7 +5,7 @@
 > **Sprint**: Sprint 11 - Hiệu năng
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 15/06/2026
+> **Target**: 28/03/2026
 > **Assignee**: Việt (chính), Hoàng
 > **Blocked by**: TASK_4.2
 > **Blocks**: TASK_5.1

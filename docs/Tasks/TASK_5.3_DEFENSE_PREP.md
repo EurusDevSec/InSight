@@ -5,7 +5,7 @@
 > **Sprint**: Sprint 14 - Chuẩn bị bảo vệ
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 30/06/2026
+> **Target**: 31/03/2026
 > **Assignee**: Hoàng (chính), Hoài, Việt
 > **Blocked by**: TASK_5.2
 > **Blocks**: Không (task cuối cùng)

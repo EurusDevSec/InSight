@@ -5,7 +5,7 @@
 > **Sprint**: Sprint 0 - Khởi động
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 11/03/2026
+> **Target**: 07/03/2026
 > **Assignee**: Hoàng (chính), Hoài, Việt
 > **Blocked by**: Không
 > **Blocks**: TASK_1.1, TASK_1.2, TASK_1.3 (tất cả task Phase 1 phụ thuộc vào kickoff)
@@ -35,7 +35,7 @@
 
 ### Subtasks
 
-- [ ] 1.0.1 Tạo GitHub repo + branch strategy — **Hoài**
+- [ ] 1.0.1 Tạo GitHub repo + branch strategy — **Hoàng**
 - [ ] 1.0.2 Setup README, .gitignore, PR template — **Hoài**
 - [ ] 1.0.3 Viết tài liệu kiến trúc hệ thống (architecture.md) — **Hoàng**
 - [ ] 1.0.4 Định nghĩa API contracts (Proto3 + OpenAPI) — **Hoàng**

@@ -5,7 +5,7 @@
 > **Sprint**: Sprint 5 - Tính thể tích
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 12/05/2026
+> **Target**: 20/03/2026
 > **Assignee**: Hoài (chính), Việt, Hoàng
 > **Blocked by**: TASK_2.5
 > **Blocks**: Không (nhưng kết quả ảnh hưởng Phase 3+)

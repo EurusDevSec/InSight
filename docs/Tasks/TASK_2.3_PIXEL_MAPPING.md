@@ -5,7 +5,7 @@
 > **Sprint**: Sprint 4 - Hiệu chuẩn
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 22/04/2026
+> **Target**: 17/03/2026
 > **Assignee**: Việt (chính), Hoài
 > **Blocked by**: TASK_2.1, TASK_2.2
 > **Blocks**: TASK_2.5 (volume cần pixel-to-real mapping)

@@ -5,7 +5,7 @@
 > **Sprint**: Sprint 8 - Cá nhân hóa
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 01/06/2026
+> **Target**: 25/03/2026
 > **Assignee**: Hoàng (chính), Hoài
 > **Blocked by**: TASK_3.2
 > **Blocks**: TASK_4.3 (E2E cần RAG complete)

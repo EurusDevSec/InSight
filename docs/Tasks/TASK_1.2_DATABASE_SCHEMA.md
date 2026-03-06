@@ -5,7 +5,7 @@
 > **Sprint**: Sprint 1 - Hạ tầng
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 22/03/2026
+> **Target**: 10/03/2026
 > **Assignee**: Việt (chính), Hoàng
 > **Blocked by**: TASK_1.1 (Environment Setup)
 > **Blocks**: TASK_2.x, TASK_3.x

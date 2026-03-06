@@ -5,7 +5,7 @@
 > **Sprint**: Sprint 13 - Hoàn thiện
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 27/06/2026
+> **Target**: 30/03/2026
 > **Assignee**: Việt (chính), Hoài, Hoàng
 > **Blocked by**: TASK_5.1
 > **Blocks**: TASK_5.3

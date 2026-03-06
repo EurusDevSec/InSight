@@ -5,7 +5,7 @@
 > **Sprint**: Sprint 3 - Model Depth
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 15/04/2026
+> **Target**: 15/03/2026
 > **Assignee**: Hoàng (chính), Hoài, Việt
 > **Blocked by**: TASK_2.1
 > **Blocks**: TASK_2.3 (calibration cần biết vật tham chiếu)
@@ -32,7 +32,7 @@
 
 ### Subtasks
 
-- [ ] 2.2.1 Train/fine-tune YOLO cho nhận diện bát/thìa/đũa VN — **Hoàng**
+- [ ] 2.2.1 Train/fine-tune YOLO cho nhận diện bát/thìa/đũa VN — **Việt**
 - [ ] 2.2.2 Tạo dataset huấn luyện (annotate bounding box) — **Hoài**
 - [ ] 2.2.3 Integrate nhận diện vật tham chiếu vào pipeline — **Việt**
 

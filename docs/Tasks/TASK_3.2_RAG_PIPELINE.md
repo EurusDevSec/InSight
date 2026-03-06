@@ -5,7 +5,7 @@
 > **Sprint**: Sprint 7 - RAG Pipeline
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 26/05/2026
+> **Target**: 24/03/2026
 > **Assignee**: Hoàng (chính), Việt, Hoài
 > **Blocked by**: TASK_3.1
 > **Blocks**: TASK_3.3, TASK_4.3

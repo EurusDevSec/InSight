@@ -5,7 +5,7 @@
 > **Sprint**: Sprint 12 - UAT
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 22/06/2026
+> **Target**: 29/03/2026
 > **Assignee**: Hoài (chính), Hoàng
 > **Blocked by**: TASK_4.3 (E2E phải pass)
 > **Blocks**: TASK_5.2

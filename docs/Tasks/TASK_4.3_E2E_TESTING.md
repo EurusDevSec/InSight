@@ -5,7 +5,7 @@
 > **Sprint**: Sprint 10 - Tích hợp E2E
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 12/06/2026
+> **Target**: 26/03/2026
 > **Assignee**: Hoàng (chính), Hoài
 > **Blocked by**: TASK_4.2
 > **Blocks**: TASK_5.1 (UAT cần E2E working)

@@ -324,7 +324,7 @@ gantt
 | Task ID | Task | Subtasks | Assignee | Target | Status |
 |---------|------|----------|----------|--------|--------|
 | 1.0 | **Khởi động dự án** | | | **07/03** | ⬜ |
-| | | 1.0.1 Tạo GitHub repo + branch strategy | Hoài | | ⬜ |
+| | | 1.0.1 Tạo GitHub repo + branch strategy | Hoàng | | ⬜ |
 | | | 1.0.2 Setup README, .gitignore, PR template | Hoài | | ⬜ |
 | | | 1.0.3 Viết tài liệu kiến trúc hệ thống (architecture.md) | Hoàng | | ⬜ |
 | | | 1.0.4 Định nghĩa API contracts (Proto3 + OpenAPI) | Hoàng | | ⬜ |
@@ -344,7 +344,7 @@ gantt
 | 1.1 | **Environment Setup** | | | **09/03** | ⬜ |
 | | | 1.1.1 Setup Docker Compose (PostgreSQL + Milvus + Redis + Kafka) | Việt | | ⬜ |
 | | | 1.1.2 Setup Spring Boot project skeleton (API Gateway) | Việt | | ⬜ |
-| | | 1.1.3 Setup Python Vision Service skeleton (FastAPI/TorchServe) | Hoàng | | ⬜ |
+| | | 1.1.3 Setup Python Vision Service skeleton (FastAPI/TorchServe) | Việt | | ⬜ |
 | | | 1.1.4 Setup CI/CD pipeline (GitHub Actions: lint, test, build) | Hoài | | ⬜ |
 | 1.2 | **Database & Schema** | | | **10/03** | ⬜ |
 | | | 1.2.1 Implement PostgreSQL schema (users, meals, food_items, gl_records) | Việt | | ⬜ |
@@ -401,7 +401,7 @@ gantt
 | | | 2.1.3 Deploy model via TorchServe / FastAPI endpoint | Việt | | ⬜ |
 | | | 2.1.4 Unit test depth estimation service | Việt | | ⬜ |
 | 2.2 | **Nhận diện vật tham chiếu** | | | **15/03** | ⬜ |
-| | | 2.2.1 Train/fine-tune YOLO cho nhận diện bát/thìa/đũa VN | Hoàng | | ⬜ |
+| | | 2.2.1 Train/fine-tune YOLO cho nhận diện bát/thìa/đũa VN | Việt | | ⬜ |
 | | | 2.2.2 Tạo dataset huấn luyện (annotate bounding box) | Hoài | | ⬜ |
 | | | 2.2.3 Integrate nhận diện vật tham chiếu vào pipeline | Việt | | ⬜ |
 
@@ -420,7 +420,7 @@ gantt
 | | | 2.3.2 Sử dụng kích thước vật tham chiếu để tính scale factor | Việt | | ⬜ |
 | | | 2.3.3 Validate với 10 mẫu thực tế (so sánh với thước kẻ) | Hoài | | ⬜ |
 | 2.4 | **Phân đoạn món ăn** | | | **18/03** | ⬜ |
-| | | 2.4.1 Tích hợp SAM (Segment Anything Model) cho food segmentation | Hoàng | | ⬜ |
+| | | 2.4.1 Tích hợp SAM (Segment Anything Model) cho food segmentation | Việt | | ⬜ |
 | | | 2.4.2 Implement food region extraction từ depth map | Việt | | ⬜ |
 | | | 2.4.3 Test trên 10 món đã thu thập | Hoài | | ⬜ |
 
@@ -437,7 +437,7 @@ gantt
 | 2.5 | **Volume Estimation** | | | **19/03** | ⬜ |
 | | | 2.5.1 Implement công thức tích phân V = ∫∫ depth(x,y) dA | Việt | | ⬜ |
 | | | 2.5.2 Áp dụng Density Factor cho món nước (Phở, Bún) | Hoàng | | ⬜ |
-| | | 2.5.3 Tính Carb → GL từ thể tích + dinh dưỡng DB | Hoàng | | ⬜ |
+| | | 2.5.3 Tính Carb → GL từ thể tích + dinh dưỡng DB | Việt | | ⬜ |
 | 2.6 | **Validation & Benchmark** | | | **20/03** | ⬜ |
 | | | 2.6.1 So sánh kết quả với ground-truth (10 món) | Hoài | | ⬜ |
 | | | 2.6.2 Tạo bảng accuracy report | Hoài | | ⬜ |

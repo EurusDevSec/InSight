@@ -5,8 +5,8 @@
 > **Sprint**: Sprint 4 - Hiệu chuẩn
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 29/04/2026
-> **Assignee**: Hoàng (chính), Việt, Hoài
+> **Target**: 18/03/2026
+> **Assignee**: Việt (chính), Hoài
 > **Blocked by**: TASK_2.1
 > **Blocks**: TASK_2.5 (volume cần biết vùng món ăn)
 
@@ -31,7 +31,7 @@
 
 ### Subtasks
 
-- [ ] 2.4.1 Tích hợp SAM cho food segmentation — **Hoàng**
+- [ ] 2.4.1 Tích hợp SAM cho food segmentation — **Việt**
 - [ ] 2.4.2 Implement food region extraction từ depth map — **Việt**
 - [ ] 2.4.3 Test trên 10 món đã thu thập — **Hoài**
 

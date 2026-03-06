@@ -5,7 +5,7 @@
 > **Sprint**: Sprint 3 - Model Depth
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 08/04/2026
+> **Target**: 14/03/2026
 > **Assignee**: Việt
 > **Blocked by**: TASK_1.1 (cần Python Vision Service skeleton)
 > **Blocks**: TASK_2.3, TASK_2.5 (calibration & volume cần depth map)

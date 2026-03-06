@@ -5,7 +5,7 @@
 > **Sprint**: Sprint 2 - Thu thập dữ liệu
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 31/03/2026
+> **Target**: 12/03/2026
 > **Assignee**: Hoài (chính), Hoàng
 > **Blocked by**: TASK_1.0 (format dữ liệu cần Hoàng định nghĩa)
 > **Blocks**: TASK_2.1, TASK_2.6 (Vision Engine cần dataset để test)

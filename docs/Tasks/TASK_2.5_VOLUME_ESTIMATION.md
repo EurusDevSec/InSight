@@ -5,7 +5,7 @@
 > **Sprint**: Sprint 5 - Tính thể tích
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 05/05/2026
+> **Target**: 19/03/2026
 > **Assignee**: Việt (chính), Hoàng
 > **Blocked by**: TASK_2.3, TASK_2.4
 > **Blocks**: TASK_3.x (RAG cần GL input), TASK_4.3 (E2E testing)
@@ -33,8 +33,8 @@
 ### Subtasks
 
 - [ ] 2.5.1 Implement công thức tích phân V = ∫∫ depth(x,y) dA — **Việt**
-- [ ] 2.5.2 Áp dụng Density Factor cho món nước (Phở, Bún) — **Hoàng**
-- [ ] 2.5.3 Tính Carb → GL từ thể tích + dinh dưỡng DB — **Hoàng**
+- [ ] 2.5.2 Thiết kế & áp dụng Density Factor cho món nước (Phở, Bún) — **Hoàng**
+- [ ] 2.5.3 Tính Carb → GL từ thể tích + dinh dưỡng DB — **Việt**
 
 ### Branch & PR
 

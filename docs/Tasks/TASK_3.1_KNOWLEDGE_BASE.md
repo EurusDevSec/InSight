@@ -5,7 +5,7 @@
 > **Sprint**: Sprint 6 - Kiến thức Y khoa
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 12/05/2026
+> **Target**: 22/03/2026
 > **Assignee**: Hoàng (chính), Hoài
 > **Blocked by**: TASK_1.2 (Milvus collections cần ready)
 > **Blocks**: TASK_3.2 (RAG pipeline cần knowledge base)

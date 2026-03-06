@@ -5,7 +5,7 @@
 > **Sprint**: Sprint 10 - Tích hợp E2E
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 08/06/2026
+> **Target**: 25/03/2026
 > **Assignee**: Việt (chính)
 > **Blocked by**: TASK_4.1, TASK_2.5, TASK_3.2
 > **Blocks**: TASK_4.3

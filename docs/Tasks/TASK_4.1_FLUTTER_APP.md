@@ -5,7 +5,7 @@
 > **Sprint**: Sprint 9 - Mobile UI
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 01/06/2026
+> **Target**: 23/03/2026
 > **Assignee**: Hoài (chính), Hoàng
 > **Blocked by**: TASK_1.0 (UX design từ kickoff)
 > **Blocks**: TASK_4.2, TASK_4.3

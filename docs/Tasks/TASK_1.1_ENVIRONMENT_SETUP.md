@@ -5,8 +5,8 @@
 > **Sprint**: Sprint 1 - Hạ tầng
 > **Status**: ⬜ NOT STARTED
 > **Created**: 06/03/2026
-> **Target**: 17/03/2026
-> **Assignee**: Việt (chính), Hoàng, Hoài
+> **Target**: 09/03/2026
+> **Assignee**: Việt (chính), Hoài
 > **Blocked by**: TASK_1.0 (Project Kickoff)
 > **Blocks**: TASK_1.2, TASK_1.3
 
@@ -35,7 +35,7 @@
 
 - [ ] 1.1.1 Setup Docker Compose (PostgreSQL + Milvus + Redis + Kafka) — **Việt**
 - [ ] 1.1.2 Setup Spring Boot project skeleton (API Gateway) — **Việt**
-- [ ] 1.1.3 Setup Python Vision Service skeleton (FastAPI/TorchServe) — **Hoàng**
+- [ ] 1.1.3 Setup Python Vision Service skeleton (FastAPI/TorchServe) — **Việt**
 - [ ] 1.1.4 Setup CI/CD pipeline (GitHub Actions: lint, test, build) — **Hoài**
 
 ### Branch & PR
