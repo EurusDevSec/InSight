@@ -1,0 +1,20 @@
+// src/api-gateway/src/main/proto/insight.proto
+
+syntax = "proto3";
+
+package insight;
+ 
+option java_package = "com.insight.grpc";
+option java_multiple_files = true;
+
+// === VisionService
+
+service VisionService {
+    rpc EstimateVolume(VolumeRequest) returns(VolumeResponse);
+
+}
+
+message VolumeRequest {
+    bytes image_data = 1;
+    string food_type = 2;
+}
