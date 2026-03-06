@@ -37,3 +37,8 @@ Thumbs.db
 # Secrets
 *.env
 secrets/
+
+
+#Example
+
+example/
