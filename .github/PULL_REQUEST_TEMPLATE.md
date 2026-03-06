@@ -1,7 +1,11 @@
 ## Description
+
 Fixes # (issue number)
 
+<!-- Mô tả ngắn gọn thay đổi của bạn. Liệt kê subtask đã hoàn thành. -->
+
 ## 🛠️ Type of Change
+
 - [ ] 🚀 Feature (new feature)
 - [ ] 🐛 Bug fix (non-breaking change which fixes an issue)
 - [ ] 📝 Documentation update
@@ -15,20 +19,17 @@ Fixes # (issue number)
 - [ ] 🔧 Tooling
 - [ ] 🎯 Other (specify)
 
-## ✅ Definitioni of Done (DoD) Checklist
-- [ ] Code follow convention(Java/Go)
-- [ ] Ran in Test Local and not error compile (`mvn compile` / `go build`)
-- [ ] Wrote Unit Test or Integration Test for new feat
-- [ ] Documentation `docs/` or `READMEmd` are mapping update
-- [ ] Not contain sensitive information(secret key, API key), hard-code in code
+## ✅ Definition of Done (DoD) Checklist
+
+- [ ] Code follow convention (Java/Python/Dart)
+- [ ] Ran test locally — no compile/runtime errors
+- [ ] Wrote Unit Test or Integration Test for new feature (if applicable)
+- [ ] Documentation `docs/` or `README.md` updated accordingly
+- [ ] No sensitive information (secret key, API key) hard-coded in code
 
 ## 🧪 Testing & Verification
 
 - **Test Command:** `...`
 - **Expected Result:** `...`
 - **Actual Result:** `...`
-- **Screenshots:** `...`
-
-
-
-
+- **Screenshots (if applicable):**
