@@ -17,15 +17,11 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
     baseline-version: 0
-  cache:
-    type: redis
-    redis:
-      time-to-live: 3600000 # 1 hour
   data:
     redis:
       host: localhost
       port: 6379
-      password: insight_redis_2026
+      # no password set in docker-compose
   kafka:
     bootstrap-servers: localhost:9092
 
