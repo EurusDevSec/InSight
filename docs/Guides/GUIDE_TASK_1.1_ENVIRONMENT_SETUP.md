@@ -67,15 +67,23 @@ volumes:
 
 ### 1.2 Chạy và verify
 
-```bash
-docker compose -f infra/docker/docker-compose.yml up -d
-docker compose -f infra/docker/docker-compose.yml ps
-# Tất cả services phải Up/healthy
+> [!NOTE]
+> File docker-compose duy nhất nằm tại `infra/docker/docker-compose.yml`.
+> Luôn chạy lệnh từ **project root** (`R:\_Projects\Eurus_Workspace\InSight`) với flag `-f`.
 
-# Test connections
-docker exec insight-postgres psql -U insight -d insight_db -c "SELECT version();"
-docker exec insight-redis redis-cli -a insight_redis_2026 ping
-curl http://localhost:9091/healthz
+```bash
+# Từ project root — start tất cả services
+docker compose -f infra/docker/docker-compose.yml up -d
+
+# Hoặc chỉ start postgres + redis trước
+docker compose -f infra/docker/docker-compose.yml up -d postgres redis
+
+# Kiểm tra status
+docker compose -f infra/docker/docker-compose.yml ps
+
+# Verify seed data (14 rows)
+docker exec insight-postgres psql -U insight -d insight_db \
+  -c "SELECT name_vi, category FROM foods ORDER BY category;"
 ```
 
 ---

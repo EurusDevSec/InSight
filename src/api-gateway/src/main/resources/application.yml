@@ -1,0 +1,17 @@
+# src/api-gateway/src/main/resources/application.yml
+
+spring:
+  application.name: insight-api-gateway
+  datasource:
+    url: jdbc:postgresql://localhost:5432/insight_db
+    username: insight
+    password: insight_dev_2026
+  jpa:
+    hibernate.ddl-auto: validate
+  data.redis:
+    host: localhost
+    port: 6379
+    password: insight_redis_2026
+  kafka:
+    bootstrap-servers: localhost:9092
+server.port: 8000
