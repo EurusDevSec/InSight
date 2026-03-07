@@ -32,6 +32,10 @@ jobs:
           distribution: "temurin"
           cache: gradle
 
+      - name: Grant execute permission to Gradle wrapper
+        if: steps.check-java.outputs.exists == 'true'
+        run: chmod +x src/api-gateway/gradlew
+
       - name: Build with Gradle
         if: steps.check-java.outputs.exists == 'true'
         run: |
