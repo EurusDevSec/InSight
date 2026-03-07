@@ -427,9 +427,12 @@ backend/
     │   └── prompts/                # Prompt templates
     └── knowledge/
         └── medical/                # ADA/MOH guidelines
+        
 ```
 
 ### 5.3 Data Layer
+
+![alt text](<User Meal Logging Ecosystem-2026-03-07-005230.png>)
 
 ```mermaid
 erDiagram
