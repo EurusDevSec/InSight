@@ -17,26 +17,32 @@ jobs:
       - name: Check if Java project exists
         id: check-java
         run: |
-          if [ -f "backend/api-gateway/pom.xml" ]; then
+          if [ -f "src/api-gateway/build.gradle" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
             echo "⚠️ Java backend not initialized yet. Skipping build."
           fi
 
-      - name: Set up JDK 21
+      - name: Set up JDK 17
         if: steps.check-java.outputs.exists == 'true'
         uses: actions/setup-java@v4
         with:
-          java-version: "21"
+          java-version: "17"
           distribution: "temurin"
-          cache: maven
+          cache: gradle
 
-      - name: Build with Maven
+      - name: Build with Gradle
         if: steps.check-java.outputs.exists == 'true'
         run: |
-          cd backend/api-gateway
-          mvn clean verify -DskipTests
+          cd src/api-gateway
+          ./gradlew clean build -x test
+
+      - name: Run Java tests
+        if: steps.check-java.outputs.exists == 'true'
+        run: |
+          cd src/api-gateway
+          ./gradlew test
 
   # ===== BACKEND PYTHON =====
   backend-python:
@@ -50,20 +56,19 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install dependencies and test
         run: |
-          if [ -d "backend/vision-service" ] && [ -f "backend/vision-service/requirements.txt" ]; then
-            cd backend/vision-service
+          if [ -f "src/vision-service/requirements.txt" ]; then
+            cd src/vision-service
             pip install -r requirements.txt
-            pip install pytest
-            
+            pip install pytest pytest-cov
             if [ -d "tests" ]; then
-                pytest tests/
+              pytest tests/ -v --cov=services --cov-report=xml
             else
-                echo "No tests found in vision-service"
+              echo "No tests found in vision-service yet. Skipping."
             fi
           else
-            echo "Python backend (vision-service) not initialized or missing requirements.txt. Skipping."
+            echo "Python vision-service not initialized or missing requirements.txt. Skipping."
           fi
 
   # ===== MOBILE FLUTTER =====
@@ -86,7 +91,7 @@ jobs:
             flutter pub get
             flutter analyze
           else
-             echo "Mobile app (insight_app) not initialized or missing pubspec.yaml. Skipping."
+            echo "Mobile app (insight_app) not initialized or missing pubspec.yaml. Skipping."
           fi
 
   # ===== DOCKER COMPOSE =====
@@ -97,4 +102,4 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Validate docker-compose
-        run: docker compose config
+        run: docker compose -f infra/docker/docker-compose.yml config
