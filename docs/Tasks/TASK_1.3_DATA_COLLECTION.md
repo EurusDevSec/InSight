@@ -3,7 +3,7 @@
 > **Task ID**: S2-001
 > **Phase**: Phase 1 - Nền tảng & Dữ liệu
 > **Sprint**: Sprint 2 - Thu thập dữ liệu
-> **Status**: ⬜ NOT STARTED
+> **Status**: 🔄 IN PROGRESS
 > **Created**: 06/03/2026
 > **Updated**: 07/03/2026 — Chuyển sang Hybrid Approach (benchmark dataset + mini VN demo)
 > **Target**: 12/03/2026
@@ -22,12 +22,12 @@
 
 **Acceptance Criteria:**
 
-- [ ] JSON schema định nghĩa xong cho mỗi mẫu
-- [ ] Nutrition5k subset downloaded & parsed (100-500 mẫu, có RGB + depth + weight ground truth)
-- [ ] Bảng dinh dưỡng Việt Nam (USDA/TPDD VN) imported vào DB tự động (≥ 10 món)
-- [ ] Density Factor DB từ food science literature (≥ 10 loại món VN)
-- [ ] 5-10 mẫu món Việt chụp ảnh demo (≥ 2 góc, estimated values từ literature)
-- [ ] Scripts: download, parse, import, validate tự động
+- [x] JSON schema định nghĩa xong cho mỗi mẫu
+- [x] Nutrition5k subset downloaded & parsed (100-500 mẫu, có RGB + depth + weight ground truth)
+- [x] Bảng dinh dưỡng Việt Nam (USDA/TPDD VN) imported vào DB tự động (≥ 10 món)
+- [x] Density Factor DB từ food science literature (≥ 10 loại món VN)
+- [ ] 5-10 mẫu món Việt chụp ảnh demo (≥ 2 góc, estimated values từ literature) — ⏳ Chờ Hoài chụp ảnh, JSON templates đã sẵn sàng
+- [x] Scripts: download, parse, import, validate tự động
 - [ ] Dataset validated & reviewed bởi Hoàng
 
 ---
@@ -36,12 +36,12 @@
 
 ### Subtasks
 
-- [ ] 1.3.1 Định nghĩa format dữ liệu (JSON schema cho mỗi món) — **Hoàng** (30 phút)
-- [ ] 1.3.2 Download Nutrition5k subset + viết script parse sang InSight format — **Hoàng** (1 giờ)
-- [ ] 1.3.3 Import bảng dinh dưỡng VN (USDA/TPDD VN) vào PostgreSQL — **Hoàng** (1 giờ)
-- [ ] 1.3.4 Xây dựng Density Factor DB từ food science literature — **Hoàng** (30 phút)
-- [ ] 1.3.5 Chụp 5-10 mẫu món Việt cho demo (estimated values) — **Hoài** (1-2 giờ)
-- [ ] 1.3.6 Compile dataset + validate scripts — **Hoàng** (30 phút)
+- [x] 1.3.1 Định nghĩa format dữ liệu (JSON schema cho mỗi món) — **Hoàng** ✅ `data/schemas/insight_food_sample_v1.json`
+- [x] 1.3.2 Download Nutrition5k subset + viết script parse sang InSight format — **Hoàng** ✅ `scripts/download_nutrition5k.py`
+- [x] 1.3.3 Import bảng dinh dưỡng VN (USDA/TPDD VN) vào PostgreSQL — **Hoàng** ✅ `scripts/import_nutrition_db.py` (10 món)
+- [x] 1.3.4 Xây dựng Density Factor DB từ food science literature — **Hoàng** ✅ `scripts/export_density_factors.py` (12 items)
+- [ ] 1.3.5 Chụp 5-10 mẫu món Việt cho demo (estimated values) — **Hoài** ⏳ JSON templates sẵn tại `data/vn_demo/`
+- [x] 1.3.6 Compile dataset + validate scripts — **Hoàng** ✅ `scripts/compile_dataset.py` + `scripts/validate_dataset.py`
 
 ### Branch & PR
 

@@ -1,0 +1,41 @@
+{
+  "food_info": {
+    "name_vi": "Cơm tấm",
+    "name_en": "Broken rice with sides",
+    "category": "rice",
+    "gi_index": 70,
+    "carb_per_100g": 27.0
+  },
+  "sample": {
+    "sample_id": "com_tam_001",
+    "source": "vn_demo",
+    "images": [
+      { "angle": "top_down", "file": "com_tam_001_top.jpg" },
+      { "angle": "45_degree", "file": "com_tam_001_45.jpg" }
+    ]
+  },
+  "ground_truth": {
+    "total_weight_g": 250,
+    "measurement_method": "estimated_from_literature",
+    "nutrition": {
+      "calories": 315,
+      "total_carb_g": 67.5,
+      "protein_g": 6.3,
+      "fat_g": 1.3
+    },
+    "density_factor": {
+      "solid_ratio": 0.90,
+      "effective_density": 1.10
+    }
+  },
+  "nutrition_derived": {
+    "glycemic_load": 47.3,
+    "calculation": "67.5g carb × 70 GI / 100 = 47.3 GL"
+  },
+  "metadata": {
+    "collected_by": "Hoài",
+    "date": "2026-03-11",
+    "source_dataset": "vn_demo",
+    "notes": "1 đĩa cơm tấm sườn, phần cơm ~250g"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "food_info": {
+    "name_vi": "Cơm trắng",
+    "name_en": "White rice (cooked)",
+    "category": "rice",
+    "gi_index": 73,
+    "carb_per_100g": 28.2
+  },
+  "sample": {
+    "sample_id": "com_trang_001",
+    "source": "vn_demo",
+    "images": [
+      { "angle": "top_down", "file": "com_trang_001_top.jpg" },
+      { "angle": "45_degree", "file": "com_trang_001_45.jpg" }
+    ]
+  },
+  "ground_truth": {
+    "total_weight_g": 200,
+    "measurement_method": "estimated_from_literature",
+    "nutrition": {
+      "calories": 260,
+      "total_carb_g": 56.4,
+      "protein_g": 5.4,
+      "fat_g": 0.6
+    },
+    "density_factor": {
+      "solid_ratio": 1.0,
+      "effective_density": 1.08
+    }
+  },
+  "nutrition_derived": {
+    "glycemic_load": 41.2,
+    "calculation": "56.4g carb × 73 GI / 100 = 41.2 GL"
+  },
+  "metadata": {
+    "collected_by": "Hoài",
+    "date": "2026-03-11",
+    "source_dataset": "vn_demo",
+    "notes": "1 chén cơm trắng trung bình ~200g"
+  }
+}

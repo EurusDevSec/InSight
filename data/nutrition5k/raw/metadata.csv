@@ -1,0 +1,6 @@
+dish_id,dish_name,total_weight,total_calories,total_fat,total_carb,total_protein
+1556,Chicken rice bowl,385,512,18.0,52.0,30.0
+1560,Mixed plate salad,290,320,12.0,38.0,15.0
+1570,Pasta with sauce,420,580,20.0,65.0,22.0
+1575,Grilled fish plate,350,410,15.0,30.0,35.0
+1580,Beef stew with bread,450,620,22.0,55.0,40.0

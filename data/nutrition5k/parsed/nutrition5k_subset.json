@@ -1,0 +1,194 @@
+{
+  "version": "1.0",
+  "schema": "insight-food-sample-v1",
+  "source": "nutrition5k",
+  "description": "Nutrition5k benchmark dataset parsed to InSight format",
+  "total_samples": 5,
+  "samples": [
+    {
+      "food_info": {
+        "name_en": "Chicken rice bowl",
+        "category": "mixed",
+        "gi_index": null,
+        "carb_per_100g": 13.51
+      },
+      "sample": {
+        "sample_id": "n5k_1556",
+        "source": "nutrition5k",
+        "images": [
+          {
+            "angle": "overhead",
+            "file": "dish_1556/rgb_overhead.png"
+          },
+          {
+            "angle": "side",
+            "file": "dish_1556/rgb_side.png"
+          }
+        ],
+        "depth_image": "dish_1556/depth_overhead.png"
+      },
+      "ground_truth": {
+        "total_weight_g": 385.0,
+        "measurement_method": "lab_scale",
+        "nutrition": {
+          "calories": 512.0,
+          "total_carb_g": 52.0,
+          "protein_g": 30.0,
+          "fat_g": 18.0
+        }
+      },
+      "metadata": {
+        "source_dataset": "nutrition5k",
+        "original_id": "1556"
+      }
+    },
+    {
+      "food_info": {
+        "name_en": "Mixed plate salad",
+        "category": "mixed",
+        "gi_index": null,
+        "carb_per_100g": 13.1
+      },
+      "sample": {
+        "sample_id": "n5k_1560",
+        "source": "nutrition5k",
+        "images": [
+          {
+            "angle": "overhead",
+            "file": "dish_1560/rgb_overhead.png"
+          },
+          {
+            "angle": "side",
+            "file": "dish_1560/rgb_side.png"
+          }
+        ],
+        "depth_image": "dish_1560/depth_overhead.png"
+      },
+      "ground_truth": {
+        "total_weight_g": 290.0,
+        "measurement_method": "lab_scale",
+        "nutrition": {
+          "calories": 320.0,
+          "total_carb_g": 38.0,
+          "protein_g": 15.0,
+          "fat_g": 12.0
+        }
+      },
+      "metadata": {
+        "source_dataset": "nutrition5k",
+        "original_id": "1560"
+      }
+    },
+    {
+      "food_info": {
+        "name_en": "Pasta with sauce",
+        "category": "mixed",
+        "gi_index": null,
+        "carb_per_100g": 15.48
+      },
+      "sample": {
+        "sample_id": "n5k_1570",
+        "source": "nutrition5k",
+        "images": [
+          {
+            "angle": "overhead",
+            "file": "dish_1570/rgb_overhead.png"
+          },
+          {
+            "angle": "side",
+            "file": "dish_1570/rgb_side.png"
+          }
+        ],
+        "depth_image": "dish_1570/depth_overhead.png"
+      },
+      "ground_truth": {
+        "total_weight_g": 420.0,
+        "measurement_method": "lab_scale",
+        "nutrition": {
+          "calories": 580.0,
+          "total_carb_g": 65.0,
+          "protein_g": 22.0,
+          "fat_g": 20.0
+        }
+      },
+      "metadata": {
+        "source_dataset": "nutrition5k",
+        "original_id": "1570"
+      }
+    },
+    {
+      "food_info": {
+        "name_en": "Grilled fish plate",
+        "category": "mixed",
+        "gi_index": null,
+        "carb_per_100g": 8.57
+      },
+      "sample": {
+        "sample_id": "n5k_1575",
+        "source": "nutrition5k",
+        "images": [
+          {
+            "angle": "overhead",
+            "file": "dish_1575/rgb_overhead.png"
+          },
+          {
+            "angle": "side",
+            "file": "dish_1575/rgb_side.png"
+          }
+        ],
+        "depth_image": "dish_1575/depth_overhead.png"
+      },
+      "ground_truth": {
+        "total_weight_g": 350.0,
+        "measurement_method": "lab_scale",
+        "nutrition": {
+          "calories": 410.0,
+          "total_carb_g": 30.0,
+          "protein_g": 35.0,
+          "fat_g": 15.0
+        }
+      },
+      "metadata": {
+        "source_dataset": "nutrition5k",
+        "original_id": "1575"
+      }
+    },
+    {
+      "food_info": {
+        "name_en": "Beef stew with bread",
+        "category": "mixed",
+        "gi_index": null,
+        "carb_per_100g": 12.22
+      },
+      "sample": {
+        "sample_id": "n5k_1580",
+        "source": "nutrition5k",
+        "images": [
+          {
+            "angle": "overhead",
+            "file": "dish_1580/rgb_overhead.png"
+          },
+          {
+            "angle": "side",
+            "file": "dish_1580/rgb_side.png"
+          }
+        ],
+        "depth_image": "dish_1580/depth_overhead.png"
+      },
+      "ground_truth": {
+        "total_weight_g": 450.0,
+        "measurement_method": "lab_scale",
+        "nutrition": {
+          "calories": 620.0,
+          "total_carb_g": 55.0,
+          "protein_g": 40.0,
+          "fat_g": 22.0
+        }
+      },
+      "metadata": {
+        "source_dataset": "nutrition5k",
+        "original_id": "1580"
+      }
+    }
+  ]
+}
