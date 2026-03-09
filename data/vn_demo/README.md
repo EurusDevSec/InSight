@@ -4,19 +4,20 @@
 
 ### Danh sách món cần chụp (5-10 mẫu)
 
-| # | Món | Số mẫu | Ghi chú |
-|---|-----|--------|---------|
-| 1 | Cơm trắng | 1-2 | Chén/bát — dễ chụp nhất |
-| 2 | Phở bò | 1-2 | Tô thường |
-| 3 | Bánh mì | 1 | Nguyên ổ |
-| 4 | Cơm tấm | 1 | Đĩa thường |
-| 5 | Bún bò Huế | 1 | Tô thường |
+| #   | Món        | Số mẫu | Ghi chú                 |
+| --- | ---------- | ------ | ----------------------- |
+| 1   | Cơm trắng  | 1-2    | Chén/bát — dễ chụp nhất |
+| 2   | Phở bò     | 1-2    | Tô thường               |
+| 3   | Bánh mì    | 1      | Nguyên ổ                |
+| 4   | Cơm tấm    | 1      | Đĩa thường              |
+| 5   | Bún bò Huế | 1      | Tô thường               |
 
 Tùy thời gian: Mì xào, Cháo, Xôi, Bún thịt nướng, Trà sữa
 
 ### Checklist chụp ảnh
 
 Cho mỗi mẫu:
+
 1. Đặt món ăn trên bàn có **thìa/đũa** bên cạnh (vật tham chiếu)
 2. Chụp **2 góc**:
    - Top-down (nhìn thẳng từ trên)
