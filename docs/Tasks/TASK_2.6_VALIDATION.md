@@ -21,8 +21,9 @@
 
 **Acceptance Criteria:**
 
-- [ ] So sánh kết quả 10 món với ground-truth (đổ nước)
-- [ ] Bảng accuracy report (sai số theo từng món)
+- [ ] So sánh kết quả trên Nutrition5k benchmark (N=100-500, lab-grade ground truth)
+- [ ] So sánh kết quả trên VN demo samples (5-10 mẫu)
+- [ ] Bảng accuracy report (sai số theo từng loại món, N5k + VN)
 - [ ] Nếu sai số > 15% → pipeline được tối ưu lại
 
 ---
@@ -31,9 +32,10 @@
 
 ### Subtasks
 
-- [ ] 2.6.1 So sánh kết quả với ground-truth (10 món) — **Hoài**
-- [ ] 2.6.2 Tạo bảng accuracy report — **Hoài**
-- [ ] 2.6.3 Tối ưu pipeline nếu sai số > 15% — **Việt + Hoàng**
+- [ ] 2.6.1 So sánh kết quả với Nutrition5k ground-truth (N=100-500) — **Hoài**
+- [ ] 2.6.2 So sánh kết quả với VN demo samples (5-10 mẫu) — **Hoài**
+- [ ] 2.6.3 Tạo bảng accuracy report (benchmark + VN demo) — **Hoài**
+- [ ] 2.6.4 Tối ưu pipeline nếu sai số > 15% — **Việt + Hoàng**
 
 ### Branch & PR
 
