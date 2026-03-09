@@ -1,0 +1,164 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "insight-food-sample-v1",
+  "title": "InSight Food Sample Schema",
+  "description": "Schema for food samples used in InSight pipeline (Nutrition5k benchmark + VN demo)",
+  "type": "object",
+  "required": ["food_info", "sample", "ground_truth", "metadata"],
+  "properties": {
+    "food_info": {
+      "type": "object",
+      "required": ["name_en", "category"],
+      "properties": {
+        "name_vi": {
+          "type": "string",
+          "description": "Vietnamese food name"
+        },
+        "name_en": {
+          "type": "string",
+          "description": "English food name"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["rice", "noodle_soup", "noodle_dry", "bread", "porridge", "drink", "mixed", "other"],
+          "description": "Food category"
+        },
+        "gi_index": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Glycemic Index (0-100)"
+        },
+        "carb_per_100g": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "description": "Carbohydrate per 100g (g)"
+        }
+      }
+    },
+    "sample": {
+      "type": "object",
+      "required": ["sample_id", "source"],
+      "properties": {
+        "sample_id": {
+          "type": "string",
+          "description": "Unique sample identifier"
+        },
+        "source": {
+          "type": "string",
+          "enum": ["nutrition5k", "vn_demo", "ecust"],
+          "description": "Dataset source"
+        },
+        "images": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["angle", "file"],
+            "properties": {
+              "angle": {
+                "type": "string",
+                "enum": ["top_down", "45_degree", "overhead", "side"],
+                "description": "Camera angle"
+              },
+              "file": {
+                "type": "string",
+                "description": "Relative path to image file"
+              }
+            }
+          }
+        },
+        "depth_image": {
+          "type": ["string", "null"],
+          "description": "Relative path to depth map (Nutrition5k only)"
+        }
+      }
+    },
+    "ground_truth": {
+      "type": "object",
+      "required": ["total_weight_g", "measurement_method", "nutrition"],
+      "properties": {
+        "total_weight_g": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Total weight in grams"
+        },
+        "measurement_method": {
+          "type": "string",
+          "enum": ["lab_scale", "estimated_from_literature", "water_displacement", "estimated_for_poc"],
+          "description": "How ground truth was measured"
+        },
+        "nutrition": {
+          "type": "object",
+          "required": ["calories", "total_carb_g", "protein_g", "fat_g"],
+          "properties": {
+            "calories": {
+              "type": "number",
+              "minimum": 0
+            },
+            "total_carb_g": {
+              "type": "number",
+              "minimum": 0
+            },
+            "protein_g": {
+              "type": "number",
+              "minimum": 0
+            },
+            "fat_g": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "density_factor": {
+          "type": "object",
+          "properties": {
+            "solid_ratio": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1.0
+            },
+            "effective_density": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "nutrition_derived": {
+      "type": "object",
+      "properties": {
+        "glycemic_load": {
+          "type": ["number", "null"],
+          "description": "GL = carb_g × GI / 100"
+        },
+        "calculation": {
+          "type": "string",
+          "description": "Human-readable calculation"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["source_dataset"],
+      "properties": {
+        "collected_by": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "source_dataset": {
+          "type": "string"
+        },
+        "original_id": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "food_info": {
+    "name_vi": "Phở bò",
+    "name_en": "Beef pho",
+    "category": "noodle_soup",
+    "gi_index": 46,
+    "carb_per_100g": 22.5
+  },
+  "sample": {
+    "sample_id": "pho_bo_001",
+    "source": "vn_demo",
+    "images": [
+      { "angle": "top_down", "file": "pho_bo_001_top.jpg" },
+      { "angle": "45_degree", "file": "pho_bo_001_45.jpg" }
+    ]
+  },
+  "ground_truth": {
+    "total_weight_g": 450,
+    "measurement_method": "estimated_from_literature",
+    "nutrition": {
+      "calories": 350,
+      "total_carb_g": 45.0,
+      "protein_g": 25.0,
+      "fat_g": 8.0
+    },
+    "density_factor": {
+      "solid_ratio": 0.30,
+      "effective_density": 1.02
+    }
+  },
+  "nutrition_derived": {
+    "glycemic_load": 20.7,
+    "calculation": "45.0g carb × 46 GI / 100 = 20.7 GL"
+  },
+  "metadata": {
+    "collected_by": "Hoài",
+    "date": "2026-03-11",
+    "source_dataset": "vn_demo",
+    "notes": "Tô phở bò M, bánh phở + thịt bò tái/chín, nước dùng trong"
+  }
+}

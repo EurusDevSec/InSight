@@ -1,0 +1,41 @@
+{
+  "food_info": {
+    "name_vi": "Bánh mì",
+    "name_en": "Vietnamese baguette",
+    "category": "bread",
+    "gi_index": 80,
+    "carb_per_100g": 50.6
+  },
+  "sample": {
+    "sample_id": "banh_mi_001",
+    "source": "vn_demo",
+    "images": [
+      { "angle": "top_down", "file": "banh_mi_001_top.jpg" },
+      { "angle": "45_degree", "file": "banh_mi_001_45.jpg" }
+    ]
+  },
+  "ground_truth": {
+    "total_weight_g": 150,
+    "measurement_method": "estimated_from_literature",
+    "nutrition": {
+      "calories": 411,
+      "total_carb_g": 75.9,
+      "protein_g": 12.3,
+      "fat_g": 5.0
+    },
+    "density_factor": {
+      "solid_ratio": 1.0,
+      "effective_density": 0.35
+    }
+  },
+  "nutrition_derived": {
+    "glycemic_load": 60.7,
+    "calculation": "75.9g carb × 80 GI / 100 = 60.7 GL"
+  },
+  "metadata": {
+    "collected_by": "Hoài",
+    "date": "2026-03-11",
+    "source_dataset": "vn_demo",
+    "notes": "1 ổ bánh mì Việt Nam nguyên ổ ~150g"
+  }
+}

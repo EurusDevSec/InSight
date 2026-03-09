@@ -1,31 +1,126 @@
 {
   "version": "1.0",
-  "created_at": "2026-01-30",
-  "created_by": "HI",
-  "samples": [
+  "description": "Ground truth annotations for InSight dataset",
+  "total_entries": 10,
+  "entries": [
     {
-      "id": "pho_bo_001",
-      "image_file": "raw/pho_bo_001.jpg",
-      "food_name": "Phở bò",
-      "food_category": "noodle",
-
-      "ground_truth": {
-        "total_volume_ml": 450,
-        "solid_weight_g": 135,
-        "liquid_weight_g": 315,
-        "total_weight_g": 450,
-        "measurement_method": "water_displacement"
-      },
-
-      "reference_object": {
-        "type": "spoon",
-        "known_length_cm": 15.0
-      },
-
-      "metadata": {
-        "restaurant": "Phở Thìn",
-        "portion_size": "normal",
-        "notes": "Bánh phở vừa"
+      "sample_id": "n5k_1556",
+      "source": "nutrition5k",
+      "total_weight_g": 385.0,
+      "measurement_method": "lab_scale",
+      "nutrition": {
+        "calories": 512.0,
+        "total_carb_g": 52.0,
+        "protein_g": 30.0,
+        "fat_g": 18.0
+      }
+    },
+    {
+      "sample_id": "n5k_1560",
+      "source": "nutrition5k",
+      "total_weight_g": 290.0,
+      "measurement_method": "lab_scale",
+      "nutrition": {
+        "calories": 320.0,
+        "total_carb_g": 38.0,
+        "protein_g": 15.0,
+        "fat_g": 12.0
+      }
+    },
+    {
+      "sample_id": "n5k_1570",
+      "source": "nutrition5k",
+      "total_weight_g": 420.0,
+      "measurement_method": "lab_scale",
+      "nutrition": {
+        "calories": 580.0,
+        "total_carb_g": 65.0,
+        "protein_g": 22.0,
+        "fat_g": 20.0
+      }
+    },
+    {
+      "sample_id": "n5k_1575",
+      "source": "nutrition5k",
+      "total_weight_g": 350.0,
+      "measurement_method": "lab_scale",
+      "nutrition": {
+        "calories": 410.0,
+        "total_carb_g": 30.0,
+        "protein_g": 35.0,
+        "fat_g": 15.0
+      }
+    },
+    {
+      "sample_id": "n5k_1580",
+      "source": "nutrition5k",
+      "total_weight_g": 450.0,
+      "measurement_method": "lab_scale",
+      "nutrition": {
+        "calories": 620.0,
+        "total_carb_g": 55.0,
+        "protein_g": 40.0,
+        "fat_g": 22.0
+      }
+    },
+    {
+      "sample_id": "banh_mi_001",
+      "source": "vn_demo",
+      "total_weight_g": 150,
+      "measurement_method": "estimated_from_literature",
+      "nutrition": {
+        "calories": 411,
+        "total_carb_g": 75.9,
+        "protein_g": 12.3,
+        "fat_g": 5.0
+      }
+    },
+    {
+      "sample_id": "bun_bo_hue_001",
+      "source": "vn_demo",
+      "total_weight_g": 500,
+      "measurement_method": "estimated_from_literature",
+      "nutrition": {
+        "calories": 380,
+        "total_carb_g": 50.0,
+        "protein_g": 28.0,
+        "fat_g": 10.0
+      }
+    },
+    {
+      "sample_id": "com_tam_001",
+      "source": "vn_demo",
+      "total_weight_g": 250,
+      "measurement_method": "estimated_from_literature",
+      "nutrition": {
+        "calories": 315,
+        "total_carb_g": 67.5,
+        "protein_g": 6.3,
+        "fat_g": 1.3
+      }
+    },
+    {
+      "sample_id": "com_trang_001",
+      "source": "vn_demo",
+      "total_weight_g": 200,
+      "measurement_method": "estimated_from_literature",
+      "nutrition": {
+        "calories": 260,
+        "total_carb_g": 56.4,
+        "protein_g": 5.4,
+        "fat_g": 0.6
+      }
+    },
+    {
+      "sample_id": "pho_bo_001",
+      "source": "vn_demo",
+      "total_weight_g": 450,
+      "measurement_method": "estimated_from_literature",
+      "nutrition": {
+        "calories": 350,
+        "total_carb_g": 45.0,
+        "protein_g": 25.0,
+        "fat_g": 8.0
       }
     }
   ]

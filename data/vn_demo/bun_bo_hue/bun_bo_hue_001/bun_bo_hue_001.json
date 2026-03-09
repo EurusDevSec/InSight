@@ -1,0 +1,41 @@
+{
+  "food_info": {
+    "name_vi": "Bún bò Huế",
+    "name_en": "Hue beef noodle soup",
+    "category": "noodle_soup",
+    "gi_index": 58,
+    "carb_per_100g": 25.1
+  },
+  "sample": {
+    "sample_id": "bun_bo_hue_001",
+    "source": "vn_demo",
+    "images": [
+      { "angle": "top_down", "file": "bun_bo_hue_001_top.jpg" },
+      { "angle": "45_degree", "file": "bun_bo_hue_001_45.jpg" }
+    ]
+  },
+  "ground_truth": {
+    "total_weight_g": 500,
+    "measurement_method": "estimated_from_literature",
+    "nutrition": {
+      "calories": 380,
+      "total_carb_g": 50.0,
+      "protein_g": 28.0,
+      "fat_g": 10.0
+    },
+    "density_factor": {
+      "solid_ratio": 0.35,
+      "effective_density": 1.03
+    }
+  },
+  "nutrition_derived": {
+    "glycemic_load": 29.0,
+    "calculation": "50.0g carb × 58 GI / 100 = 29.0 GL"
+  },
+  "metadata": {
+    "collected_by": "Hoài",
+    "date": "2026-03-11",
+    "source_dataset": "vn_demo",
+    "notes": "Tô bún bò Huế thường, nước dùng cay đỏ"
+  }
+}
