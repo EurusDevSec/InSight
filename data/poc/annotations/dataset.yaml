@@ -1,0 +1,22 @@
+# YOLO dataset configuration for Vietnamese tableware detection
+# Task 2.2 - Reference Object Detection
+#
+# Before training:
+#   1. Annotate images using Roboflow (web) or Label Studio
+#   2. Export in YOLO format to this directory
+#   3. Run: python scripts/train_reference_detector.py
+
+path: ../../data/poc/annotations  # Dataset root dir (relative to this file)
+train: images/train               # Train images (relative to path)
+val: images/val                   # Val images (relative to path)
+
+# Classes (Vietnamese tableware)
+names:
+  0: bat_com      # Small rice bowl (diameter 11-12cm)
+  1: bat_pho_m    # Medium pho bowl (diameter 18-20cm)
+  2: bat_pho_l    # Large pho bowl (diameter 22-24cm)
+  3: dia_com      # Rice plate (diameter 20-22cm)
+  4: thia         # Stainless steel spoon (length 15-17cm)
+  5: dua          # Bamboo chopsticks (length 24-25cm)
+
+nc: 6  # Number of classes

@@ -26,8 +26,9 @@
 | # | File | Mục đích | Khi nào đọc |
 |---|------|---------|-------------|
 | 1 | [`docs/plan.md`](../docs/plan.md) | **Master plan** — scope, KPIs, timeline, tasks, architecture | **LUÔN ĐỌC ĐẦU TIÊN** |
-| 2 | [`docs/architecture.md`](../docs/architecture.md) | Kiến trúc chi tiết — services, Kafka topics, diagrams | Khi cần hiểu WHY/WHAT |
-| 3 | [`docs/architecture_explainer.md`](../docs/architecture_explainer.md) | Giải thích kiến trúc đơn giản | Khi cần hiểu nhanh |
+| 2 | [`docs/CONTEXT.md`](../docs/CONTEXT.md) | **Session context** — tiến trình, decisions, cấu trúc code hiện tại | **ĐỌC SAU plan.md** |
+| 3 | [`docs/architecture.md`](../docs/architecture.md) | Kiến trúc chi tiết — services, Kafka topics, diagrams | Khi cần hiểu WHY/WHAT |
+| 4 | [`docs/architecture_explainer.md`](../docs/architecture_explainer.md) | Giải thích kiến trúc đơn giản | Khi cần hiểu nhanh |
 
 ### Task Files (đọc khi cần làm task cụ thể)
 

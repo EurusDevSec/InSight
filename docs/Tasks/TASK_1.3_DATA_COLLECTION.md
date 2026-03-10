@@ -3,9 +3,9 @@
 > **Task ID**: S2-001
 > **Phase**: Phase 1 - Nền tảng & Dữ liệu
 > **Sprint**: Sprint 2 - Thu thập dữ liệu
-> **Status**: 🔄 IN PROGRESS
+> **Status**: ✅ COMPLETED
 > **Created**: 06/03/2026
-> **Updated**: 07/03/2026 — Chuyển sang Hybrid Approach (benchmark dataset + mini VN demo)
+> **Updated**: 10/03/2026 — Tất cả subtasks hoàn thành, dataset validated 10/10
 > **Target**: 12/03/2026
 > **Assignee**: Hoàng (chính), Hoài
 > **Blocked by**: TASK_1.0 (format dữ liệu cần Hoàng định nghĩa)
@@ -26,9 +26,9 @@
 - [x] Nutrition5k subset downloaded & parsed (100-500 mẫu, có RGB + depth + weight ground truth)
 - [x] Bảng dinh dưỡng Việt Nam (USDA/TPDD VN) imported vào DB tự động (≥ 10 món)
 - [x] Density Factor DB từ food science literature (≥ 10 loại món VN)
-- [ ] 5-10 mẫu món Việt chụp ảnh demo (≥ 2 góc, estimated values từ literature) — ⏳ Chờ Hoài chụp ảnh, JSON templates đã sẵn sàng
+- [x] 5 mẫu món Việt chụp ảnh demo (2 góc mỗi món = 10 ảnh) ✅ Done 10/03
 - [x] Scripts: download, parse, import, validate tự động
-- [ ] Dataset validated & reviewed bởi Hoàng
+- [x] Dataset validated & reviewed — 10/10 samples valid
 
 ---
 
@@ -40,7 +40,7 @@
 - [x] 1.3.2 Download Nutrition5k subset + viết script parse sang InSight format — **Hoàng** ✅ `scripts/download_nutrition5k.py`
 - [x] 1.3.3 Import bảng dinh dưỡng VN (USDA/TPDD VN) vào PostgreSQL — **Hoàng** ✅ `scripts/import_nutrition_db.py` (10 món)
 - [x] 1.3.4 Xây dựng Density Factor DB từ food science literature — **Hoàng** ✅ `scripts/export_density_factors.py` (12 items)
-- [ ] 1.3.5 Chụp 5-10 mẫu món Việt cho demo (estimated values) — **Hoài** ⏳ JSON templates sẵn tại `data/vn_demo/`
+- [x] 1.3.5 Chụp 5 mẫu món Việt cho demo (2 góc mỗi món) — ✅ Done 10/03 (cơm trắng, phở bò, bánh mì, bún bò Huế, cơm tấm)
 - [x] 1.3.6 Compile dataset + validate scripts — **Hoàng** ✅ `scripts/compile_dataset.py` + `scripts/validate_dataset.py`
 
 ### Branch & PR

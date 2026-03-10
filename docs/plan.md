@@ -8,6 +8,8 @@
 >
 > 📌 **Cập nhật 06/03/2026**: Kế hoạch chính thức khởi động, phân chia Phase/Sprint chi tiết.
 >
+> 📌 **Cập nhật 10/03/2026**: Phase 1 DONE ✅. Sprint 3 (Task 2.1 Depth + Task 2.2 Reference) DONE ✅. 40 unit tests + E2E pass.
+>
 > 📌 **Phân công vai trò**:
 >
 > - **Hoàng** (Leader/Architect): Tech Lead + Product Owner + AI Lead — Thiết kế kiến trúc, RAG Agent, ra quyết định kỹ thuật, quản lý tiến độ
@@ -323,13 +325,13 @@ gantt
 
 | Task ID | Task                | Subtasks                                                 | Assignee | Target    | Status |
 | ------- | ------------------- | -------------------------------------------------------- | -------- | --------- | ------ |
-| 1.0     | **Khởi động dự án** |                                                          |          | **07/03** | ⬜     |
-|         |                     | 1.0.1 Tạo GitHub repo + branch strategy                  | Hoàng    |           | ⬜     |
-|         |                     | 1.0.2 Setup README, .gitignore, PR template              | Hoài     |           | ⬜     |
-|         |                     | 1.0.3 Viết tài liệu kiến trúc hệ thống (architecture.md) | Hoàng    |           | ⬜     |
-|         |                     | 1.0.4 Định nghĩa API contracts (Proto3 + OpenAPI)        | Hoàng    |           | ⬜     |
-|         |                     | 1.0.5 Thiết kế Database schema (ERD)                     | Việt     |           | ⬜     |
-|         |                     | 1.0.6 Họp kickoff — phân công chi tiết Sprint 1          | Hoàng    |           | ⬜     |
+| 1.0     | **Khởi động dự án** |                                                          |          | **07/03** | ✅     |
+|         |                     | 1.0.1 Tạo GitHub repo + branch strategy                  | Hoàng    |           | ✅     |
+|         |                     | 1.0.2 Setup README, .gitignore, PR template              | Hoài     |           | ✅     |
+|         |                     | 1.0.3 Viết tài liệu kiến trúc hệ thống (architecture.md) | Hoàng    |           | ✅     |
+|         |                     | 1.0.4 Định nghĩa API contracts (Proto3 + OpenAPI)        | Hoàng    |           | ✅     |
+|         |                     | 1.0.5 Thiết kế Database schema (ERD)                     | Việt     |           | ✅     |
+|         |                     | 1.0.6 Họp kickoff — phân công chi tiết Sprint 1          | Hoàng    |           | ✅     |
 
 **✅ Milestone 0**: Team đồng bộ, tài liệu kiến trúc + schema DB + API contracts sẵn sàng
 
@@ -341,16 +343,16 @@ gantt
 
 | Task ID | Task                  | Subtasks                                                                 | Assignee | Target    | Status |
 | ------- | --------------------- | ------------------------------------------------------------------------ | -------- | --------- | ------ |
-| 1.1     | **Environment Setup** |                                                                          |          | **09/03** | ⬜     |
-|         |                       | 1.1.1 Setup Docker Compose (PostgreSQL + Milvus + Redis + Kafka)         | Việt     |           | ⬜     |
-|         |                       | 1.1.2 Setup Spring Boot project skeleton (API Gateway)                   | Việt     |           | ⬜     |
-|         |                       | 1.1.3 Setup Python Vision Service skeleton (FastAPI/TorchServe)          | Việt     |           | ⬜     |
-|         |                       | 1.1.4 Setup CI/CD pipeline (GitHub Actions: lint, test, build)           | Hoài     |           | ⬜     |
-| 1.2     | **Database & Schema** |                                                                          |          | **10/03** | ⬜     |
-|         |                       | 1.2.1 Implement PostgreSQL schema (users, meals, food_items, gl_records) | Việt     |           | ⬜     |
-|         |                       | 1.2.2 Setup Milvus collections (medical_knowledge, food_embeddings)      | Hoàng    |           | ⬜     |
-|         |                       | 1.2.3 Setup Redis cache config (sessions, rate limiting)                 | Việt     |           | ⬜     |
-|         |                       | 1.2.4 Viết migration scripts (Flyway/Liquibase)                          | Việt     |           | ⬜     |
+| 1.1     | **Environment Setup** |                                                                          |          | **09/03** | ✅     |
+|         |                       | 1.1.1 Setup Docker Compose (PostgreSQL + Milvus + Redis + Kafka)         | Việt     |           | ✅     |
+|         |                       | 1.1.2 Setup Spring Boot project skeleton (API Gateway)                   | Việt     |           | ✅     |
+|         |                       | 1.1.3 Setup Python Vision Service skeleton (FastAPI/TorchServe)          | Việt     |           | ✅     |
+|         |                       | 1.1.4 Setup CI/CD pipeline (GitHub Actions: lint, test, build)           | Hoài     |           | ✅     |
+| 1.2     | **Database & Schema** |                                                                          |          | **10/03** | ✅     |
+|         |                       | 1.2.1 Implement PostgreSQL schema (users, meals, food_items, gl_records) | Việt     |           | ✅     |
+|         |                       | 1.2.2 Setup Milvus collections (medical_knowledge, food_embeddings)      | Hoàng    |           | ✅     |
+|         |                       | 1.2.3 Setup Redis cache config (sessions, rate limiting)                 | Việt     |           | ✅     |
+|         |                       | 1.2.4 Viết migration scripts (Flyway/Liquibase)                          | Việt     |           | ✅     |
 
 **✅ Milestone 1**: `docker compose up` thành công, PostgreSQL + Milvus + Redis + Kafka running, CI/CD xanh
 
@@ -362,25 +364,25 @@ gantt
 
 | Task ID | Task                                 | Subtasks                                                    | Assignee | Target    | Status |
 | ------- | ------------------------------------ | ----------------------------------------------------------- | -------- | --------- | ------ |
-| 1.3     | **Thu thập dữ liệu món ăn (Hybrid)** |                                                             |          | **12/03** | ⬜     |
-|         |                                      | 1.3.1 Định nghĩa format dữ liệu (JSON schema)               | Hoàng    |           | ⬜     |
-|         |                                      | 1.3.2 Download Nutrition5k subset + viết script parse       | Hoàng    |           | ⬜     |
-|         |                                      | 1.3.3 Import bảng dinh dưỡng VN (USDA/TPDD VN) vào DB       | Hoàng    |           | ⬜     |
-|         |                                      | 1.3.4 Xây dựng Density Factor DB từ food science literature | Hoàng    |           | ⬜     |
-|         |                                      | 1.3.5 Chụp 5-10 mẫu món Việt cho demo (estimated values)    | Hoài     |           | ⬜     |
-|         |                                      | 1.3.6 Compile dataset + validate scripts                    | Hoàng    |           | ⬜     |
+| 1.3     | **Thu thập dữ liệu món ăn (Hybrid)** |                                                             |          | **12/03** | ✅     |
+|         |                                      | 1.3.1 Định nghĩa format dữ liệu (JSON schema)               | Hoàng    |           | ✅     |
+|         |                                      | 1.3.2 Download Nutrition5k subset + viết script parse       | Hoàng    |           | ✅     |
+|         |                                      | 1.3.3 Import bảng dinh dưỡng VN (USDA/TPDD VN) vào DB       | Hoàng    |           | ✅     |
+|         |                                      | 1.3.4 Xây dựng Density Factor DB từ food science literature | Hoàng    |           | ✅     |
+|         |                                      | 1.3.5 Chụp 5-10 mẫu món Việt cho demo (estimated values)    | Hoài     |           | ✅     |
+|         |                                      | 1.3.6 Compile dataset + validate scripts                    | Hoàng    |           | ✅     |
 
-**✅ Milestone 1.5**: Nutrition5k benchmark parsed + VN demo samples + Density Factor DB sẵn sàng
+**✅ Milestone 1.5**: Nutrition5k benchmark parsed + VN demo samples + Density Factor DB sẵn sàng ✅ DONE 10/03
 
 **📊 Phase 1 Deliverables**:
 
-- [ ] Tài liệu kiến trúc hoàn chỉnh
-- [ ] Docker Compose chạy full stack
-- [ ] Database schema + migrations
-- [ ] CI/CD pipeline xanh
-- [ ] Nutrition5k benchmark subset (N=100-500, lab-grade ground truth)
-- [ ] Vietnamese demo samples (5-10 mẫu)
-- [ ] Bảng dinh dưỡng VN + Density Factor DB
+- [x] Tài liệu kiến trúc hoàn chỉnh
+- [x] Docker Compose chạy full stack
+- [x] Database schema + migrations
+- [x] CI/CD pipeline xanh
+- [x] Nutrition5k benchmark subset (N=500, lab-grade ground truth)
+- [x] Vietnamese demo samples (5 mẫu, 10 ảnh)
+- [x] Bảng dinh dưỡng VN + Density Factor DB
 
 ---
 
@@ -396,17 +398,17 @@ gantt
 
 | Task ID | Task                            | Subtasks                                                       | Assignee | Target    | Status |
 | ------- | ------------------------------- | -------------------------------------------------------------- | -------- | --------- | ------ |
-| 2.1     | **Triển khai Depth Estimation** |                                                                |          | **14/03** | ⬜     |
-|         |                                 | 2.1.1 Setup Depth Anything V2 model (download weights, config) | Việt     |           | ⬜     |
-|         |                                 | 2.1.2 Implement inference pipeline (input ảnh → depth map)     | Việt     |           | ⬜     |
-|         |                                 | 2.1.3 Deploy model via TorchServe / FastAPI endpoint           | Việt     |           | ⬜     |
-|         |                                 | 2.1.4 Unit test depth estimation service                       | Việt     |           | ⬜     |
-| 2.2     | **Nhận diện vật tham chiếu**    |                                                                |          | **15/03** | ⬜     |
-|         |                                 | 2.2.1 Train/fine-tune YOLO cho nhận diện bát/thìa/đũa VN       | Việt     |           | ⬜     |
-|         |                                 | 2.2.2 Tạo dataset huấn luyện (annotate bounding box)           | Hoài     |           | ⬜     |
-|         |                                 | 2.2.3 Integrate nhận diện vật tham chiếu vào pipeline          | Việt     |           | ⬜     |
+| 2.1     | **Triển khai Depth Estimation** |                                                                |          | **14/03** | ✅     |
+|         |                                 | 2.1.1 Setup Depth Anything V2 model (download weights, config) | Việt     |           | ✅     |
+|         |                                 | 2.1.2 Implement inference pipeline (input ảnh → depth map)     | Việt     |           | ✅     |
+|         |                                 | 2.1.3 Deploy model via TorchServe / FastAPI endpoint           | Việt     |           | ✅     |
+|         |                                 | 2.1.4 Unit test depth estimation service                       | Việt     |           | ✅     |
+| 2.2     | **Nhận diện vật tham chiếu**    |                                                                |          | **15/03** | ✅     |
+|         |                                 | 2.2.1 Train/fine-tune YOLO cho nhận diện bát/thìa/đũa VN       | Việt     |           | ✅     |
+|         |                                 | 2.2.2 Tạo dataset huấn luyện (annotate bounding box)           | Hoài     |           | ✅     |
+|         |                                 | 2.2.3 Integrate nhận diện vật tham chiếu vào pipeline          | Việt     |           | ✅     |
 
-**✅ Milestone 2**: Depth map hoạt động, nhận diện được bát/thìa trong ảnh
+**✅ Milestone 2**: Depth map hoạt động, nhận diện được bát/thìa trong ảnh ✅ DONE 10/03 — 40 tests + E2E pass
 
 ---
 
@@ -448,8 +450,8 @@ gantt
 
 **📊 Phase 2 Deliverables**:
 
-- [ ] Depth estimation service hoạt động
-- [ ] Nhận diện vật tham chiếu (bát/thìa)
+- [x] Depth estimation service hoạt động — DAv2 Small, 181ms avg CUDA, 19 tests
+- [x] Nhận diện vật tham chiếu (bát/thìa) — YOLO pretrained COCO, 91% detection rate, 21 tests
 - [ ] Pixel-to-Real calibration
 - [ ] Volume estimation pipeline
 - [ ] Accuracy report trên Nutrition5k benchmark (N=100-500) + VN demo
