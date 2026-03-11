@@ -1,0 +1,111 @@
+{
+  "run_date": "2026-03-11",
+  "n_total": 5,
+  "n_n5k": 0,
+  "n_vn_demo": 5,
+  "overall_metrics": {
+    "mape_weight_pct": 324.76,
+    "mape_carb_pct": 313.4,
+    "mape_gl_pct": 313.16,
+    "pass_rate_15pct": 0.0,
+    "passes_threshold_15pct": false
+  },
+  "category_breakdown": [
+    {
+      "category": "vn_demo",
+      "n_samples": 5,
+      "mape_weight_pct": 324.76,
+      "mape_carb_pct": 313.4,
+      "max_weight_ape_pct": 766.0,
+      "pass_rate_15pct": 0.0
+    }
+  ],
+  "per_sample_results": [
+    {
+      "sample_id": "banh_mi_001",
+      "source": "vn_demo",
+      "food": "Vietnamese baguette",
+      "measurement_method": "estimated_from_literature",
+      "gt_weight_g": 150.0,
+      "pred_weight_g": 636.8,
+      "weight_ape_pct": 324.5,
+      "gt_carb_g": 75.9,
+      "pred_carb_g": 322.2,
+      "carb_ape_pct": 324.5,
+      "gl_ape_pct": 324.7,
+      "pred_volume_ml": 1819.4,
+      "pred_gl": 257.8,
+      "quality": "high",
+      "pipeline_ms": 569.0
+    },
+    {
+      "sample_id": "bun_bo_hue_001",
+      "source": "vn_demo",
+      "food": "Hue beef noodle soup",
+      "measurement_method": "estimated_from_literature",
+      "gt_weight_g": 500.0,
+      "pred_weight_g": 9.5,
+      "weight_ape_pct": 98.1,
+      "gt_carb_g": 50.0,
+      "pred_carb_g": 2.4,
+      "carb_ape_pct": 95.2,
+      "gl_ape_pct": 95.2,
+      "pred_volume_ml": 26.4,
+      "pred_gl": 1.4,
+      "quality": "medium",
+      "pipeline_ms": 272.0
+    },
+    {
+      "sample_id": "com_tam_001",
+      "source": "vn_demo",
+      "food": "Broken rice with sides",
+      "measurement_method": "estimated_from_literature",
+      "gt_weight_g": 250.0,
+      "pred_weight_g": 2165.0,
+      "weight_ape_pct": 766.0,
+      "gt_carb_g": 67.5,
+      "pred_carb_g": 584.5,
+      "carb_ape_pct": 766.0,
+      "gl_ape_pct": 765.1,
+      "pred_volume_ml": 2186.9,
+      "pred_gl": 409.2,
+      "quality": "high",
+      "pipeline_ms": 409.0
+    },
+    {
+      "sample_id": "com_trang_001",
+      "source": "vn_demo",
+      "food": "White rice (cooked)",
+      "measurement_method": "estimated_from_literature",
+      "gt_weight_g": 200.0,
+      "pred_weight_g": 956.7,
+      "weight_ape_pct": 378.3,
+      "gt_carb_g": 56.4,
+      "pred_carb_g": 269.8,
+      "carb_ape_pct": 378.3,
+      "gl_ape_pct": 377.9,
+      "pred_volume_ml": 885.8,
+      "pred_gl": 196.9,
+      "quality": "high",
+      "pipeline_ms": 364.0
+    },
+    {
+      "sample_id": "pho_bo_001",
+      "source": "vn_demo",
+      "food": "Beef pho",
+      "measurement_method": "estimated_from_literature",
+      "gt_weight_g": 450.0,
+      "pred_weight_g": 194.0,
+      "weight_ape_pct": 56.9,
+      "gt_carb_g": 45.0,
+      "pred_carb_g": 43.7,
+      "carb_ape_pct": 3.0,
+      "gl_ape_pct": 2.9,
+      "pred_volume_ml": 634.1,
+      "pred_gl": 20.1,
+      "quality": "high",
+      "pipeline_ms": 509.0
+    }
+  ],
+  "notes": "Batch run on 5 samples. Skipped: none."
+}

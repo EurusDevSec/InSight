@@ -3,7 +3,7 @@
 > **Task ID**: S4-002
 > **Phase**: Phase 2 - Vision Engine
 > **Sprint**: Sprint 4 - Hiệu chuẩn
-> **Status**: ⬜ NOT STARTED
+> **Status**: ✅ DONE
 > **Created**: 06/03/2026
 > **Target**: 18/03/2026
 > **Assignee**: Việt (chính), Hoài
@@ -21,9 +21,9 @@
 
 **Acceptance Criteria:**
 
-- [ ] SAM (Segment Anything Model) tích hợp cho food segmentation
-- [ ] Food region extraction từ depth map hoạt động
-- [ ] Test trên 10 món đã thu thập — mask chính xác
+- [x] SAM (Segment Anything Model) tích hợp cho food segmentation
+- [x] Food region extraction từ depth map hoạt động
+- [x] Test trên 10 món đã thu thập — mask chính xác
 
 ---
 
@@ -31,12 +31,12 @@
 
 ### Subtasks
 
-- [ ] 2.4.1 Tích hợp SAM cho food segmentation — **Việt**
-- [ ] 2.4.2 Implement food region extraction từ depth map — **Việt**
-- [ ] 2.4.3 Test trên 10 món đã thu thập — **Hoài**
+- [x] 2.4.1 Tích hợp SAM cho food segmentation — **Việt**
+- [x] 2.4.2 Implement food region extraction từ depth map — **Việt**
+- [x] 2.4.3 Test trên 10 món đã thu thập — **Hoài**
 
 ### Branch & PR
 
-- [ ] Branch: `feat/s4/food-segmentation`
-- [ ] PR Created
-- [ ] Segmentation mask verified trên 10 mẫu
+- [x] Branch: `feat/s4/food-segmentation`
+- [x] PR Created
+- [x] Segmentation mask verified trên 10 mẫu

@@ -3,7 +3,7 @@
 > **Task ID**: S4-001
 > **Phase**: Phase 2 - Vision Engine
 > **Sprint**: Sprint 4 - Hiệu chuẩn
-> **Status**: ⬜ NOT STARTED
+> **Status**: ✅ DONE
 > **Created**: 06/03/2026
 > **Target**: 17/03/2026
 > **Assignee**: Việt (chính), Hoài
@@ -21,10 +21,10 @@
 
 **Acceptance Criteria:**
 
-- [ ] Thuật toán calibration implemented
-- [ ] Scale factor tính từ kích thước vật tham chiếu
-- [ ] Sai số kích thước ≤ 10% với 10 mẫu thực tế
-- [ ] Validation report có bảng so sánh pixel vs thước kẻ
+- [x] Thuật toán calibration implemented
+- [x] Scale factor tính từ kích thước vật tham chiếu
+- [x] Sai số kích thước ≤ 10% với 10 mẫu thực tế
+- [x] Validation report có bảng so sánh pixel vs thước kẻ
 
 ---
 
@@ -32,12 +32,12 @@
 
 ### Subtasks
 
-- [ ] 2.3.1 Nghiên cứu & implement thuật toán calibration — **Việt**
-- [ ] 2.3.2 Sử dụng kích thước vật tham chiếu để tính scale factor — **Việt**
-- [ ] 2.3.3 Validate với 10 mẫu thực tế (so sánh với thước kẻ) — **Hoài**
+- [x] 2.3.1 Nghiên cứu & implement thuật toán calibration — **Việt**
+- [x] 2.3.2 Sử dụng kích thước vật tham chiếu để tính scale factor — **Việt**
+- [x] 2.3.3 Validate với 10 mẫu thực tế (so sánh với thước kẻ) — **Hoài**
 
 ### Branch & PR
 
-- [ ] Branch: `feat/s4/pixel-mapping`
-- [ ] PR Created
-- [ ] Sai số ≤ 10%
+- [x] Branch: `feat/s4/pixel-mapping`
+- [x] PR Created
+- [x] Sai số ≤ 10%

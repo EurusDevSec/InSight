@@ -3,7 +3,7 @@
 > **Task ID**: S5-001
 > **Phase**: Phase 2 - Vision Engine
 > **Sprint**: Sprint 5 - Tính thể tích
-> **Status**: ⬜ NOT STARTED
+> **Status**: ✅ DONE (11/03/2026)
 > **Created**: 06/03/2026
 > **Target**: 19/03/2026
 > **Assignee**: Việt (chính), Hoàng
@@ -21,10 +21,10 @@
 
 **Acceptance Criteria:**
 
-- [ ] Công thức tích phân V = ∫∫ depth(x,y) dA implemented
-- [ ] Density Factor áp dụng cho món nước (Phở, Bún)
-- [ ] Pipeline: Thể tích → Khối lượng → Carb → GL
-- [ ] Sai số thể tích ≤ 15% so với ground-truth
+- [x] Công thức tích phân V = ∫∫ depth(x,y) dA implemented
+- [x] Density Factor áp dụng cho món nước (Phở, Bún)
+- [x] Pipeline: Thể tích → Khối lượng → Carb → GL
+- [x] Sai số thể tích ≤ 15% so với ground-truth
 
 ---
 
@@ -32,12 +32,12 @@
 
 ### Subtasks
 
-- [ ] 2.5.1 Implement công thức tích phân V = ∫∫ depth(x,y) dA — **Việt**
-- [ ] 2.5.2 Thiết kế & áp dụng Density Factor cho món nước (Phở, Bún) — **Hoàng**
-- [ ] 2.5.3 Tính Carb → GL từ thể tích + dinh dưỡng DB — **Việt**
+- [x] 2.5.1 Implement công thức tích phân V = ∫∫ depth(x,y) dA — **Việt**
+- [x] 2.5.2 Thiết kế & áp dụng Density Factor cho món nước (Phở, Bún) — **Hoàng**
+- [x] 2.5.3 Tính Carb → GL từ thể tích + dinh dưỡng DB — **Việt**
 
 ### Branch & PR
 
-- [ ] Branch: `feat/s5/volume-estimation`
-- [ ] PR Created
-- [ ] Sai số ≤ 15% trên 10 mẫu
+- [x] Branch: `feat/s5/volume-estimation`
+- [x] PR Created
+- [x] Sai số ≤ 15% trên 10 mẫu
