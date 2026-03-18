@@ -10,16 +10,15 @@ import 'package:insight_app/viewmodels/meal_viewmodel.dart';
 /// Fake API service for testing.
 class FakeApiService extends ApiService {
   bool analyzeCalled = false;
-  bool adviseCalled = false;
   bool shouldThrow = false;
 
-  FakeApiService() : super(visionBaseUrl: 'http://fake', ragBaseUrl: 'http://fake');
+  FakeApiService() : super(gatewayBaseUrl: 'http://fake');
 
   @override
-  Future<MealAnalysis> analyzeMeal({
+  Future<MealAnalysis> analyzePipeline({
     required File imageFile,
-    String? foodType,
-    String? referenceObject,
+    String? foodId,
+    PatientContext? patient,
   }) async {
     analyzeCalled = true;
     if (shouldThrow) throw Exception('Network error');
@@ -32,22 +31,9 @@ class FakeApiService extends ApiService {
       'glycemic_load': 20.0,
       'gl_level': 'high',
       'confidence': 0.9,
-    });
-  }
-
-  @override
-  Future<Map<String, dynamic>> getAdvice({
-    required double carbsG,
-    required double glycemicLoad,
-    required String glLevel,
-    required String foodName,
-    PatientContext? patient,
-  }) async {
-    adviseCalled = true;
-    return {
       'advice': 'Test advice',
       'insulin_suggestion': 'Test insulin',
-    };
+    });
   }
 }
 

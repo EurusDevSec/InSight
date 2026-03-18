@@ -42,7 +42,7 @@ message MealAnalysisResponse {
   double weight_g        = 3;
   double carbs_g         = 4;
   double glycemic_load   = 5;
-  string gl_level        = 6;  // low / medium / high
+  string gl_level        = 6; // low / medium / high
   double confidence      = 7;
 
   // RAG results

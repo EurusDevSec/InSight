@@ -7,16 +7,19 @@ import 'data/services/api_service.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load .env if present (won't crash if missing)
+  // Load .env — must be declared in pubspec.yaml assets
   try {
     await dotenv.load(fileName: '.env');
   } catch (_) {
-    // .env file not required for dev
+    // .env not found: fallback to default URL
   }
 
+  final gatewayBaseUrl = dotenv.isInitialized
+      ? (dotenv.env['GATEWAY_BASE_URL'] ?? 'http://10.0.2.2:8080')
+      : 'http://10.0.2.2:8080';
+
   final apiService = ApiService(
-    visionBaseUrl: dotenv.env['VISION_BASE_URL'] ?? 'http://10.0.2.2:8000',
-    ragBaseUrl: dotenv.env['RAG_BASE_URL'] ?? 'http://10.0.2.2:8001',
+    gatewayBaseUrl: gatewayBaseUrl,
   );
 
   runApp(InsightApp(apiService: apiService));

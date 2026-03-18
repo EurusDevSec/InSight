@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.insight.controller.AnalysisControllerTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-03-18T08:10:59" hostname="LAPTOP-78LVMDCQ" time="2.403">
+<testsuite name="com.insight.controller.AnalysisControllerTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-03-18T08:44:44" hostname="LAPTOP-78LVMDCQ" time="2.415">
   <properties/>
-  <testcase name="analyzeShouldReturn400WithoutImage()" classname="com.insight.controller.AnalysisControllerTest" time="2.197"/>
-  <testcase name="analyzeShouldIncludeAllPatientParams()" classname="com.insight.controller.AnalysisControllerTest" time="0.165"/>
-  <testcase name="analyzeShouldReturnMealResult()" classname="com.insight.controller.AnalysisControllerTest" time="0.018"/>
+  <testcase name="analyzeShouldReturn400WithoutImage()" classname="com.insight.controller.AnalysisControllerTest" time="2.22"/>
+  <testcase name="analyzeShouldIncludeAllPatientParams()" classname="com.insight.controller.AnalysisControllerTest" time="0.152"/>
+  <testcase name="analyzeShouldReturnMealResult()" classname="com.insight.controller.AnalysisControllerTest" time="0.021"/>
   <testcase name="analyzeShouldWorkWithImageOnly()" classname="com.insight.controller.AnalysisControllerTest" time="0.017"/>
-  <system-out><![CDATA[15:11:01.232 [Test worker] INFO org.hibernate.validator.internal.util.Version -- HV000001: Hibernate Validator 8.0.1.Final
-15:11:01.911 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
-15:11:01.912 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
-15:11:01.919 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 5 ms
-15:11:02.002 [Test worker] WARN org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver -- Resolved [org.springframework.web.multipart.support.MissingServletRequestPartException: Required part 'image' is not present.]
-15:11:02.047 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
-15:11:02.047 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
-15:11:02.047 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
-15:11:02.197 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
-15:11:02.197 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
-15:11:02.197 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
-15:11:02.218 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
-15:11:02.218 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
-15:11:02.218 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+  <system-out><![CDATA[15:44:46.194 [Test worker] INFO org.hibernate.validator.internal.util.Version -- HV000001: Hibernate Validator 8.0.1.Final
+15:44:46.886 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+15:44:46.887 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+15:44:46.891 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 3 ms
+15:44:46.960 [Test worker] WARN org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver -- Resolved [org.springframework.web.multipart.support.MissingServletRequestPartException: Required part 'image' is not present.]
+15:44:46.990 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+15:44:46.991 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+15:44:46.991 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+15:44:47.142 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+15:44:47.142 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+15:44:47.143 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+15:44:47.161 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+15:44:47.161 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+15:44:47.161 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

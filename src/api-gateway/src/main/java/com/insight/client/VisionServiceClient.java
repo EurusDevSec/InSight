@@ -29,8 +29,7 @@ public class VisionServiceClient {
 
     public VisionServiceClient(
             RestTemplate restTemplate,
-            @Value("${insight.services.vision-url}") String baseUrl
-    ) {
+            @Value("${insight.services.vision-url}") String baseUrl) {
         this.restTemplate = restTemplate;
         this.baseUrl = baseUrl;
     }
@@ -42,7 +41,8 @@ public class VisionServiceClient {
 
         byte[] imageBytes = image.getBytes();
         String originalName = image.getOriginalFilename() != null
-                ? image.getOriginalFilename() : "image.jpg";
+                ? image.getOriginalFilename()
+                : "image.jpg";
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("image", new ByteArrayResource(imageBytes) {
@@ -62,8 +62,7 @@ public class VisionServiceClient {
         ResponseEntity<Map> response = restTemplate.postForEntity(
                 baseUrl + "/api/vision/estimate-volume",
                 request,
-                Map.class
-        );
+                Map.class);
 
         return response.getBody();
     }

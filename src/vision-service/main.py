@@ -445,12 +445,23 @@ async def estimate_volume(
         )
 
         # ── Step 5: Volume estimation + GL ────────────────────────────────
+        # Auto-infer food_id from reference object if user didn't specify
+        effective_food_id = food_id
+        if not effective_food_id:
+            from services.volume_service import _REFERENCE_TO_FOOD_ID
+            for det in detections:
+                inferred = _REFERENCE_TO_FOOD_ID.get(det.class_name)
+                if inferred:
+                    effective_food_id = inferred
+                    logger.info("Auto-inferred food_id='%s' from reference '%s'", inferred, det.class_name)
+                    break
+
         vol_estimator = get_volume_estimator()
         vol_result = vol_estimator.estimate(
             depth_map_cm=cal_result.depth_map_cm,
             food_mask=seg_result.refined_mask,
             cm_per_pixel=cal_result.cm_per_pixel,
-            food_id=food_id,
+            food_id=effective_food_id,
         )
 
         total_ms = (__import__("time").time() - t_total_start) * 1000

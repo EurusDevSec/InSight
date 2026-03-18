@@ -30,8 +30,7 @@ class AnalysisControllerTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(
-                new AnalysisController(pipelineService)
-        ).build();
+                new AnalysisController(pipelineService)).build();
     }
 
     @Test
@@ -42,13 +41,12 @@ class AnalysisControllerTest {
                 .thenReturn(mockResult);
 
         MockMultipartFile image = new MockMultipartFile(
-                "image", "test.jpg", "image/jpeg", "fake-image-data".getBytes()
-        );
+                "image", "test.jpg", "image/jpeg", "fake-image-data".getBytes());
 
         mockMvc.perform(multipart("/api/gateway/analyze")
-                        .file(image)
-                        .param("food_id", "vn_com_trang")
-                        .param("glucose_level", "120"))
+                .file(image)
+                .param("food_id", "vn_com_trang")
+                .param("glucose_level", "120"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.food_name").value("Cơm trắng"))
                 .andExpect(jsonPath("$.glycemic_load").value(13.7))
@@ -63,8 +61,7 @@ class AnalysisControllerTest {
                 .thenReturn(createMockResult());
 
         MockMultipartFile image = new MockMultipartFile(
-                "image", "photo.png", "image/png", "png-data".getBytes()
-        );
+                "image", "photo.png", "image/png", "png-data".getBytes());
 
         mockMvc.perform(multipart("/api/gateway/analyze").file(image))
                 .andExpect(status().isOk())
@@ -84,17 +81,16 @@ class AnalysisControllerTest {
                 .thenReturn(createMockResult());
 
         MockMultipartFile image = new MockMultipartFile(
-                "image", "test.jpg", "image/jpeg", "data".getBytes()
-        );
+                "image", "test.jpg", "image/jpeg", "data".getBytes());
 
         mockMvc.perform(multipart("/api/gateway/analyze")
-                        .file(image)
-                        .param("food_id", "vn_pho_bo")
-                        .param("glucose_level", "180")
-                        .param("diabetes_type", "type_1")
-                        .param("insulin_carb_ratio", "10")
-                        .param("correction_factor", "50")
-                        .param("target_glucose", "100"))
+                .file(image)
+                .param("food_id", "vn_pho_bo")
+                .param("glucose_level", "180")
+                .param("diabetes_type", "type_1")
+                .param("insulin_carb_ratio", "10")
+                .param("correction_factor", "50")
+                .param("target_glucose", "100"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.food_name").exists());
     }

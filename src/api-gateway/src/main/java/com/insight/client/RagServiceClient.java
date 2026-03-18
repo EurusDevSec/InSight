@@ -26,8 +26,7 @@ public class RagServiceClient {
 
     public RagServiceClient(
             RestTemplate restTemplate,
-            @Value("${insight.services.rag-url}") String baseUrl
-    ) {
+            @Value("${insight.services.rag-url}") String baseUrl) {
         this.restTemplate = restTemplate;
         this.baseUrl = baseUrl;
     }
@@ -37,13 +36,15 @@ public class RagServiceClient {
             String mealDescription,
             Double glycemicLoad,
             Double carbsG,
-            Map<String, Object> patientContext
-    ) {
+            Map<String, Object> patientContext) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("meal_description", mealDescription);
-        if (glycemicLoad != null) requestBody.put("glycemic_load", glycemicLoad);
-        if (carbsG != null) requestBody.put("carbs_g", carbsG);
-        if (patientContext != null) requestBody.put("patient_context", patientContext);
+        if (glycemicLoad != null)
+            requestBody.put("glycemic_load", glycemicLoad);
+        if (carbsG != null)
+            requestBody.put("carbs_g", carbsG);
+        if (patientContext != null)
+            requestBody.put("patient_context", patientContext);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -54,8 +55,7 @@ public class RagServiceClient {
         ResponseEntity<Map> response = restTemplate.postForEntity(
                 baseUrl + "/api/rag/advise",
                 entity,
-                Map.class
-        );
+                Map.class);
 
         return response.getBody();
     }

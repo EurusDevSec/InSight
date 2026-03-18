@@ -530,16 +530,19 @@ gantt
 
 ### Sprint 10: Tích hợp E2E (24/03 - 26/03/2026)
 
-| Task ID | Task                 | Subtasks                                      | Assignee | Target    | Status |
-| ------- | -------------------- | --------------------------------------------- | -------- | --------- | ------ |
-| 4.2     | **gRPC Integration** |                                               |          | **25/03** | ⬜     |
-|         |                      | 4.2.1 Implement gRPC client trong Flutter     | Việt     |           | ⬜     |
-|         |                      | 4.2.2 Implement gRPC server trong API Gateway | Việt     |           | ⬜     |
-|         |                      | 4.2.3 Kafka messaging giữa services           | Việt     |           | ⬜     |
-| 4.3     | **E2E Testing**      |                                               |          | **26/03** | ⬜     |
-|         |                      | 4.3.1 Full pipeline: Ảnh → Tư vấn ≤ 5 giây    | Hoàng    |           | ⬜     |
-|         |                      | 4.3.2 Panic Mode: ≤ 1 giây                    | Hoàng    |           | ⬜     |
-|         |                      | 4.3.3 Disclaimer UI hiển thị đúng             | Hoài     |           | ⬜     |
+| Task ID | Task                        | Subtasks                                          | Assignee | Target    | Status |
+| ------- | --------------------------- | ------------------------------------------------- | -------- | --------- | ------ |
+| 4.2     | **API Gateway Integration** |                                                   |          | **25/03** | ✅     |
+|         |                             | 4.2.1 Flutter refactor: single Gateway call       | Hoàng    |           | ✅     |
+|         |                             | 4.2.2 API Gateway REST endpoint + PipelineService | Hoàng    |           | ✅     |
+|         |                             | 4.2.3 Service clients (Vision + RAG)              | Hoàng    |           | ✅     |
+|         |                             | 4.2.4 Kafka event publishing                      | Hoàng    |           | ✅     |
+|         |                             | 4.2.5 Proto contract (API documentation)          | Hoàng    |           | ✅     |
+|         |                             | 4.2.6 Gateway tests (15 tests)                    | Hoàng    |           | ✅     |
+| 4.3     | **E2E Testing**             |                                                   |          | **26/03** | ✅     |
+|         |                             | 4.3.1 Full pipeline: Ảnh → Tư vấn ≤ 5 giây        | Hoàng    |           | ✅     |
+|         |                             | 4.3.2 Panic Mode: ≤ 1 giây                        | Hoàng    |           | ✅     |
+|         |                             | 4.3.3 Disclaimer UI hiển thị đúng                 | Hoàng    |           | ✅     |
 
 ### Sprint 11: Hiệu năng (27/03 - 28/03/2026)
 
@@ -555,10 +558,11 @@ gantt
 
 **📊 Phase 4 Deliverables**:
 
-- [ ] Flutter app với tất cả màn hình
-- [ ] gRPC integration hoạt động
-- [ ] Full pipeline E2E ≤ 5 giây
-- [ ] Panic Mode ≤ 1 giây
+- [x] Flutter app với tất cả màn hình
+- [x] API Gateway integration hoạt động (REST proxy + Kafka)
+- [x] Full pipeline E2E ≤ 5 giây
+- [x] Panic Mode ≤ 1 giây
+- [ ] Performance optimization (Task 4.4)
 
 ---
 
@@ -824,7 +828,7 @@ gitGraph
 | M3: Calibration   | Phase 2 | 18/03/2026  | Sai số kích thước ≤ 10%              | ⬜     |
 | M4: Volume E2E    | Phase 2 | 20/03/2026  | Sai số thể tích ≤ 15%                | ⬜     |
 | M5: RAG Agent     | Phase 3 | 25/03/2026  | Tư vấn Insulin có ngữ cảnh           | ⬜     |
-| M6: Full Pipeline | Phase 4 | 28/03/2026  | Ảnh → Tư vấn ≤ 5 giây                | ⬜     |
+| M6: Full Pipeline | Phase 4 | 28/03/2026  | Ảnh → Tư vấn ≤ 5 giây                | ✅     |
 | M7: Defense Ready | Phase 5 | 31/03/2026  | Full package bảo vệ                  | ⬜     |
 
 ### Weekly Progress Template

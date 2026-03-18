@@ -81,6 +81,36 @@ _NUTRITION_TO_DENSITY: Dict[str, str] = {
 
 _DEFAULT_FOOD_ID = "vn_com_trang"    # Fallback when food_id unknown
 
+# Mapping: Vietnamese display names → nutrition DB food_id
+_VN_NAME_TO_FOOD_ID: dict[str, str] = {
+    # Exact display names used in Flutter FoodFormScreen
+    "Cơm":      "vn_com_trang",
+    "Phở":      "vn_pho_bo",
+    "Bún":      "vn_bun_bo_hue",
+    "Cháo":     "vn_chao",
+    "Bánh mì":  "vn_banh_mi",
+    "Xôi":      "vn_xoi",
+    "Miến":     "vn_com_trang",   # closest fallback
+    "Mì":       "vn_mi_xao",
+    "Khác":     "vn_com_trang",
+    # Also handle common short names / variants
+    "pho":      "vn_pho_bo",
+    "com":      "vn_com_trang",
+    "bun":      "vn_bun_bo_hue",
+    "banh mi":  "vn_banh_mi",
+    "chao":     "vn_chao",
+    "xoi":      "vn_xoi",
+}
+
+# Mapping: reference object class → likely food_id
+# Used when user does not specify food_id (auto-detection from bowl type)
+_REFERENCE_TO_FOOD_ID: dict[str, str] = {
+    "bat_pho_l":  "vn_pho_bo",
+    "bat_pho_m":  "vn_pho_bo",
+    "bat_com":    "vn_com_trang",
+    "dia_com":    "vn_com_tam",
+}
+
 
 # ============================================================
 # Data classes
@@ -339,6 +369,7 @@ class VolumeEstimator:
         Accepts:
           - Full IDs like "vn_com_trang"
           - Short IDs like "com_trang" (auto-prepends "vn_")
+          - Vietnamese display names like "Phở", "Cơm", "Bánh mì"
           - None → defaults to vn_com_trang
           - Unknown → warns and defaults to vn_com_trang
         """
@@ -350,6 +381,10 @@ class VolumeEstimator:
         with_prefix = f"vn_{food_id}" if not food_id.startswith("vn_") else food_id
         if with_prefix in self._nutrition_db:
             return with_prefix
+        # Try Vietnamese display name mapping (case-insensitive)
+        vn_lookup = _VN_NAME_TO_FOOD_ID.get(food_id) or _VN_NAME_TO_FOOD_ID.get(food_id.lower())
+        if vn_lookup and vn_lookup in self._nutrition_db:
+            return vn_lookup
         logger.warning(
             f"Unknown food_id '{food_id}', defaulting to {_DEFAULT_FOOD_ID}"
         )

@@ -23,8 +23,7 @@ public class KafkaEventPublisher {
 
     public KafkaEventPublisher(
             KafkaTemplate<String, String> kafkaTemplate,
-            @Value("${insight.kafka.topic.meal-analysis:meal-analysis-events}") String topic
-    ) {
+            @Value("${insight.kafka.topic.meal-analysis:meal-analysis-events}") String topic) {
         this.kafkaTemplate = kafkaTemplate;
         this.objectMapper = new ObjectMapper();
         this.topic = topic;

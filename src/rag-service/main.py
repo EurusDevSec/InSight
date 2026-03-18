@@ -11,6 +11,9 @@ from __future__ import annotations
 import logging
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()  # load .env before os.getenv calls
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -55,7 +58,7 @@ async def _startup() -> None:
 
     # Embedding
     embedding_svc = EmbeddingService()
-    embedding_svc.load_model()
+    embedding_svc.load()
 
     # Search
     search_svc = SearchService(
@@ -112,3 +115,12 @@ async def advise(request: AdviceRequest) -> AdviceResponse:
     except Exception:
         logger.exception("Error in RAG advise endpoint")
         raise HTTPException(status_code=500, detail="Internal RAG service error")
+
+
+# ── Entry point ────────────────────────────────────────────────────
+
+if __name__ == "__main__":
+    import uvicorn
+
+    logging.basicConfig(level=logging.INFO)
+    uvicorn.run(app, host="0.0.0.0", port=8001, log_level="info")

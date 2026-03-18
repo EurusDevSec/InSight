@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../data/models/meal_analysis.dart';
 import '../data/models/patient_context.dart';
@@ -8,7 +7,7 @@ import '../data/services/api_service.dart';
 
 /// ViewModel for the main meal analysis flow.
 ///
-/// Flow: pick image → analyzeMeal → (optional) getAdvice → show result.
+/// Flow: pick image → analyzePipeline (Gateway) → show result.
 class MealViewModel extends ChangeNotifier {
   final ApiService _apiService;
 
@@ -16,7 +15,7 @@ class MealViewModel extends ChangeNotifier {
 
   // ── State ──────────────────────────────────────────────────
 
-  File? selectedImage;
+  XFile? selectedImage;
   String? selectedFoodType;
   String? selectedSize;
   MealAnalysis? result;
@@ -36,7 +35,7 @@ class MealViewModel extends ChangeNotifier {
 
   // ── Commands ───────────────────────────────────────────────
 
-  void setImage(File image) {
+  void setImage(XFile image) {
     selectedImage = image;
     result = null;
     advice = null;
@@ -60,7 +59,7 @@ class MealViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Run the full analysis pipeline: Vision → RAG.
+  /// Run the full analysis pipeline via the API Gateway.
   Future<void> analyze() async {
     if (selectedImage == null) {
       error = 'No image selected';
@@ -73,24 +72,15 @@ class MealViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Step 1: Vision analysis
-      final analysis = await _apiService.analyzeMeal(
+      // Single Gateway call: Vision → RAG → combined result
+      final analysis = await _apiService.analyzePipeline(
         imageFile: selectedImage!,
-        foodType: selectedFoodType,
-      );
-      result = analysis;
-      notifyListeners();
-
-      // Step 2: RAG advice
-      final ragResult = await _apiService.getAdvice(
-        carbsG: analysis.carbsG,
-        glycemicLoad: analysis.glycemicLoad,
-        glLevel: analysis.glLevel,
-        foodName: analysis.foodName,
+        foodId: selectedFoodType,
         patient: patientContext,
       );
-      advice = ragResult['advice'] as String?;
-      insulinSuggestion = ragResult['insulin_suggestion'] as String?;
+      result = analysis;
+      advice = analysis.advice;
+      insulinSuggestion = analysis.insulinSuggestion;
     } catch (e) {
       error = e.toString();
     } finally {

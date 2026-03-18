@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
 import '../models/meal_analysis.dart';
 import '../models/patient_context.dart';
@@ -25,15 +25,16 @@ class ApiService {
   ///
   /// Gateway flow: image → Vision (volume/GL) → RAG (advice) → combined.
   Future<MealAnalysis> analyzePipeline({
-    required File imageFile,
+    required XFile imageFile,
     String? foodId,
     PatientContext? patient,
   }) async {
     final uri = Uri.parse('$gatewayBaseUrl/api/gateway/analyze');
 
+    final bytes = await imageFile.readAsBytes();
     final request = http.MultipartRequest('POST', uri)
       ..files.add(
-        await http.MultipartFile.fromPath('image', imageFile.path),
+        http.MultipartFile.fromBytes('image', bytes, filename: imageFile.name),
       );
     if (foodId != null) request.fields['food_id'] = foodId;
     if (patient != null) {
@@ -64,7 +65,7 @@ class ApiService {
         jsonDecode(response.body) as Map<String, dynamic>,
       );
     }
-    throw HttpException(
+    throw Exception(
       'Gateway analysis failed (${response.statusCode}): ${response.body}',
     );
   }

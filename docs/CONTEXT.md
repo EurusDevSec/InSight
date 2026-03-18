@@ -1,7 +1,7 @@
 # InSight Project — Session Context
 
 > File này lưu trữ toàn bộ context của quá trình phát triển để session AI mới đọc hiểu NGAY.
-> Cập nhật lần cuối: 19/03/2026 (Phase 1 ✅ + Phase 2 ✅ + Phase 3 ✅ + Phase 4 🔄 — 353 tests: vision 166 + rag 154 + mobile 33)
+> Cập nhật lần cuối: 19/03/2026 (Phase 1-3 ✅ + Phase 4 Tasks 4.1-4.3 ✅ — 375 tests: vision 166 + rag 154 + gateway 15 + mobile 40)
 
 ---
 
@@ -57,7 +57,17 @@ InSight/
 │   │   ├── api/                    # gRPC proto files
 │   │   └── requirements.txt
 │   ├── api-gateway/                # Spring Boot API Gateway
-│   ├── mobile/                     # Flutter app
+│   │   ├── src/main/java/com/insight/
+│   │   │   ├── config/AppConfig.java           # RestTemplate + CORS
+│   │   │   ├── client/VisionServiceClient.java # HTTP → Vision
+│   │   │   ├── client/RagServiceClient.java    # HTTP → RAG
+│   │   │   ├── service/PipelineService.java    # ⭐ CORE — orchestration
+│   │   │   ├── service/KafkaEventPublisher.java # Audit events
+│   │   │   ├── controller/AnalysisController.java  # POST /api/gateway/analyze
+│   │   │   └── controller/HealthController.java    # GET /api/health
+│   │   ├── src/main/proto/insight.proto        # API contract
+│   │   └── src/test/ — 15 tests (5 controller + 10 pipeline)
+│   ├── mobile/                     # Flutter app (MVVM + Provider + go_router)
 │   └── rag-service/                # Python RAG Agent (Task 3.1-3.3)
 │       ├── knowledge_base/         # Task 3.1: schemas, chunking, embedding, search
 │       ├── rag_pipeline/           # Task 3.2: schemas, llm_client, prompt_builder, rag_service
@@ -140,12 +150,12 @@ InSight/
 
 ### Phase 4: Tích hợp & Mobile (21/03 - 28/03) — 🔄 IN PROGRESS
 
-| Task                     | Status  | Ghi chú                                                           |
-| ------------------------ | ------- | ----------------------------------------------------------------- |
-| **4.1 Flutter App**      | ✅ Done | MVVM + Provider, go_router, 5 screens, 33 tests pass (18/03/2026) |
-| **4.2 gRPC Integration** | ⬜      |                                                                   |
-| **4.3 E2E Testing**      | ⬜      |                                                                   |
-| **4.4 Performance**      | ⬜      |                                                                   |
+| Task                            | Status  | Ghi chú                                                              |
+| ------------------------------- | ------- | -------------------------------------------------------------------- |
+| **4.1 Flutter App**             | ✅ Done | MVVM + Provider, go_router, 5 screens, 33 tests pass (18/03/2026)    |
+| **4.2 API Gateway Integration** | ✅ Done | REST proxy + Kafka events, 15 tests (5 controller + 10 pipeline)     |
+| **4.3 E2E Testing**             | ✅ Done | Python E2E script + 7 Flutter E2E tests, all acceptance criteria met |
+| **4.4 Performance**             | ⬜      |                                                                      |
 
 **Chi tiết Task 4.1:**
 
@@ -155,6 +165,29 @@ InSight/
 - [x] 4.1.4 Panic Mode UI (1-tap instant estimation, 10 VN dishes) → `lib/ui/panic/panic_screen.dart`
 - [x] 4.1.5 Form hỏi nhanh (dish type, size, toppings — ChoiceChip) → `lib/ui/food_form/food_form_screen.dart`
 - [x] 4.1.6 UX design + review (disclaimer, warnings, Material 3)
+
+**Chi tiết Task 4.2:**
+
+- [x] 4.2.1 Flutter refactor: single Gateway call → `api_service.dart`, `meal_viewmodel.dart`
+- [x] 4.2.2 API Gateway REST endpoint: `POST /api/gateway/analyze` → `AnalysisController.java`
+- [x] 4.2.3 PipelineService: orchestrate Vision → RAG → combined response
+- [x] 4.2.4 Service clients: VisionServiceClient + RagServiceClient
+- [x] 4.2.5 Kafka event publishing (non-blocking audit)
+- [x] 4.2.6 Proto contract update (API documentation)
+- [x] 4.2.7 Gateway tests: 15 tests (5 controller + 10 pipeline)
+
+**Chi tiết Task 4.3:**
+
+- [x] 4.3.1 Full pipeline: Ảnh → Tư vấn ≤ 5 giây → `scripts/test_e2e_pipeline.py`
+- [x] 4.3.2 Panic Mode: ≤ 1 giây → Flutter E2E + Python script
+- [x] 4.3.3 Disclaimer UI hiển thị đúng → `test/e2e/e2e_pipeline_test.dart` (7 tests)
+
+**Architecture Decision (Task 4.2):**
+
+- REST proxy thay vì raw gRPC → Flutter → Gateway → Vision/RAG (Python REST)
+- Graceful degradation: RAG fail → Vision-only results + warning
+- Non-blocking Kafka: audit events fire-and-forget
+- Disclaimer luôn có trong mọi response
 
 ### Phase 5: ⬜ Not Started
 
@@ -296,20 +329,26 @@ pytest>=7.0.0, pytest-cov>=4.0.0
 
 ---
 
-## 8. Tests — ✅ 320/320 PASSED (vision-service: 166 | rag-service: 154)
+## 8. Tests — ✅ 375/375 PASSED (vision: 166 | rag: 154 | gateway: 15 | mobile: 40)
 
-| Test File                            | Tests   | Task | Scope                                                                                |
-| ------------------------------------ | ------- | ---- | ------------------------------------------------------------------------------------ |
-| `tests/test_depth_service.py`        | 19      | 2.1  | Model loading, prediction, output format, edge cases, service layer                  |
-| `tests/test_reference_service.py`    | 21      | 2.2  | Dimensions, detection, class mapping, scale factor priority                          |
-| `tests/test_calibration_service.py`  | 21      | 2.3  | Scale factors, depth normalization, quality, region measurement, utilities           |
-| `tests/test_segmentation_service.py` | 18      | 2.4  | Mask shape/dtype, bowl ROI, depth resize, edge cases, components                     |
-| `tests/test_volume_service.py`       | 31      | 2.5  | Volume formula, GL chain, density factor, food ID, quality, singleton                |
-| `tests/test_validation_service.py`   | 56      | 2.6  | APE/MAPE/pass_rate, DataLoader GT, ReportGenerator, save JSON, integration           |
-| `tests/test_knowledge_base.py`       | 50      | 3.1  | Guidelines data, schemas, chunking, embedding (mocked), BM25 search, full pipeline   |
-| `tests/test_rag_pipeline.py`         | 56      | 3.2  | Glucose classification, prompt builder, LLM mock, insulin calc, RAG orchestration    |
-| `tests/test_personalization.py`      | 48      | 3.3  | Emergency protocols, clinical rules, grounding validator, clinical scenarios         |
-| **Total**                            | **320** |      | **All passed (vision: 11/03 · rag kb: 22/03 · rag pipeline+personalization: 19/03)** |
+| Test File                            | Tests   | Task | Scope                                                                              |
+| ------------------------------------ | ------- | ---- | ---------------------------------------------------------------------------------- |
+| `tests/test_depth_service.py`        | 19      | 2.1  | Model loading, prediction, output format, edge cases, service layer                |
+| `tests/test_reference_service.py`    | 21      | 2.2  | Dimensions, detection, class mapping, scale factor priority                        |
+| `tests/test_calibration_service.py`  | 21      | 2.3  | Scale factors, depth normalization, quality, region measurement, utilities         |
+| `tests/test_segmentation_service.py` | 18      | 2.4  | Mask shape/dtype, bowl ROI, depth resize, edge cases, components                   |
+| `tests/test_volume_service.py`       | 31      | 2.5  | Volume formula, GL chain, density factor, food ID, quality, singleton              |
+| `tests/test_validation_service.py`   | 56      | 2.6  | APE/MAPE/pass_rate, DataLoader GT, ReportGenerator, save JSON, integration         |
+| `tests/test_knowledge_base.py`       | 50      | 3.1  | Guidelines data, schemas, chunking, embedding (mocked), BM25 search, full pipeline |
+| `tests/test_rag_pipeline.py`         | 56      | 3.2  | Glucose classification, prompt builder, LLM mock, insulin calc, RAG orchestration  |
+| `tests/test_personalization.py`      | 48      | 3.3  | Emergency protocols, clinical rules, grounding validator, clinical scenarios       |
+| `AnalysisControllerTest.java`        | 5       | 4.2  | Multipart endpoint, missing image 400, all patient params                          |
+| `PipelineServiceTest.java`           | 10      | 4.2  | Full pipeline, RAG failure graceful, GL levels, emergency, disclaimer              |
+| `test/data/models_test.dart`         | 9       | 4.1  | FoodItem, MealAnalysis, PatientContext JSON                                        |
+| `test/viewmodels/*_test.dart`        | 16      | 4.1  | MealViewModel (9), PanicViewModel (7) — state, analyze, reset                      |
+| `test/ui/widget_test.dart`           | 8       | 4.1  | HomeScreen, GlIndicator, DisclaimerBanner, PanicScreen                             |
+| `test/e2e/e2e_pipeline_test.dart`    | 7       | 4.3  | Panic Mode ≤1s, Disclaimer UI, Stability 10 runs                                   |
+| **Total**                            | **375** |      | **All passed (gateway: 15 · mobile: 40 · vision: 166 · rag: 154)**                 |
 
 **Chạy tests:**
 
@@ -338,17 +377,18 @@ pytest tests/test_volume_service.py tests/test_calibration_service.py tests/test
 
 ## 9. Scripts
 
-| Script                                     | Task | Mô tả                                                     |
-| ------------------------------------------ | ---- | --------------------------------------------------------- |
-| `scripts/poc_depth_test.py`                | POC  | Test Depth Anything V2 cơ bản (validated ✅)              |
-| `scripts/download_nutrition5k.py`          | 1.3  | Download + parse Nutrition5k subset                       |
-| `scripts/import_nutrition_db.py`           | 1.3  | Import VN food nutrition vào JSON                         |
-| `scripts/export_density_factors.py`        | 1.3  | Export Density Factor DB                                  |
-| `scripts/compile_dataset.py`               | 1.3  | Compile Nutrition5k + VN demo                             |
-| `scripts/validate_dataset.py`              | 1.3  | Validate dataset integrity                                |
-| `scripts/train_reference_detector.py`      | 2.2  | YOLO training (Plan A)                                    |
-| `scripts/reference_detector_pretrained.py` | 2.2  | Pretrained COCO detection (Plan B)                        |
-| `scripts/ingest_knowledge_base.py`         | 3.1  | Batch ingestion: guidelines.json → chunk → embed → Milvus |
+| Script                                     | Task | Mô tả                                                              |
+| ------------------------------------------ | ---- | ------------------------------------------------------------------ |
+| `scripts/poc_depth_test.py`                | POC  | Test Depth Anything V2 cơ bản (validated ✅)                       |
+| `scripts/download_nutrition5k.py`          | 1.3  | Download + parse Nutrition5k subset                                |
+| `scripts/import_nutrition_db.py`           | 1.3  | Import VN food nutrition vào JSON                                  |
+| `scripts/export_density_factors.py`        | 1.3  | Export Density Factor DB                                           |
+| `scripts/compile_dataset.py`               | 1.3  | Compile Nutrition5k + VN demo                                      |
+| `scripts/validate_dataset.py`              | 1.3  | Validate dataset integrity                                         |
+| `scripts/train_reference_detector.py`      | 2.2  | YOLO training (Plan A)                                             |
+| `scripts/reference_detector_pretrained.py` | 2.2  | Pretrained COCO detection (Plan B)                                 |
+| `scripts/ingest_knowledge_base.py`         | 3.1  | Batch ingestion: guidelines.json → chunk → embed → Milvus          |
+| `scripts/test_e2e_pipeline.py`             | 4.3  | E2E pipeline test: Ảnh → Gateway → Vision → RAG (online + offline) |
 
 ---
 
@@ -368,7 +408,33 @@ pytest tests/test_volume_service.py tests/test_calibration_service.py tests/test
 - [x] **Task 2.5**: Volume Estimation — VolumeEstimator, V=∫∫depth·dA + GL (31 tests, E2E verified)
 - [x] **Task 2.6**: Validation & Benchmark — ValidationService, 56 tests, E2E 5 VN demo; **pho_bo C-APE=3.0%, GL-APE=2.9%**; EXIF bug fixed
 
-### Phase 2 COMPLETE — Tất cả tasks 2.1-2.6 ✅ DONE
+### Completed Sprint 9 (Flutter App, 21/03 - 23/03)
+
+- [x] **Task 4.1**: Flutter App — MVVM + Provider + go_router, 5 screens, 33 tests
+  - `mobile/insight_app/lib/` — main.dart, app.dart, config/routes.dart
+  - Models: FoodItem, MealAnalysis, PatientContext
+  - ViewModels: MealViewModel, PanicViewModel
+  - Screens: Home, Camera, FoodForm, Result, Panic
+  - Widgets: GlIndicator, DisclaimerBanner
+  - Guide: `docs/Guides/GUIDE_TASK_4.1_FLUTTER_APP.md`
+
+### Completed Sprint 10 (Gateway + E2E, 24/03 - 26/03)
+
+- [x] **Task 4.2**: API Gateway Integration — REST proxy pattern, orchestration
+  - `src/api-gateway/src/main/java/com/insight/` — 7 Java files
+  - PipelineService: Vision → RAG → combined response
+  - AnalysisController: `POST /api/gateway/analyze` (multipart)
+  - Kafka events: `meal-analysis-events` (non-blocking)
+  - Graceful degradation: RAG fail → Vision-only + warning
+  - Flutter refactored: single Gateway call, gatewayBaseUrl
+  - 15 Gateway tests + 40 Flutter tests = 55
+  - Guide: `docs/Guides/GUIDE_TASK_4.2_GRPC_INTEGRATION.md`
+
+- [x] **Task 4.3**: E2E Testing — all acceptance criteria met
+  - `scripts/test_e2e_pipeline.py` — Python E2E script (online + offline)
+  - `test/e2e/e2e_pipeline_test.dart` — 7 Flutter E2E tests
+  - Full pipeline ≤ 5s ✅, Panic Mode ≤ 1s ✅, Disclaimer ✅, Stability 10 runs ✅
+  - Guide: `docs/Guides/GUIDE_TASK_4.3_E2E_TESTING.md`
 
 ### Completed Sprint 6 (Knowledge Base, 22/03)
 
@@ -420,8 +486,15 @@ pytest tests/test_volume_service.py tests/test_calibration_service.py tests/test
 - **Validation report**: `data/annotations/validation_report.json` — MAPE-C=313.4%, pho_bo C-APE=3.0%
 - **Root cause**: VN demo ảnh chụp ở zoom/khoảng cách khác nhau → px_per_cm không nhất quán
 - **Key insight**: Khi calibration đúng (pho_bo), thuật toán cho C-APE=3.0% và GL-APE=2.9%
+- **API Gateway v1.0**: REST proxy (NOT raw gRPC), Spring Boot 3.2.3, Java 17
+- **Gateway pipeline**: Image → Vision (estimate-volume) → RAG (advise) → combined JSON
+- **Graceful degradation**: RAG fail → Vision-only results + warning "Advisory service unavailable"
+- **Kafka topic**: `meal-analysis-events` — audit events (non-blocking)
+- **Flutter → Gateway**: Single endpoint `POST /api/gateway/analyze` (multipart)
+- **Flutter env**: `GATEWAY_BASE_URL=http://10.0.2.2:8080` (Android emulator)
+- **E2E script**: `scripts/test_e2e_pipeline.py` — runs --offline (no services) or full online
 
 ---
 
 > **Tạo**: 10/03/2026
-> **Cập nhật**: 19/03/2026 — Phase 4 Task 4.1 DONE (Flutter MVVM + Provider + go_router, 33 tests; total 353 tests: vision 166 + rag 154 + mobile 33)
+> **Cập nhật**: 19/03/2026 — Phase 4 Tasks 4.1-4.3 DONE (Gateway + Flutter + E2E; total 375 tests: vision 166 + rag 154 + gateway 15 + mobile 40)

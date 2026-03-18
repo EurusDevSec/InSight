@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -22,7 +20,7 @@ class CameraScreen extends StatelessWidget {
     if (xFile == null || !context.mounted) return;
 
     final vm = context.read<MealViewModel>();
-    vm.setImage(File(xFile.path));
+    vm.setImage(xFile);
     context.go('/food-form');
   }
 

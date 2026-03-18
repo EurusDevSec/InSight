@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -61,21 +63,39 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Image preview
+                // Image preview — uses Image.memory for web+mobile compatibility
                 if (vm.selectedImage != null)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.file(
-                      vm.selectedImage!,
-                      height: 200,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
+                  FutureBuilder<Uint8List>(
+                    future: vm.selectedImage!.readAsBytes(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const SizedBox(
+                          height: 200,
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.memory(
+                          snapshot.data!,
+                          height: 200,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                      );
+                    },
                   ),
                 const SizedBox(height: 24),
 
-                // Dish type
-                Text('Loại món', style: Theme.of(context).textTheme.titleMedium),
+                // Dish type (optional — auto-detected from image if not selected)
+                Text('Loại món (tùy chọn)', style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 4),
+                Text(
+                  'Bỏ qua để hệ thống tự nhận diện từ ảnh',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
@@ -86,8 +106,16 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
                       label: Text(type),
                       selected: selected,
                       onSelected: (_) {
-                        setState(() => _dishType = type);
-                        vm.setFoodType(type);
+                        setState(() {
+                          // Toggle: tap again to deselect → auto-detect
+                          if (_dishType == type) {
+                            _dishType = null;
+                            vm.setFoodType(null);
+                          } else {
+                            _dishType = type;
+                            vm.setFoodType(type);
+                          }
+                        });
                       },
                     );
                   }).toList(),

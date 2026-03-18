@@ -14,16 +14,15 @@ import java.util.*;
  * Orchestrates the full analysis pipeline: Vision → RAG → combined response.
  *
  * Pipeline:
- *   1. Send image to Vision service → volume, weight, carbs, GL
- *   2. Send meal info + patient context to RAG → advice, insulin dose
- *   3. Combine results + publish Kafka event
+ * 1. Send image to Vision service → volume, weight, carbs, GL
+ * 2. Send meal info + patient context to RAG → advice, insulin dose
+ * 3. Combine results + publish Kafka event
  */
 @Service
 public class PipelineService {
 
     private static final Logger log = LoggerFactory.getLogger(PipelineService.class);
-    private static final String DISCLAIMER =
-            "Kết quả chỉ mang tính tham khảo. Không thay thế chỉ định của bác sĩ.";
+    private static final String DISCLAIMER = "Kết quả chỉ mang tính tham khảo. Không thay thế chỉ định của bác sĩ.";
 
     private final VisionServiceClient visionClient;
     private final RagServiceClient ragClient;
@@ -32,8 +31,7 @@ public class PipelineService {
     public PipelineService(
             VisionServiceClient visionClient,
             RagServiceClient ragClient,
-            KafkaEventPublisher kafkaPublisher
-    ) {
+            KafkaEventPublisher kafkaPublisher) {
         this.visionClient = visionClient;
         this.ragClient = ragClient;
         this.kafkaPublisher = kafkaPublisher;
@@ -47,8 +45,7 @@ public class PipelineService {
             String diabetesType,
             Double insulinCarbRatio,
             Double correctionFactor,
-            Double targetGlucose
-    ) throws IOException {
+            Double targetGlucose) throws IOException {
         long startTime = System.currentTimeMillis();
         List<String> warnings = new ArrayList<>();
 
@@ -65,9 +62,12 @@ public class PipelineService {
 
         // GL level classification
         String glLevel;
-        if (glycemicLoad < 10) glLevel = "low";
-        else if (glycemicLoad <= 20) glLevel = "medium";
-        else glLevel = "high";
+        if (glycemicLoad < 10)
+            glLevel = "low";
+        else if (glycemicLoad <= 20)
+            glLevel = "medium";
+        else
+            glLevel = "high";
 
         // Confidence from estimation quality
         double confidence;
@@ -88,12 +88,10 @@ public class PipelineService {
             log.info("Step 2/2: Calling RAG service...");
             Map<String, Object> patientCtx = buildPatientContext(
                     glucoseLevel, diabetesType, insulinCarbRatio,
-                    correctionFactor, targetGlucose
-            );
+                    correctionFactor, targetGlucose);
 
             Map<String, Object> ragResult = ragClient.getAdvice(
-                    foodName, glycemicLoad, carbG, patientCtx
-            );
+                    foodName, glycemicLoad, carbG, patientCtx);
 
             advice = (String) ragResult.get("advice");
 
@@ -148,14 +146,16 @@ public class PipelineService {
 
     private Map<String, Object> buildPatientContext(
             Double glucoseLevel, String diabetesType,
-            Double insulinCarbRatio, Double correctionFactor, Double targetGlucose
-    ) {
+            Double insulinCarbRatio, Double correctionFactor, Double targetGlucose) {
         Map<String, Object> ctx = new HashMap<>();
-        if (glucoseLevel != null) ctx.put("current_glucose_mg_dl", glucoseLevel);
+        if (glucoseLevel != null)
+            ctx.put("current_glucose_mg_dl", glucoseLevel);
         ctx.put("diabetes_type", diabetesType != null ? diabetesType : "type_2");
         ctx.put("medications", List.of());
-        if (insulinCarbRatio != null) ctx.put("insulin_to_carb_ratio", insulinCarbRatio);
-        if (correctionFactor != null) ctx.put("correction_factor", correctionFactor);
+        if (insulinCarbRatio != null)
+            ctx.put("insulin_to_carb_ratio", insulinCarbRatio);
+        if (correctionFactor != null)
+            ctx.put("correction_factor", correctionFactor);
         ctx.put("target_glucose_mg_dl", targetGlucose != null ? targetGlucose : 120.0);
         return ctx;
     }
