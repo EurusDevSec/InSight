@@ -419,15 +419,13 @@ backend/
 │   │       └── external/           # CGM API
 │   └── src/main/resources/
 │
-└── rag-service/                    # RAG Agent
-    ├── src/main/java/
-    │   ├── langchain/              # LangChain4j integration
-    │   ├── retrieval/              # Vector search
-    │   ├── generation/             # Response generation
-    │   └── prompts/                # Prompt templates
-    └── knowledge/
-        └── medical/                # ADA/MOH guidelines
-        
+└── rag-service/                    # RAG Agent (Python FastAPI)
+    ├── knowledge_base/             # KB: chunking, embedding, search
+    ├── rag_pipeline/               # LLM client, prompt builder, RAG service
+    ├── personalization/            # Clinical rules, emergency, grounding
+    ├── tests/                      # 154 tests
+    └── main.py                     # FastAPI: /api/rag/advise, /health
+
 ```
 
 ### 5.3 Data Layer
@@ -522,13 +520,13 @@ erDiagram
 
 ### 6.2 Backend
 
-| Công nghệ         | Phiên bản | Lý do lựa chọn                          |
-| ----------------- | --------- | --------------------------------------- |
-| Java 21           | LTS       | Virtual Threads, GraalVM ready          |
-| Spring Boot       | 3.3       | Production-ready, ecosystem phong phú   |
-| Python            | 3.11+     | AI/ML ecosystem, PyTorch support        |
-| Depth Anything V2 | Latest    | SOTA monocular depth estimation         |
-| LangChain4j       | 0.28+     | Native Java AI, không cần Python bridge |
+| Công nghệ         | Phiên bản | Lý do lựa chọn                               |
+| ----------------- | --------- | -------------------------------------------- |
+| Java 21           | LTS       | Virtual Threads, GraalVM ready (API Gateway) |
+| Spring Boot       | 3.3       | API Gateway only, ecosystem phồng phú        |
+| Python            | 3.11+     | AI/ML ecosystem, PyTorch, FastAPI            |
+| Depth Anything V2 | Latest    | SOTA monocular depth estimation              |
+| Gemini API        | -         | Free-tier LLM, OpenAI-compatible endpoint    |
 
 ### 6.3 Data & Infrastructure
 
@@ -550,19 +548,19 @@ erDiagram
 
 ### 6.5 Security
 
-| Công nghệ         | Mục đích                      |
-| ----------------- | ----------------------------- |
-| Keycloak          | OAuth2/OIDC, SSO              |
-| Spring Security 6 | JWT validation, rate limiting |
-| TLS 1.3           | Transport encryption          |
-| AES-256           | Data at rest encryption       |
+| Công nghệ        | Mục đích                      |
+| ---------------- | ----------------------------- |
+| Keycloak         | OAuth2/OIDC, SSO              |
+| API Gateway Auth | JWT validation, rate limiting |
+| TLS 1.3          | Transport encryption          |
+| AES-256          | Data at rest encryption       |
 
 ---
 
 ## Tài liệu tham khảo
 
 - [Depth Anything V2](https://github.com/DepthAnything/Depth-Anything-V2)
-- [LangChain4j](https://github.com/langchain4j/langchain4j)
+- [Google Gemini API](https://ai.google.dev/gemini-api/docs)
 - [Milvus Documentation](https://milvus.io/docs)
 - [Spring Boot 3.3 Reference](https://docs.spring.io/spring-boot/docs/3.3.x/reference/html/)
 

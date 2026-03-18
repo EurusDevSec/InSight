@@ -1,4 +1,11 @@
-// src/api-gateway/src/main/proto/insight.proto
+// InSight API Gateway — gRPC/REST Contract Definition
+//
+// This proto defines the service contracts between Flutter ↔ API Gateway.
+// The Gateway implements these as REST endpoints (Task 4.2) and forwards
+// requests to the Vision and RAG FastAPI services via HTTP.
+//
+// REST mapping:
+//   InsightService.AnalyzeMeal → POST /api/gateway/analyze (multipart)
 
 syntax = "proto3";
 
@@ -7,74 +14,43 @@ package insight;
 option java_package = "com.insight.grpc";
 option java_multiple_files = true;
 
-//  VisionService
-service VisionService {
-    // Ham uoc luong the tich
-  rpc EstimateVolume(VolumeRequest) returns(VolumeResponse);
+// ── Main Pipeline Service ─────────────────────────────────────────
 
+service InsightService {
+  // Full pipeline: Image → Volume → GL → RAG Advice
+  rpc AnalyzeMeal(MealAnalysisRequest) returns (MealAnalysisResponse);
 }
 
-message VolumeRequest {
-  bytes           image_data = 1; //Root Image(JPEG/PNG bytes)
-  string          food_type  = 2; // Loai mon
-  ReferenceObject reference  = 3; // Vat tham chieu
+message MealAnalysisRequest {
+  bytes          image_data      = 1; // JPEG/PNG bytes
+  string         food_id         = 2; // e.g. "vn_com_trang", "vn_pho_bo"
+  PatientContext patient_context = 3; // optional patient info
 }
 
-message ReferenceObject {
-  string type         = 1;
-  float  width_px     = 2;
-  float  height_px_cm = 3;
-  float  real_size_cm = 4;
+message PatientContext {
+  double current_glucose_mg_dl  = 1; // current blood glucose
+  string diabetes_type          = 2; // type_1, type_2, gestational
+  double insulin_to_carb_ratio  = 3; // 1 Unit per X grams
+  double correction_factor      = 4; // mg/dL per 1 Unit
+  double target_glucose_mg_dl   = 5; // target glucose level
 }
 
-message VolumeResponse {
-  float  volume_ml     = 1; //the tich(ml)
-  float  confidence    = 2; //Do tin cay (0-1)
-  bytes  depth_map     = 3 ; //Depth  map
-  string error_message = 4; // Loi neu co
+message MealAnalysisResponse {
+  // Vision results
+  string food_name       = 1;
+  double volume_ml       = 2;
+  double weight_g        = 3;
+  double carbs_g         = 4;
+  double glycemic_load   = 5;
+  string gl_level        = 6;  // low / medium / high
+  double confidence      = 7;
 
-}
+  // RAG results
+  string          advice             = 8;
+  string          insulin_suggestion = 9;
+  repeated string warnings           = 10;
 
-// GL calculation
-service GLService {
-    // Ham tinh GL
-  rpc CalculateGL(GLRequest) returns (GLResponse);
-}
-
-message GLRequest {
-  float              volume_ml = 1;
-  string             food_id   = 2;
-  string             food_type = 3;
-  map<string,string> form_data = 4;
-}
-
-message GLResponse {
-  float  total_carbs        = 1;
-  float  glycemic_load      = 2 ;
-  float  glycemic_index     = 3;
-  string insulin_suggestion = 4; // goi y tu RAG Agent
-  string disclaimer         = 5;
-  float  confidence         = 6;
-}
-
-// Rag Advisor
-service RAGService{
-    // Ham lay loi khuyen tiem Insulin
-  rpc GetAdvice(AdviceRequest) returns (AdviceResponse);
-}
-
-message AdviceRequest {
-  float           total_carbs     = 1;
-  float           current_glucose = 2;
-  repeated string medications     = 3;
-  string          meal_context    = 4;
-
-}
-
-message AdviceResponse {
-  string          advice           = 1;
-  string          reasoning        = 2;
-  repeated string sources          = 3;
-  bool            is_emergency     = 4;
-  string          emergency_action = 5;
+  // Pipeline info
+  double pipeline_time_ms = 11;
+  string disclaimer       = 12;
 }

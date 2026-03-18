@@ -1,20 +1,20 @@
 # InSight Project — Session Context
 
 > File này lưu trữ toàn bộ context của quá trình phát triển để session AI mới đọc hiểu NGAY.
-> Cập nhật lần cuối: 11/03/2026 (Phase 1 DONE + Sprint 3 DONE + Sprint 4 DONE + Sprint 5 DONE — 166 tests + E2E + volume + GL + validation verified)
+> Cập nhật lần cuối: 19/03/2026 (Phase 1 ✅ + Phase 2 ✅ + Phase 3 ✅ + Phase 4 🔄 — 353 tests: vision 166 + rag 154 + mobile 33)
 
 ---
 
 ## 1. Thông tin dự án
 
-| Mục            | Chi tiết                                                                                      |
-| -------------- | --------------------------------------------------------------------------------------------- |
-| **Tên dự án**  | InSight — Hệ thống ước lượng Glycemic Load thời gian thực cho bệnh nhân tiểu đường            |
-| **Loại**       | Đồ án tốt nghiệp — Applied Research                                                           |
-| **Timeline**   | 06/03/2026 → 31/03/2026 (25 ngày, 5 phases, 14 sprints)                                       |
-| **Nhóm**       | Hoàng (Leader/Architect), Việt (Core Dev/Vision), Hoài (Support/Frontend)                     |
-| **Core idea**  | Chụp ảnh món ăn → Depth map (DAv2) → Volume → GL → RAG tư vấn Insulin                         |
-| **Tech Stack** | Flutter + Spring Boot (Java 21) + Python FastAPI + gRPC + Kafka + PostgreSQL + Milvus + Redis |
+| Mục            | Chi tiết                                                                                                              |
+| -------------- | --------------------------------------------------------------------------------------------------------------------- |
+| **Tên dự án**  | InSight — Hệ thống ước lượng Glycemic Load thời gian thực cho bệnh nhân tiểu đường                                    |
+| **Loại**       | Đồ án tốt nghiệp — Applied Research                                                                                   |
+| **Timeline**   | 06/03/2026 → 31/03/2026 (25 ngày, 5 phases, 14 sprints)                                                               |
+| **Nhóm**       | Hoàng (Leader/Architect), Việt (Core Dev/Vision), Hoài (Support/Frontend)                                             |
+| **Core idea**  | Chụp ảnh món ăn → Depth map (DAv2) → Volume → GL → RAG tư vấn Insulin                                                 |
+| **Tech Stack** | Flutter + Java Spring Boot (API Gateway) + Python FastAPI (Vision + RAG) + gRPC + Kafka + PostgreSQL + Milvus + Redis |
 
 ---
 
@@ -58,7 +58,12 @@ InSight/
 │   │   └── requirements.txt
 │   ├── api-gateway/                # Spring Boot API Gateway
 │   ├── mobile/                     # Flutter app
-│   └── rag-service/                # Java RAG Agent
+│   └── rag-service/                # Python RAG Agent (Task 3.1-3.3)
+│       ├── knowledge_base/         # Task 3.1: schemas, chunking, embedding, search
+│       ├── rag_pipeline/           # Task 3.2: schemas, llm_client, prompt_builder, rag_service
+│       ├── personalization/        # Task 3.3: emergency, clinical_rules, grounding
+│       ├── tests/                  # 154 tests (50 KB + 56 RAG + 48 personalization)
+│       └── main.py                 # FastAPI: POST /api/rag/advise, GET /health
 ├── data/
 │   ├── nutrition5k/parsed/         # Benchmark dataset (N=500)
 │   ├── nutrition_db/               # VN food nutrition + density factors
@@ -110,7 +115,48 @@ InSight/
 | **2.5 Volume Estimation** | ✅ Verified | V=∫∫depth·dA, density factor, GL calc, 31 unit tests, E2E=433mL/GL=13.7 |
 | **2.6 Validation & Benchmark** | ✅ Verified | ValidationService, 56 unit tests, E2E 5 VN demo; pho_bo C-APE=3.0%, GL-APE=2.9%; EXIF bug fixed |
 
-### Phase 3-5: ⬜ Not Started
+### Phase 3: RAG Agent (22/03 - 25/03) — ✅ COMPLETE
+
+| Task                    | Status  | Ghi chú                                                                          |
+| ----------------------- | ------- | -------------------------------------------------------------------------------- |
+| **3.1 Knowledge Base**  | ✅ Done | 26 docs, 46 chunks, 46 rows Milvus, E2E ingestion + search verified (18/03/2026) |
+| **3.2 RAG Pipeline**    | ✅ Done | Python RAG orchestrator, LLM client, prompt builder, 56 tests (19/03/2026)       |
+| **3.3 Personalization** | ✅ Done | Emergency detector, clinical rules, RAG grounding, 48 tests (19/03/2026)         |
+
+**Chi tiết Task 3.2:**
+
+- [x] 3.2.1 LLM Client (OpenAI-compatible, Gemini API) → `rag_pipeline/llm_client.py`
+- [x] 3.2.2 RAG Pipeline (query → retrieve → generate) → `rag_pipeline/rag_service.py`
+- [x] 3.2.3 API endpoint `POST /api/rag/advise` → `main.py`
+- [x] 3.2.4 Test response quality: 56 test scenarios pass
+
+**Chi tiết Task 3.3:**
+
+- [x] 3.3.1 Dynamic prompt (glucose level + medications) → `rag_pipeline/prompt_builder.py`
+- [x] 3.3.2 Emergency protocols (Rule of 15, glucagon, DKA) → `personalization/emergency.py`
+- [x] 3.3.3 Strict RAG Grounding (anti-hallucination) → `personalization/grounding.py`
+- [x] 3.3.4 Clinical rules (insulin dose calculation) → `personalization/clinical_rules.py`
+- [x] 3.3.5 Clinical scenario tests: 48 tests pass
+
+### Phase 4: Tích hợp & Mobile (21/03 - 28/03) — 🔄 IN PROGRESS
+
+| Task                     | Status  | Ghi chú                                                           |
+| ------------------------ | ------- | ----------------------------------------------------------------- |
+| **4.1 Flutter App**      | ✅ Done | MVVM + Provider, go_router, 5 screens, 33 tests pass (18/03/2026) |
+| **4.2 gRPC Integration** | ⬜      |                                                                   |
+| **4.3 E2E Testing**      | ⬜      |                                                                   |
+| **4.4 Performance**      | ⬜      |                                                                   |
+
+**Chi tiết Task 4.1:**
+
+- [x] 4.1.1 Setup Flutter project + navigation (go_router) → `lib/config/routes.dart`
+- [x] 4.1.2 Màn hình chụp ảnh (camera + gallery) → `lib/ui/camera/camera_screen.dart`
+- [x] 4.1.3 Màn hình kết quả GL (big numbers, patient-friendly) → `lib/ui/result/result_screen.dart`
+- [x] 4.1.4 Panic Mode UI (1-tap instant estimation, 10 VN dishes) → `lib/ui/panic/panic_screen.dart`
+- [x] 4.1.5 Form hỏi nhanh (dish type, size, toppings — ChoiceChip) → `lib/ui/food_form/food_form_screen.dart`
+- [x] 4.1.6 UX design + review (disclaimer, warnings, Material 3)
+
+### Phase 5: ⬜ Not Started
 
 ---
 
@@ -250,17 +296,20 @@ pytest>=7.0.0, pytest-cov>=4.0.0
 
 ---
 
-## 8. Tests — ✅ 79/79 PASSED (verified 11/03/2026)
+## 8. Tests — ✅ 320/320 PASSED (vision-service: 166 | rag-service: 154)
 
-| Test File                            | Tests   | Task | Scope                                                                      |
-| ------------------------------------ | ------- | ---- | -------------------------------------------------------------------------- |
-| `tests/test_depth_service.py`        | 19      | 2.1  | Model loading, prediction, output format, edge cases, service layer        |
-| `tests/test_reference_service.py`    | 21      | 2.2  | Dimensions, detection, class mapping, scale factor priority                |
-| `tests/test_calibration_service.py`  | 21      | 2.3  | Scale factors, depth normalization, quality, region measurement, utilities |
-| `tests/test_segmentation_service.py` | 18      | 2.4  | Mask shape/dtype, bowl ROI, depth resize, edge cases, components           |
-| `tests/test_volume_service.py`       | 31      | 2.5  | Volume formula, GL chain, density factor, food ID, quality, singleton      |
-| `tests/test_validation_service.py`   | 56      | 2.6  | APE/MAPE/pass_rate, DataLoader GT, ReportGenerator, save JSON, integration |
-| **Total**                            | **166** |      | **All passed (verified 11/03/2026)**                                       |
+| Test File                            | Tests   | Task | Scope                                                                                |
+| ------------------------------------ | ------- | ---- | ------------------------------------------------------------------------------------ |
+| `tests/test_depth_service.py`        | 19      | 2.1  | Model loading, prediction, output format, edge cases, service layer                  |
+| `tests/test_reference_service.py`    | 21      | 2.2  | Dimensions, detection, class mapping, scale factor priority                          |
+| `tests/test_calibration_service.py`  | 21      | 2.3  | Scale factors, depth normalization, quality, region measurement, utilities           |
+| `tests/test_segmentation_service.py` | 18      | 2.4  | Mask shape/dtype, bowl ROI, depth resize, edge cases, components                     |
+| `tests/test_volume_service.py`       | 31      | 2.5  | Volume formula, GL chain, density factor, food ID, quality, singleton                |
+| `tests/test_validation_service.py`   | 56      | 2.6  | APE/MAPE/pass_rate, DataLoader GT, ReportGenerator, save JSON, integration           |
+| `tests/test_knowledge_base.py`       | 50      | 3.1  | Guidelines data, schemas, chunking, embedding (mocked), BM25 search, full pipeline   |
+| `tests/test_rag_pipeline.py`         | 56      | 3.2  | Glucose classification, prompt builder, LLM mock, insulin calc, RAG orchestration    |
+| `tests/test_personalization.py`      | 48      | 3.3  | Emergency protocols, clinical rules, grounding validator, clinical scenarios         |
+| **Total**                            | **320** |      | **All passed (vision: 11/03 · rag kb: 22/03 · rag pipeline+personalization: 19/03)** |
 
 **Chạy tests:**
 
@@ -289,16 +338,17 @@ pytest tests/test_volume_service.py tests/test_calibration_service.py tests/test
 
 ## 9. Scripts
 
-| Script                                     | Task | Mô tả                                        |
-| ------------------------------------------ | ---- | -------------------------------------------- |
-| `scripts/poc_depth_test.py`                | POC  | Test Depth Anything V2 cơ bản (validated ✅) |
-| `scripts/download_nutrition5k.py`          | 1.3  | Download + parse Nutrition5k subset          |
-| `scripts/import_nutrition_db.py`           | 1.3  | Import VN food nutrition vào JSON            |
-| `scripts/export_density_factors.py`        | 1.3  | Export Density Factor DB                     |
-| `scripts/compile_dataset.py`               | 1.3  | Compile Nutrition5k + VN demo                |
-| `scripts/validate_dataset.py`              | 1.3  | Validate dataset integrity                   |
-| `scripts/train_reference_detector.py`      | 2.2  | YOLO training (Plan A)                       |
-| `scripts/reference_detector_pretrained.py` | 2.2  | Pretrained COCO detection (Plan B)           |
+| Script                                     | Task | Mô tả                                                     |
+| ------------------------------------------ | ---- | --------------------------------------------------------- |
+| `scripts/poc_depth_test.py`                | POC  | Test Depth Anything V2 cơ bản (validated ✅)              |
+| `scripts/download_nutrition5k.py`          | 1.3  | Download + parse Nutrition5k subset                       |
+| `scripts/import_nutrition_db.py`           | 1.3  | Import VN food nutrition vào JSON                         |
+| `scripts/export_density_factors.py`        | 1.3  | Export Density Factor DB                                  |
+| `scripts/compile_dataset.py`               | 1.3  | Compile Nutrition5k + VN demo                             |
+| `scripts/validate_dataset.py`              | 1.3  | Validate dataset integrity                                |
+| `scripts/train_reference_detector.py`      | 2.2  | YOLO training (Plan A)                                    |
+| `scripts/reference_detector_pretrained.py` | 2.2  | Pretrained COCO detection (Plan B)                        |
+| `scripts/ingest_knowledge_base.py`         | 3.1  | Batch ingestion: guidelines.json → chunk → embed → Milvus |
 
 ---
 
@@ -320,6 +370,30 @@ pytest tests/test_volume_service.py tests/test_calibration_service.py tests/test
 
 ### Phase 2 COMPLETE — Tất cả tasks 2.1-2.6 ✅ DONE
 
+### Completed Sprint 6 (Knowledge Base, 22/03)
+
+- [x] **Task 3.1**: Knowledge Base Setup — 26 medical docs → 46 chunks → 46 rows Milvus, hybrid search E2E verified (score=0.709)
+  - `src/rag-service/knowledge_base/` — schemas.py, chunking.py, embedding.py, search.py
+  - `src/rag-service/knowledge/medical/guidelines.json` — 26 docs, 7 categories, 5 sources
+  - `scripts/ingest_knowledge_base.py` — E2E verified 18/03/2026: 46 rows, CUDA GPU, 8.4s
+  - Guide: `docs/Guides/GUIDE_TASK_3.1_KNOWLEDGE_BASE.md`
+
+### Completed Sprint 7 (RAG Pipeline, 23/03)
+
+- [x] **Task 3.2**: RAG Pipeline — Python RAG orchestrator (query → retrieve → augment → generate), 56 tests
+  - `src/rag-service/rag_pipeline/` — schemas.py, llm_client.py, prompt_builder.py, rag_service.py
+  - `src/rag-service/main.py` — FastAPI `POST /api/rag/advise` + `GET /health`
+  - OpenAI-compatible LLM client (Ollama/OpenAI/vLLM)
+  - Guide: `docs/Guides/GUIDE_TASK_3.2_RAG_PIPELINE.md`
+
+### Completed Sprint 8 (Personalization, 25/03)
+
+- [x] **Task 3.3**: Personalization — Emergency detector, clinical rules, RAG grounding, 48 tests
+  - `src/rag-service/personalization/` — emergency.py, clinical_rules.py, grounding.py
+  - 6 glucose levels, 6 emergency protocols (glucagon, rule_of_15, dka, etc.)
+  - Insulin: meal_dose = carbs/ICR, correction = (glucose-target)/CF, safety caps
+  - Guide: `docs/Guides/GUIDE_TASK_3.3_PERSONALIZATION.md`
+
 ---
 
 ## 11. Conventions & Lưu ý
@@ -335,7 +409,13 @@ pytest tests/test_volume_service.py tests/test_calibration_service.py tests/test
 - **Calibration**: 24.6 px/cm, image 47.6×31.7cm, quality=high (11ms)
 - **Segmentation**: food_ratio=3.3%, 1 component, quality=high (43ms)
 - **Volume (pho_bo)**: 433.3mL, weight=132.6g, carb=29.8g, GL=13.7 medium (10.5ms)
-- **Server version**: v0.6.0 (7 endpoints active — /health + 5 vision + /validate)
+- **Vision server version**: v0.6.0 (7 endpoints active — /health + 5 vision + /validate)
+- **RAG server version**: v0.3.0 (2 endpoints — /health + /api/rag/advise)
+- **Architecture change**: RAG service implemented in Python FastAPI + Gemini API (not Java/LangChain4j as originally planned)
+- **LLM client**: OpenAI-compatible (Gemini API default: gemini-2.0-flash)
+- **Insulin calculation**: Rule-based (NOT from LLM) — meal_dose = carbs/ICR, correction = (glucose-target)/CF
+- **Emergency protocols**: 6 levels — severe_hypo → glucagon, hypo → Rule of 15, critical_high → DKA
+- **Dose safety caps**: max_meal=25U, max_correction=10U, max_total=30U
 - **EXIF fix**: `_open_image()` với `ImageOps.exif_transpose()` trong main.py (tất cả endpoints)
 - **Validation report**: `data/annotations/validation_report.json` — MAPE-C=313.4%, pho_bo C-APE=3.0%
 - **Root cause**: VN demo ảnh chụp ở zoom/khoảng cách khác nhau → px_per_cm không nhất quán
@@ -344,4 +424,4 @@ pytest tests/test_volume_service.py tests/test_calibration_service.py tests/test
 ---
 
 > **Tạo**: 10/03/2026
-> **Cập nhật**: 11/03/2026 — Sprint 5 FULL DONE (166 tests + E2E + volume/GL/validation verified)
+> **Cập nhật**: 19/03/2026 — Phase 4 Task 4.1 DONE (Flutter MVVM + Provider + go_router, 33 tests; total 353 tests: vision 166 + rag 154 + mobile 33)

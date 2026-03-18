@@ -138,7 +138,7 @@ example/
 
 ### 1.3 Setup README.md
 
-```bash
+````bash
 # Tạo README.md tại root
 cat > README.md << 'EOF'
 # 🔬 InSight — Insulin Insight System
@@ -161,7 +161,7 @@ docker compose up -d
 
 # Check health
 docker compose ps
-```
+````
 
 ## 📁 Project Structure
 
@@ -170,15 +170,17 @@ src/
 ├── mobile/          # Flutter mobile app
 ├── api-gateway/     # Spring Boot API Gateway
 ├── vision-service/  # Python Vision Engine (Depth Anything V2)
-└── rag-service/     # Java RAG Agent (LangChain4j + Milvus)
+└── rag-service/     # Python RAG Agent (Gemini API + Milvus)
 ```
 
 ## 👥 Team
+
 - **Hoàng** — Tech Lead / Architect
 - **Việt** — Backend / Vision Engineer
 - **Hoài** — Frontend / Testing / Documentation
-EOF
-```
+  EOF
+
+````
 
 ### 1.4 Setup Branch Strategy
 
@@ -193,9 +195,10 @@ git push -u origin develop
 # feature/* ← individual features
 # fix/* ← bug fixes
 # docs/* ← documentation
-```
+````
 
 > **Convention:**
+>
 > - `feat/s[sprint]/[tên-task]` — VD: `feat/s1/environment-setup`
 > - `fix/s[sprint]/[bug]` — VD: `fix/s3/depth-nan-values`
 > - `docs/[topic]` — VD: `docs/architecture-update`
@@ -211,6 +214,7 @@ git push -u origin develop
 ### 2.1 Kiểm tra architecture.md hiện tại
 
 File `docs/architecture.md` đã chứa:
+
 - ✅ High-Level Architecture diagram
 - ✅ Component Diagram chi tiết
 - ✅ Sequence Diagram (Standard Mode, Panic Mode, Đồ uống)
@@ -351,15 +355,15 @@ python -m grpc_tools.protoc -I=src/api-gateway/src/main/proto \
 
 File `docs/architecture.md` Section 5.3 đã chứa ERD diagram với các bảng:
 
-| Table | Mô tả | Columns chính |
-|-------|--------|--------------|
-| `USER` | Người dùng | id, email, name, medication, insulin_settings |
-| `MEAL_LOG` | Lịch sử bữa ăn | id, user_id, total_carbs, total_gl, insulin_suggestion |
-| `MEAL_ITEM` | Từng món trong bữa | id, meal_log_id, food_id, volume_ml, weight_g, carbs_g |
-| `FOOD` | Thông tin dinh dưỡng | id, name_vi, carb_per_100g, gi_index, category |
-| `DENSITY_FACTOR` | Hệ số mật độ | id, food_id, variant, solid_ratio, density |
-| `GLUCOSE_READING` | Đường huyết | id, user_id, value_mgdl, measured_at |
-| `FAVORITE_RESTAURANT` | Quán quen | id, user_id, name, custom_density_factors |
+| Table                 | Mô tả                | Columns chính                                          |
+| --------------------- | -------------------- | ------------------------------------------------------ |
+| `USER`                | Người dùng           | id, email, name, medication, insulin_settings          |
+| `MEAL_LOG`            | Lịch sử bữa ăn       | id, user_id, total_carbs, total_gl, insulin_suggestion |
+| `MEAL_ITEM`           | Từng món trong bữa   | id, meal_log_id, food_id, volume_ml, weight_g, carbs_g |
+| `FOOD`                | Thông tin dinh dưỡng | id, name_vi, carb_per_100g, gi_index, category         |
+| `DENSITY_FACTOR`      | Hệ số mật độ         | id, food_id, variant, solid_ratio, density             |
+| `GLUCOSE_READING`     | Đường huyết          | id, user_id, value_mgdl, measured_at                   |
+| `FAVORITE_RESTAURANT` | Quán quen            | id, user_id, name, custom_density_factors              |
 
 ### 4.2 Tạo file ERD diagram
 
@@ -429,12 +433,12 @@ INSERT INTO density_factor (id, food_id, variant, solid_ratio, density) VALUES
 
 ## Troubleshooting
 
-| Vấn đề | Giải pháp |
-|--------|-----------|
-| `gh` chưa cài | `winget install GitHub.cli` hoặc download từ github.com/cli/cli |
-| Git push bị reject | `git pull --rebase origin main` trước khi push |
-| Proto3 compile lỗi | Kiểm tra syntax: `protoc --lint_out=. insight.proto` |
-| Team chưa có quyền push | Owner (Hoàng) thêm collaborators trong repo Settings |
+| Vấn đề                  | Giải pháp                                                       |
+| ----------------------- | --------------------------------------------------------------- |
+| `gh` chưa cài           | `winget install GitHub.cli` hoặc download từ github.com/cli/cli |
+| Git push bị reject      | `git pull --rebase origin main` trước khi push                  |
+| Proto3 compile lỗi      | Kiểm tra syntax: `protoc --lint_out=. insight.proto`            |
+| Team chưa có quyền push | Owner (Hoàng) thêm collaborators trong repo Settings            |
 
 ---
 

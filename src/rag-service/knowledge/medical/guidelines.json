@@ -1,0 +1,258 @@
+{
+  "version": "1.0",
+  "schema": "insight-medical-knowledge-v1",
+  "description": "Medical guidelines for diabetes management — ADA Standards of Care, MOH Vietnam, clinical protocols",
+  "total_documents": 25,
+  "sources": [
+    "ADA Standards of Medical Care in Diabetes 2024",
+    "MOH Vietnam — National Guidelines for Diabetes Management",
+    "WHO — Global Report on Diabetes",
+    "Joslin Diabetes Center — Clinical Guidelines",
+    "IDF Diabetes Atlas 10th Edition"
+  ],
+  "categories": [
+    "insulin_dosing",
+    "carb_counting",
+    "glycemic_management",
+    "vn_food_guidance",
+    "emergency_protocol",
+    "clinical_management",
+    "moh_vietnam"
+  ],
+  "documents": [
+    {
+      "doc_id": "ada_insulin_types",
+      "title": "Types of Insulin and Their Pharmacokinetics",
+      "source": "ADA Standards of Care 2024",
+      "category": "insulin_dosing",
+      "tags": ["insulin", "pharmacokinetics", "rapid-acting", "basal", "types"],
+      "language": "en",
+      "content": "Insulin therapy is essential for all patients with type 1 diabetes and many with type 2 diabetes. Understanding insulin pharmacokinetics is critical for safe dosing.\n\nRapid-acting insulin analogs (lispro, aspart, glulisine) have onset within 10-15 minutes, peak at 1-2 hours, and duration of 3-5 hours. They are administered before meals to cover postprandial glucose excursions. The dose is calculated based on the carbohydrate content of the meal using the insulin-to-carb ratio (ICR).\n\nShort-acting regular insulin has onset at 30-60 minutes, peak at 2-4 hours, and duration of 6-8 hours. It requires administration 30 minutes before meals.\n\nIntermediate-acting NPH insulin has onset at 1-2 hours, peak at 4-8 hours, and duration of 12-16 hours. It is used for basal coverage but has a pronounced peak that increases hypoglycemia risk.\n\nLong-acting basal analogs (glargine U-100/U-300, detemir, degludec) provide relatively flat 24-hour coverage. Glargine U-100 has duration of 20-24 hours. Degludec has duration exceeding 42 hours with lower hypoglycemia risk.\n\nUltra-rapid formulations (faster aspart, inhaled insulin) have onset within 2-5 minutes and may better match rapid carbohydrate absorption from high-GI foods."
+    },
+    {
+      "doc_id": "ada_bolus_calculation",
+      "title": "Meal-Time Bolus Insulin Calculation Using Insulin-to-Carb Ratio",
+      "source": "ADA Standards of Care 2024",
+      "category": "insulin_dosing",
+      "tags": ["bolus", "ICR", "insulin-to-carb", "meal", "calculation", "carbohydrate"],
+      "language": "en",
+      "content": "The meal-time bolus insulin dose is calculated using the Insulin-to-Carbohydrate Ratio (ICR). The ICR represents how many grams of carbohydrate are covered by 1 unit of rapid-acting insulin.\n\nFormula: Bolus Dose (units) = Total Meal Carbohydrates (g) / ICR\n\nExample: If a patient's ICR is 1:10 (1 unit per 10g carb) and the meal contains 60g carbohydrates, the bolus dose = 60 / 10 = 6 units of rapid-acting insulin.\n\nTypical ICR ranges:\n- Type 1 diabetes: 1:8 to 1:15 (average 1:10)\n- Type 2 diabetes on insulin: 1:5 to 1:20 (varies widely)\n- Insulin-sensitive individuals: 1:15 to 1:25\n- Insulin-resistant individuals: 1:3 to 1:8\n\nThe ICR should be individualized and verified using post-meal glucose monitoring. If 2-hour postprandial glucose consistently exceeds 180 mg/dL, the ICR may need to be reduced (more insulin per gram of carb). If hypoglycemia occurs within 3-4 hours post-meal, the ICR should be increased.\n\nThe 500 Rule provides an initial ICR estimate: ICR = 500 / Total Daily Dose (TDD). For example, if TDD = 50 units, estimated ICR = 500/50 = 1:10.\n\nImportant: The bolus dose should be administered 10-15 minutes before eating for rapid-acting analogs, or at the start of the meal if hypoglycemia risk is high."
+    },
+    {
+      "doc_id": "ada_correction_factor",
+      "title": "Correction Factor (Insulin Sensitivity Factor) for Hyperglycemia",
+      "source": "ADA Standards of Care 2024",
+      "category": "insulin_dosing",
+      "tags": ["correction", "ISF", "sensitivity", "hyperglycemia", "high blood sugar"],
+      "language": "en",
+      "content": "The Correction Factor (CF), also known as Insulin Sensitivity Factor (ISF), indicates how much 1 unit of rapid-acting insulin will lower blood glucose (mg/dL).\n\nFormula: Correction Dose (units) = (Current BG - Target BG) / CF\n\nThe 1800 Rule estimates CF for rapid-acting insulin: CF = 1800 / Total Daily Dose (TDD). For regular insulin, use the 1500 Rule: CF = 1500 / TDD.\n\nExample: Patient with TDD = 45 units. CF = 1800/45 = 40 mg/dL per unit. If current BG = 250 mg/dL and target = 120 mg/dL: Correction = (250 - 120) / 40 = 3.25 ≈ 3 units.\n\nTotal pre-meal dose = Bolus (from ICR) + Correction dose.\n\nTarget blood glucose ranges:\n- Before meals: 80-130 mg/dL (ADA recommendation)\n- 2 hours after meals: <180 mg/dL\n- Bedtime: 100-150 mg/dL\n\nCautions:\n- Do not stack corrections: wait at least 3-4 hours between correction doses (insulin-on-board concept)\n- Reduce correction dose if previous correction caused hypoglycemia\n- During illness or stress, insulin sensitivity decreases — CF may need temporary reduction\n- Always verify CF effectiveness by checking blood glucose 3-4 hours after correction"
+    },
+    {
+      "doc_id": "ada_basal_insulin",
+      "title": "Basal Insulin Therapy Guidelines",
+      "source": "ADA Standards of Care 2024",
+      "category": "insulin_dosing",
+      "tags": ["basal", "glargine", "degludec", "long-acting", "fasting"],
+      "language": "en",
+      "content": "Basal insulin provides background insulin to suppress hepatic glucose production between meals and overnight. The goal is to maintain fasting blood glucose within 80-130 mg/dL.\n\nStarting dose: 0.1-0.2 units/kg/day or 10 units/day for type 2 diabetes. For type 1 diabetes, basal typically represents 40-50% of Total Daily Dose (TDD).\n\nTitration: Adjust by 1-2 units every 3-7 days based on fasting blood glucose:\n- FBG > 180 mg/dL: increase by 4 units\n- FBG 130-180 mg/dL: increase by 2 units\n- FBG 80-130 mg/dL: no change (target achieved)\n- FBG < 80 mg/dL: decrease by 2-4 units\n\nPreferred basal insulins:\n1. Insulin degludec: lowest hypoglycemia risk, flexible timing\n2. Glargine U-300: concentrated, smooth profile\n3. Glargine U-100: widely available, once daily\n4. Detemir: may require twice-daily dosing\n\nIf basal dose exceeds 0.5 units/kg/day without achieving fasting target, evaluate for adherence issues, counter-regulatory hormone effects (dawn phenomenon), or need for adjunctive therapy.\n\nFor patients on both basal and bolus insulin, the TDD typically splits: 40-50% basal + 50-60% bolus (divided across meals)."
+    },
+    {
+      "doc_id": "ada_insulin_adjustment",
+      "title": "Guidelines for Adjusting Insulin Doses",
+      "source": "ADA Standards of Care 2024",
+      "category": "insulin_dosing",
+      "tags": ["adjustment", "titration", "monitoring", "dose change", "patterns"],
+      "language": "en",
+      "content": "Insulin dose adjustment should be based on blood glucose patterns over 3-7 days, not single readings. Key principles:\n\n1. Adjust one component at a time (either basal OR one meal bolus)\n2. Wait 3-7 days between adjustments to assess the pattern\n3. Make changes of 10-20% of the current dose\n\nPattern-based adjustment:\n- Fasting hyperglycemia (>130 mg/dL consistently): increase basal insulin\n- Pre-lunch hyperglycemia: increase breakfast bolus or adjust breakfast ICR\n- Pre-dinner hyperglycemia: increase lunch bolus or adjust lunch ICR\n- Bedtime hyperglycemia: increase dinner bolus or adjust dinner ICR\n- Nocturnal hypoglycemia (2-4 AM): decrease basal insulin or evening snack\n\nFactors requiring dose reduction:\n- Increased physical activity: reduce bolus by 25-50% for meal before/after exercise\n- Weight loss: recalculate TDD based on new weight\n- Improved insulin sensitivity (new medication, less stress)\n- Reduced carbohydrate intake\n\nFactors requiring dose increase:\n- Illness or infection (sick day rules: may need 20-50% more insulin)\n- Stress or surgery\n- Steroid therapy (can double or triple insulin requirements)\n- Weight gain\n- Pregnancy (insulin requirements increase 2-3x by third trimester)"
+    },
+    {
+      "doc_id": "carb_counting_basics",
+      "title": "Basic Carbohydrate Counting for Diabetes",
+      "source": "ADA Nutrition Therapy Guidelines",
+      "category": "carb_counting",
+      "tags": ["carbohydrate", "counting", "basics", "food", "portions", "meal planning"],
+      "language": "en",
+      "content": "Carbohydrate counting is the cornerstone of meal-time insulin dosing for patients with diabetes. Carbohydrates have the greatest impact on postprandial blood glucose, making accurate counting essential.\n\nOne carbohydrate serving equals 15 grams of carbohydrate. Common sources:\n- 1/3 cup cooked rice = 15g carb\n- 1 slice bread = 15g carb\n- 1 small fruit (apple, orange) = 15g carb\n- 1 cup milk = 12g carb\n- 1/2 cup cooked pasta = 15g carb\n\nSteps for basic carb counting:\n1. Identify foods containing carbohydrates (grains, fruits, milk, starchy vegetables, sweets)\n2. Estimate portion size using measuring cups, food scale, or visual cues\n3. Calculate total carbohydrates from nutrition labels or food databases\n4. Sum carbohydrates for the entire meal\n5. Apply the insulin-to-carb ratio to determine bolus dose\n\nTips for accuracy:\n- Use a food scale for best results (±5% accuracy vs ±50% for visual estimation)\n- Read nutrition labels — check serving size vs actual portion\n- Account for fiber: subtract fiber from total carbs if >5g fiber per serving (net carbs)\n- Track meals in a log to identify patterns and improve estimation over time\n\nGoal: Keep carbohydrate intake consistent meal-to-meal when possible, aiming for 45-60g per meal for most adults."
+    },
+    {
+      "doc_id": "carb_counting_advanced",
+      "title": "Advanced Carbohydrate Counting: GI, GL, and Fat/Protein Effects",
+      "source": "ADA Nutrition Therapy Guidelines",
+      "category": "carb_counting",
+      "tags": ["advanced", "GI", "GL", "fat", "protein", "glycemic index", "glycemic load"],
+      "language": "en",
+      "content": "Advanced carbohydrate counting considers not just the quantity but the quality and context of carbohydrates consumed.\n\nGlycemic Index (GI) rates carbohydrates on a scale of 0-100 based on how quickly they raise blood glucose:\n- Low GI (<55): lentils (32), apples (36), milk (27)\n- Medium GI (56-69): brown rice (68), whole wheat bread (62)\n- High GI (>70): white rice (73), white bread (75), watermelon (76)\n\nGlycemic Load (GL) combines GI with actual serving size: GL = (GI × carb grams per serving) / 100\n- Low GL (<10): minimal glucose impact\n- Medium GL (11-19): moderate impact\n- High GL (>20): significant glucose impact, requires careful insulin timing\n\nFor high-GL meals (>20), consider:\n1. Administering rapid-acting insulin 15-20 minutes before eating\n2. Splitting the bolus if using an insulin pump (60% pre-meal, 40% over 1-2 hours)\n\nFat and protein effects (for meals >40g fat or >25g protein):\n- High-fat meals delay gastric emptying, causing delayed postprandial rise (3-5 hours)\n- High-protein meals stimulate glucagon, increasing glucose production\n- May need extended bolus or additional correction 3-4 hours post-meal\n\nAlcohol considerations: Alcohol inhibits hepatic gluconeogenesis, increasing hypoglycemia risk 6-24 hours after consumption. Reduce bolus by 20-30% and monitor closely."
+    },
+    {
+      "doc_id": "glycemic_index_guide",
+      "title": "Glycemic Index Reference for Common Foods",
+      "source": "International Tables of GI and GL Values 2021",
+      "category": "glycemic_management",
+      "tags": ["GI", "glycemic index", "food table", "reference", "carbohydrate quality"],
+      "language": "en",
+      "content": "Glycemic Index (GI) values for common foods, measured against glucose (GI=100):\n\nGrains and Starches:\n- White rice (boiled): GI 73\n- Brown rice: GI 68\n- Jasmine rice: GI 89 (very high — significant for Vietnamese cuisine)\n- White bread: GI 75\n- Whole wheat bread: GI 62\n- Pasta (al dente): GI 45\n- Oatmeal: GI 55\n- Sweet potato: GI 63\n\nFruits:\n- Banana (ripe): GI 62\n- Apple: GI 36\n- Orange: GI 43\n- Watermelon: GI 76\n- Mango: GI 51\n\nLegumes:\n- Lentils: GI 32\n- Black beans: GI 30\n- Chickpeas: GI 28\n\nDairy:\n- Milk (full-fat): GI 27\n- Yogurt (plain): GI 36\n\nVietnamese Foods (estimated):\n- Phở (rice noodles): GI 46-55\n- Bánh mì (French baguette): GI 80-85\n- Cơm trắng jasmine: GI 89\n- Bún (rice vermicelli): GI 40-50\n- Xôi (sticky rice): GI 87\n- Cháo (rice porridge): GI 78\n\nNote: GI values vary based on preparation method, ripeness, and individual factors. Cooking increases GI (longer cooking = higher GI). Adding fat, protein, or fiber to a meal lowers the effective GI."
+    },
+    {
+      "doc_id": "glycemic_load_calculation",
+      "title": "Glycemic Load Calculation and Clinical Thresholds",
+      "source": "ADA Standards of Care 2024",
+      "category": "glycemic_management",
+      "tags": ["GL", "glycemic load", "calculation", "thresholds", "clinical"],
+      "language": "en",
+      "content": "Glycemic Load (GL) is the most clinically useful measure for predicting postprandial blood glucose response, as it accounts for both the quality (GI) and quantity (grams) of carbohydrate.\n\nFormula: GL = (GI × Available Carbohydrate in grams) / 100\n\nGL Classification:\n- Low GL: <10 — minimal impact on blood glucose, generally safe without insulin adjustment\n- Medium GL: 11-19 — moderate impact, standard bolus insulin usually sufficient\n- High GL: ≥20 — significant glucose impact, may need pre-bolus timing or extended bolus\n\nDaily GL targets for diabetes management:\n- Total daily GL <80 for optimal glycemic control\n- Per-meal GL <20 for most patients\n- Per-meal GL <15 for patients with tight control targets (HbA1c <7.0%)\n\nExamples:\n- 1 cup white rice (150g cooked): GI=73, Carb=42g → GL = 73×42/100 = 30.7 (HIGH)\n- 1 bowl phở bò: GI=46, Carb=45g → GL = 46×45/100 = 20.7 (HIGH)\n- 1 apple (medium): GI=36, Carb=19g → GL = 36×19/100 = 6.8 (LOW)\n\nClinical application:\n1. Calculate GL from food intake (using camera estimation or food database)\n2. Apply ICR to total carbohydrates for bolus dose\n3. Use GL level to guide insulin timing: High GL → pre-bolus 15-20 min; Low GL → bolus at meal start\n4. Monitor 2h postprandial glucose to validate GL estimation accuracy"
+    },
+    {
+      "doc_id": "hypoglycemia_management",
+      "title": "Hypoglycemia Recognition and Management (Rule of 15)",
+      "source": "ADA Standards of Care 2024",
+      "category": "emergency_protocol",
+      "tags": ["hypoglycemia", "low blood sugar", "rule of 15", "emergency", "treatment"],
+      "language": "en",
+      "content": "Hypoglycemia is defined as blood glucose <70 mg/dL. It is the most common acute complication of insulin therapy.\n\nSeverity levels:\n- Level 1 (Alert): BG <70 mg/dL — autonomic symptoms, patient can self-treat\n- Level 2 (Clinically significant): BG <54 mg/dL — requires immediate treatment\n- Level 3 (Severe): Altered mental status, requires assistance from another person\n\nSymptoms:\n- Adrenergic: tremor, palpitations, sweating, hunger, anxiety\n- Neuroglycopenic: confusion, difficulty speaking, visual changes, drowsiness\n- Severe: seizures, loss of consciousness\n\nTreatment — Rule of 15:\n1. Consume 15-20 grams of fast-acting glucose:\n   - 4 glucose tablets (4g each)\n   - 1/2 cup (120mL) fruit juice\n   - 1 tablespoon honey or sugar\n   - 3-4 hard candies\n2. Wait 15 minutes\n3. Recheck blood glucose\n4. If still <70 mg/dL, repeat step 1\n5. Once BG >70 mg/dL, eat a snack containing protein + complex carb to prevent recurrence\n\nFor Level 3 (severe) hypoglycemia:\n- Glucagon injection: 1mg IM/SC or nasal glucagon\n- Do NOT give oral glucose to unconscious patient (aspiration risk)\n- Call emergency services if no response within 15 minutes\n- After recovery: consume 30-40g carbohydrate meal"
+    },
+    {
+      "doc_id": "hyperglycemia_management",
+      "title": "Hyperglycemia Management and Sick Day Rules",
+      "source": "ADA Standards of Care 2024",
+      "category": "emergency_protocol",
+      "tags": ["hyperglycemia", "high blood sugar", "sick day", "ketones", "DKA"],
+      "language": "en",
+      "content": "Hyperglycemia management depends on severity and context.\n\nMild hyperglycemia (180-250 mg/dL):\n- Apply correction dose using ISF\n- Check glucose in 3-4 hours\n- Increase water intake\n- Review recent meals for carb counting errors\n\nModerate hyperglycemia (250-400 mg/dL):\n- Apply correction dose\n- Check for ketones (urine or blood)\n- If ketones positive: increase fluid intake, apply additional correction (10-20% of TDD)\n- Contact healthcare provider if BG does not improve within 4 hours\n\nSevere hyperglycemia (>400 mg/dL):\n- Seek immediate medical attention\n- Warning signs of DKA: nausea/vomiting, abdominal pain, fruity breath, rapid breathing\n- Do NOT exercise with BG >250 mg/dL and ketones present\n\nSick Day Rules:\n1. Never skip insulin — basal insulin should always be continued\n2. Check blood glucose every 2-4 hours\n3. Check ketones if BG >250 mg/dL\n4. Increase fluid intake (sugar-free fluids if BG >180, regular fluids if unable to eat)\n5. May need 20-50% more insulin during illness\n6. Seek emergency care if: unable to keep fluids down, moderate/large ketones, BG >400 mg/dL for >4 hours\n\nCommon illness effects on glucose:\n- Fever/infection: typically raises glucose\n- Gastroenteritis (vomiting/diarrhea): may lower glucose due to reduced food intake\n- Steroid medications: can dramatically increase glucose (may need 2-3x insulin)"
+    },
+    {
+      "doc_id": "emergency_severe_hypo",
+      "title": "Emergency Protocol for Severe Hypoglycemia",
+      "source": "Joslin Diabetes Center Guidelines",
+      "category": "emergency_protocol",
+      "tags": ["emergency", "severe", "hypoglycemia", "glucagon", "unconscious", "seizure"],
+      "language": "en",
+      "content": "Severe hypoglycemia is a medical emergency requiring immediate intervention by a caregiver or medical professional.\n\nRecognition:\n- Patient confused, combative, or unresponsive\n- Seizure activity\n- Loss of consciousness\n- Blood glucose <54 mg/dL (if measurable)\n\nImmediate Actions (Caregiver):\n1. Do NOT give food or liquid by mouth if patient is unconscious or unable to swallow safely\n2. Place patient on their side (recovery position) to prevent aspiration\n3. Administer glucagon:\n   - Nasal glucagon (Baqsimi): 3mg in one nostril — no injection needed\n   - Injectable glucagon: reconstitute and inject 1mg IM into thigh or upper arm\n   - Auto-injector glucagon: follow device instructions\n4. Call emergency services (115 in Vietnam, 911 in US)\n5. Patient should respond within 10-15 minutes\n6. Once conscious: give 15-20g fast-acting glucose + meal with protein + complex carbs\n7. Do not leave patient alone for 12 hours — risk of recurrence\n\nPost-episode actions:\n- Document the event: time, BG reading, cause if known, treatment given\n- Review insulin doses — likely need reduction\n- Review recent activity, meals, alcohol intake\n- Consider continuous glucose monitoring (CGM) if not already using\n- Educate close contacts on glucagon administration\n\nPrevention:\n- CGM with low glucose alerts\n- Never skip meals when on rapid-acting insulin\n- Carry fast-acting glucose at all times\n- Wear medical identification"
+    },
+    {
+      "doc_id": "dka_warning",
+      "title": "Diabetic Ketoacidosis (DKA) Warning Signs and Response",
+      "source": "ADA Standards of Care 2024",
+      "category": "emergency_protocol",
+      "tags": ["DKA", "ketoacidosis", "ketones", "emergency", "type 1", "warning"],
+      "language": "en",
+      "content": "Diabetic Ketoacidosis (DKA) is a life-threatening emergency most common in type 1 diabetes but can occur in type 2. It develops when insufficient insulin leads to metabolic acidosis.\n\nWarning Signs:\n- Blood glucose >250 mg/dL (can be lower in euglycemic DKA)\n- Moderate to large urinary ketones or blood ketones >1.5 mmol/L\n- Nausea, vomiting, abdominal pain\n- Fruity/acetone breath odor\n- Kussmaul breathing (deep, rapid breathing)\n- Dehydration, excessive thirst\n- Confusion, drowsiness\n\nRisk Factors:\n- Missed insulin doses (most common cause)\n- Insulin pump malfunction\n- New-onset type 1 diabetes\n- Acute illness or infection\n- Surgery or trauma\n\nImmediate Response:\n1. Check blood glucose and ketones\n2. If BG >250 mg/dL + ketones positive: give correction dose (10-20% of TDD)\n3. Increase fluid intake: 500mL water per hour if tolerated\n4. Do NOT exercise\n5. Check glucose and ketones every 1-2 hours\n6. SEEK EMERGENCY CARE IMMEDIATELY if:\n   - Vomiting persists (cannot keep fluids down)\n   - Blood ketones >3.0 mmol/L\n   - Confusion or impaired consciousness\n   - BG not improving after 2 correction doses\n\nHospital treatment involves IV insulin, fluid resuscitation, and electrolyte replacement. DKA has a mortality rate of approximately 1-5% and requires ICU management."
+    },
+    {
+      "doc_id": "vn_rice_dishes",
+      "title": "Vietnamese Rice Dishes — Carbohydrate Content and GL Estimation",
+      "source": "USDA FoodData Central + Bảng TPDD Việt Nam",
+      "category": "vn_food_guidance",
+      "tags": ["vietnamese", "rice", "cơm", "jasmine", "carbohydrate", "GL"],
+      "language": "en",
+      "content": "Rice is the staple carbohydrate in Vietnamese cuisine. Jasmine rice (gạo thơm) is the most common variety, with notably higher GI than other rice types.\n\nCơm trắng (White jasmine rice, cooked):\n- Serving: 200g (1 standard bowl)\n- Carbohydrate: 56.4g per serving (28.2g per 100g)\n- GI: 73-89 (varies by preparation; average 73 for boiled jasmine)\n- GL per serving: 41-50 (HIGH)\n- Insulin consideration: Pre-bolus 15-20 min recommended due to high GI\n\nCơm tấm (Broken rice with sides):\n- Serving: 250g plate (rice portion ~150g + sides ~100g)\n- Carbohydrate: ~67.5g total (rice 42g + sides ~25g)\n- GI: 73 (base rice)\n- GL: ~47 (HIGH)\n- Note: Grilled pork and egg sides add protein and fat, which lower effective GI\n\nXôi (Sticky/glutinous rice):\n- Serving: 200g\n- Carbohydrate: ~62g per serving (31g per 100g)\n- GI: 87 (VERY HIGH)\n- GL: ~54 (VERY HIGH)\n- Insulin: Requires maximum pre-bolus timing; consider extended bolus\n\nCháo (Rice porridge/congee):\n- Serving: 300g bowl\n- Carbohydrate: ~21g per serving (7g per 100g — diluted with water)\n- GI: 78 (high, but low carb content reduces GL)\n- GL: ~16 (MEDIUM)\n- Note: Deceptively low in carbs due to water content; gentle on blood sugar\n\nGeneral guideline: For Vietnamese rice dishes, assume 28-31g carb per 100g cooked rice. Standard bowl (200g) = 56-62g carb."
+    },
+    {
+      "doc_id": "vn_noodle_soups",
+      "title": "Vietnamese Noodle Soups — Phở, Bún, Miến: Carb and GL Guide",
+      "source": "USDA FoodData Central + Bảng TPDD Việt Nam",
+      "category": "vn_food_guidance",
+      "tags": ["vietnamese", "phở", "bún", "noodle", "soup", "carbohydrate", "GL"],
+      "language": "en",
+      "content": "Vietnamese noodle soups present unique challenges for carbohydrate estimation because the broth masks the solid food content.\n\nPhở bò (Beef pho):\n- Serving: 450g total (noodles ~150g + broth ~250g + toppings ~50g)\n- Carbohydrate: ~45g (primarily from rice noodles)\n- GI: 46-55 (rice noodles have moderate GI)\n- GL: ~21 (HIGH)\n- Key insight: Only 30% of the bowl volume is solid food (noodles + meat); the rest is broth\n- Solid ratio: 0.3 (used for volume-to-weight conversion)\n- Insulin: Standard bolus at meal start; the broth adds negligible carbs\n\nBún bò Huế (Spicy beef noodle soup):\n- Serving: 500g total (noodles ~180g + broth ~270g + toppings ~50g)\n- Carbohydrate: ~50g\n- GI: 40-50 (bún = rice vermicelli, slightly lower GI than flat rice noodles)\n- GL: ~22 (HIGH)\n- Solid ratio: 0.35\n- Note: Often served with more noodles than phở; adjust estimation upward\n\nMiến (Glass noodles/cellophane noodles):\n- Serving: 100g cooked\n- Carbohydrate: ~20g per 100g\n- GI: 39 (LOW — mung bean starch)\n- GL: ~8 (LOW)\n- Note: Excellent low-GI noodle option for diabetes management\n\nBún thịt nướng (Dry noodle bowl with grilled pork):\n- Serving: 350g (noodles ~200g + meat + vegetables)\n- Carbohydrate: ~55g\n- GL: ~25 (HIGH)\n- Less challenging than soup-based dishes as all contents are visible"
+    },
+    {
+      "doc_id": "vn_bread_snacks",
+      "title": "Vietnamese Bread and Snacks — Bánh Mì, Xôi: Carb Estimation",
+      "source": "USDA FoodData Central + Bảng TPDD Việt Nam",
+      "category": "vn_food_guidance",
+      "tags": ["vietnamese", "bánh mì", "bread", "snacks", "baguette", "carbohydrate"],
+      "language": "en",
+      "content": "Vietnamese bread products typically use French-style wheat flour, resulting in high glycemic index values.\n\nBánh mì (Vietnamese baguette sandwich):\n- Serving: 150g (bread ~80g + fillings ~70g)\n- Carbohydrate: ~75.9g total (bread 50.6g per 100g × 0.8 = ~40g + fillings ~36g)\n- GI: 80-85 (white wheat baguette)\n- GL: ~61 (VERY HIGH)\n- Insulin: Requires aggressive pre-bolus; the white flour composition causes rapid glucose rise\n- Tip: Request smaller bread or discard some inner bread to reduce carb load\n\nBánh cuốn (Steamed rice rolls):\n- Serving: 200g (4-5 rolls)\n- Carbohydrate: ~38g\n- GI: 55-60\n- GL: ~22 (HIGH)\n- Note: Thinner rice sheets mean relatively moderate carbs\n\nBánh xèo (Vietnamese crepe):\n- Serving: 1 large crepe (~200g)\n- Carbohydrate: ~35g (rice flour batter + bean sprouts)\n- GI: 60-65\n- GL: ~22 (HIGH)\n- Note: Usually eaten with many fresh vegetables, which lowers effective GI\n\nGeneral snack strategy for diabetes:\n- Pair high-GI snacks with protein or fat source\n- Keep serving sizes moderate (15-30g carb per snack)\n- Choose lower-GI alternatives when available (bánh cuốn > bánh mì)\n- Account for snack carbs in total daily carbohydrate budget"
+    },
+    {
+      "doc_id": "vn_meal_planning",
+      "title": "Meal Planning for Vietnamese Diet with Diabetes",
+      "source": "MOH Vietnam + ADA Nutrition Guidelines",
+      "category": "vn_food_guidance",
+      "tags": ["vietnamese", "meal planning", "diet", "diabetes", "portions", "daily"],
+      "language": "en",
+      "content": "Traditional Vietnamese meals are rice-centric, which poses challenges for carbohydrate management in diabetes. However, the cuisine's emphasis on vegetables, herbs, and balanced flavors offers advantages.\n\nRecommended daily carbohydrate distribution (Total: 150-200g/day for most adults):\n- Breakfast: 30-45g carb\n- Lunch: 45-60g carb\n- Dinner: 45-60g carb\n- Snacks (2-3 per day): 15-30g carb each\n\nPortion control for rice:\n- Reduce standard rice serving from 200g to 100-150g (1/2 to 3/4 bowl)\n- Substitute 50% white rice with brown rice or cauliflower rice\n- Fill the remaining plate space with non-starchy vegetables and protein\n\nVietnamese-specific advantages:\n- Abundant fresh herbs and vegetables (rau sống): negligible carbs, high fiber\n- Fish sauce and lime dressings: zero carbs\n- Grilled meats (thịt nướng): pure protein, minimal carb impact\n- Canh (clear soups): low calorie, hydrating\n\nVietnamese-specific challenges:\n- Jasmine rice has very high GI (73-89)\n- Sweet sauces (nước mắm pha, tương): contain sugar (2-5g carb per tablespoon)\n- Condensed milk in coffee (cà phê sữa đá): 20-25g carb per glass\n- Sugary drinks (trà đá, nước mía): 30-50g sugar per serving\n\nMeal timing:\n- Vietnamese lunch is typically the largest meal — ideal time for the highest carb allocation\n- Avoid large carb loads after 7 PM (insulin sensitivity decreases in the evening)"
+    },
+    {
+      "doc_id": "t1d_management",
+      "title": "Type 1 Diabetes Management Overview",
+      "source": "ADA Standards of Care 2024",
+      "category": "clinical_management",
+      "tags": ["type 1", "T1D", "management", "insulin", "autoimmune", "MDI", "pump"],
+      "language": "en",
+      "content": "Type 1 diabetes (T1D) is an autoimmune condition resulting in absolute insulin deficiency. All patients require exogenous insulin for survival.\n\nInsulin Regimens:\n1. Multiple Daily Injections (MDI): basal + bolus (most common)\n   - 1-2 injections basal insulin + rapid-acting before each meal\n   - Flexible: allows dose adjustment per meal\n2. Insulin Pump Therapy (CSII): continuous subcutaneous infusion\n   - Programmable basal rates with bolus on demand\n   - Better for active lifestyles and variable schedules\n3. Hybrid Closed-Loop Systems: automated insulin delivery\n   - CGM + pump + algorithm adjusts basal automatically\n   - User still boluses for meals\n\nGlycemic Targets (ADA):\n- HbA1c: <7.0% (less stringent for elderly/high-risk: <8.0%)\n- Time in Range (TIR): >70% time with BG 70-180 mg/dL\n- Time Below Range (TBR): <4% time with BG <70 mg/dL\n- Time Above Range (TAR): <25% time with BG >180 mg/dL\n\nMonitoring:\n- CGM preferred over fingerstick glucose monitoring\n- Check glucose before meals, before driving, before/during/after exercise\n- HbA1c every 3 months\n\nKey Management Principles:\n- Carbohydrate counting is essential — use ICR for every meal\n- Correction doses for hyperglycemia using ISF\n- Exercise requires dose adjustment (reduce bolus 25-50% or consume extra carbs)\n- Alcohol requires caution (delayed hypoglycemia risk 6-24 hours)\n- Sick day management: never skip basal insulin, check ketones frequently"
+    },
+    {
+      "doc_id": "t2d_management",
+      "title": "Type 2 Diabetes Management and Insulin Initiation",
+      "source": "ADA Standards of Care 2024",
+      "category": "clinical_management",
+      "tags": ["type 2", "T2D", "management", "metformin", "oral", "insulin initiation"],
+      "language": "en",
+      "content": "Type 2 diabetes (T2D) involves insulin resistance and progressive beta-cell decline. Treatment follows a stepwise approach.\n\nFirst-line therapy: Lifestyle modification + Metformin\n- Diet: Reduce carbohydrate intake, emphasize whole grains, vegetables, lean protein\n- Exercise: 150 minutes/week moderate aerobic activity\n- Weight loss: 5-10% body weight improves insulin sensitivity\n\nWhen to add insulin:\n- HbA1c >9.0% at diagnosis with symptoms: start insulin immediately\n- HbA1c >10.0% or BG >300 mg/dL: likely needs insulin urgently\n- Failed 2-3 oral medications: add basal insulin\n- Progressive beta-cell failure: eventually most T2D patients need insulin\n\nInsulin initiation in T2D:\n1. Start with basal insulin: 10 units or 0.1-0.2 units/kg at bedtime\n2. Continue oral medications (except sulfonylureas if adding bolus insulin)\n3. Titrate every 3-7 days to achieve fasting BG 80-130 mg/dL\n4. If fasting controlled but postprandial high: add bolus insulin at largest meal\n5. Progressively add bolus at other meals as needed (basal-plus → basal-bolus)\n\nCarbohydrate counting for T2D on insulin:\n- Same ICR principles as T1D\n- ICR may be lower (more insulin per gram carb) due to insulin resistance\n- Typical T2D ICR: 1:5 to 1:15\n- Weight-based estimate: ICR = 450 / TDD (more conservative than 500 rule)\n\nKey differences from T1D:\n- Insulin can sometimes be reduced or discontinued with weight loss/lifestyle changes\n- Metformin should be continued alongside insulin when tolerated\n- GLP-1 receptor agonists can reduce insulin requirements and promote weight loss\n- Risk of DKA is lower but still possible (especially with SGLT2 inhibitors)"
+    },
+    {
+      "doc_id": "exercise_insulin",
+      "title": "Exercise and Physical Activity: Insulin Dose Adjustments",
+      "source": "ADA Standards of Care 2024",
+      "category": "clinical_management",
+      "tags": ["exercise", "physical activity", "insulin adjustment", "hypoglycemia prevention"],
+      "language": "en",
+      "content": "Physical activity significantly affects blood glucose levels and requires insulin dose modification.\n\nAerobic Exercise (running, cycling, swimming):\n- Generally lowers blood glucose during and for 24-48 hours after\n- Reduce pre-exercise meal bolus by 25-75% depending on intensity and duration\n- For unplanned exercise: consume 15-30g carbs per 30 minutes of moderate activity without bolus\n- Post-exercise: reduce basal insulin by 10-20% overnight to prevent nocturnal hypoglycemia\n\nResistance Exercise (weight training):\n- May initially raise glucose (adrenaline response) then lower it post-exercise\n- Usually does not require bolus reduction, but monitor closely\n- Benefits: improves insulin sensitivity long-term\n\nHigh-Intensity Interval Training (HIIT):\n- Adrenaline response can raise glucose acutely\n- Followed by prolonged glucose-lowering effect\n- May need small correction after HIIT, then reduced basal overnight\n\nPre-exercise blood glucose guidelines:\n- BG <90 mg/dL: consume 15-30g carbs before starting\n- BG 90-150 mg/dL: safe to exercise; may need 15g carbs if >30 min\n- BG 150-250 mg/dL: safe to exercise; no extra carbs needed\n- BG >250 mg/dL with ketones: do NOT exercise; correct hyperglycemia first\n\nTiming of exercise relative to insulin:\n- Exercise 2-3 hours after bolus insulin (when peak insulin action has passed)\n- Avoid exercise during peak insulin activity to reduce hypoglycemia risk\n- Evening exercise requires special attention — reduce bedtime basal or snack before bed"
+    },
+    {
+      "doc_id": "moh_diabetes_guidelines",
+      "title": "Vietnam MOH National Guidelines for Diabetes Management",
+      "source": "MOH Vietnam — Hướng dẫn Chẩn đoán và Điều trị Đái tháo đường",
+      "category": "moh_vietnam",
+      "tags": ["MOH", "Vietnam", "national guidelines", "diabetes", "treatment", "screening"],
+      "language": "en",
+      "content": "The Vietnam Ministry of Health (MOH) has published national guidelines for diabetes management, adapted from WHO and IDF recommendations for the Vietnamese healthcare context.\n\nDiagnosis Criteria (aligned with ADA/WHO):\n- Fasting plasma glucose ≥126 mg/dL (7.0 mmol/L)\n- 2-hour OGTT ≥200 mg/dL (11.1 mmol/L)\n- HbA1c ≥6.5%\n- Random glucose ≥200 mg/dL with classic symptoms\n\nTreatment approach:\n1. Diet therapy: Vietnamese dietary guidelines emphasize reducing white rice portions, increasing vegetables, and choosing brown rice or mixed grains\n2. Physical activity: 30 minutes moderate exercise per day, 5 days per week\n3. Medication: Metformin first line, sulfonylureas second line, insulin when oral agents insufficient\n4. Monitoring: HbA1c every 3-6 months, annual complications screening\n\nVietnamese-specific considerations:\n- High prevalence of T2D (estimated 6-7% adult population in 2024)\n- Rice-based diet with high glycemic index is a major contributing factor\n- Access to CGM and insulin pumps limited in rural areas\n- Traditional medicine (thuốc nam) should not replace evidence-based treatment\n- Vietnamese patients often present late with complications\n\nHbA1c targets:\n- General: <7.0% (53 mmol/mol)\n- Elderly or comorbidities: <8.0% (64 mmol/mol)\n- Pregnant women with diabetes: <6.5% (48 mmol/mol)\n\nScreening recommendations:\n- All adults ≥45 years: screen every 3 years\n- BMI ≥23 kg/m² (Asian-specific cutoff) with risk factors: screen regardless of age\n- History of gestational diabetes: screen annually"
+    },
+    {
+      "doc_id": "moh_nutrition",
+      "title": "Vietnamese MOH Nutrition Recommendations for Diabetic Patients",
+      "source": "MOH Vietnam — Chế độ Dinh dưỡng cho Người Đái tháo đường",
+      "category": "moh_vietnam",
+      "tags": ["MOH", "Vietnam", "nutrition", "diet", "Vietnamese food", "recommendations"],
+      "language": "en",
+      "content": "The Vietnamese MOH nutrition guidelines for diabetes management are tailored to the local dietary context.\n\nDaily Macronutrient Distribution:\n- Carbohydrate: 50-60% of total energy (lower end recommended for diabetes)\n- Protein: 15-20% of total energy\n- Fat: 20-30% of total energy\n- Fiber: ≥25g per day\n\nVietnamese-Specific Dietary Recommendations:\n1. Rice management:\n   - Reduce from typical 3 bowls/day to 1.5-2 bowls/day\n   - Mix white rice with brown rice (gạo lứt) at 1:1 ratio\n   - Consider replacing one rice meal with noodle soup (phở) which has lower GL per serving\n   - Avoid xôi (sticky rice, GI=87) and cháo đường (sweet porridge)\n\n2. Protein sources (preferred):\n   - Fish (cá): 2-3 servings per week\n   - Tofu (đậu phụ): plant protein, low carb\n   - Lean pork (thịt nạc): common in Vietnamese diet\n   - Eggs: 3-4 per week\n\n3. Vegetables (recommended 400-500g daily):\n   - Rau muống (morning glory): high fiber\n   - Mướp đắng (bitter melon): traditional diabetes remedy, may have mild glucose-lowering effect\n   - Rau cải: various greens, negligible carbs\n   - Bí đao (winter melon): low calorie, hydrating\n\n4. Foods to limit:\n   - Cà phê sữa đá (iced coffee with condensed milk): 20-25g sugar\n   - Nước mía (sugarcane juice): 30-40g sugar per glass\n   - Trà sữa (milk tea): 40-60g sugar per cup\n   - Bánh ngọt (sweet cakes): high sugar, high GI\n\n5. Meal frequency: 3 main meals + 2-3 snacks to prevent glucose fluctuations"
+    },
+    {
+      "doc_id": "insulin_pump_basics",
+      "title": "Insulin Pump Therapy Basics",
+      "source": "ADA Standards of Care 2024",
+      "category": "insulin_dosing",
+      "tags": ["pump", "CSII", "basal rate", "bolus wizard", "continuous"],
+      "language": "en",
+      "content": "Insulin pump therapy (Continuous Subcutaneous Insulin Infusion, CSII) delivers rapid-acting insulin continuously through a subcutaneous catheter.\n\nComponents:\n- Insulin reservoir: holds 180-300 units of rapid-acting insulin\n- Infusion set: subcutaneous catheter changed every 2-3 days\n- Pump device: programmable delivery system\n\nBasal Rates:\n- Continuous micro-doses (0.025-0.1 units per delivery)\n- Programmable: different rates for different times of day\n- Typical: higher rate 3-8 AM (dawn phenomenon), lower rate overnight\n- Can set temporary basal rates: exercise (-50%), illness (+50%)\n\nBolus Types:\n1. Normal bolus: entire dose delivered immediately (for most meals)\n2. Extended/square bolus: dose delivered over 30-120 minutes (for high-fat meals)\n3. Dual/combination bolus: part immediate + part extended (for mixed meals)\n\nBolus Wizard/Calculator:\n- Inputs: current BG, carbs to eat, active insulin on board (IOB)\n- Calculates: correction + meal bolus - IOB = suggested dose\n- IOB tracking prevents insulin stacking\n\nAdvantages over MDI:\n- More precise basal delivery\n- Flexible bolus timing and types\n- IOB tracking reduces hypoglycemia\n- Better for variable schedules\n\nDisadvantages:\n- Higher cost\n- Site infections possible\n- Mechanical failure risk (must have backup plan)\n- Requires significant training"
+    },
+    {
+      "doc_id": "cgm_interpretation",
+      "title": "Continuous Glucose Monitoring: Interpreting Data for Insulin Decisions",
+      "source": "ADA + Consensus Guidelines",
+      "category": "clinical_management",
+      "tags": ["CGM", "continuous glucose monitoring", "TIR", "time in range", "trends", "arrows"],
+      "language": "en",
+      "content": "Continuous Glucose Monitoring (CGM) provides real-time glucose data every 1-5 minutes, enabling proactive insulin management.\n\nKey Metrics:\n- Time in Range (TIR): % of time glucose 70-180 mg/dL — target >70%\n- Time Below Range (TBR): % of time <70 mg/dL — target <4%\n- Time Above Range (TAR): % of time >180 mg/dL — target <25%\n- Glucose Management Indicator (GMI): estimated HbA1c from CGM data\n- Coefficient of Variation (CV): glucose variability — target <36%\n\nTrend Arrows and Insulin Decisions:\n- ↑↑ Rising rapidly (>3 mg/dL/min): Consider correction dose; check for missed bolus\n- ↑ Rising slowly (1-3 mg/dL/min): Monitor; correction may be needed\n- → Stable: No action needed\n- ↓ Dropping slowly (1-3 mg/dL/min): Consider reducing next bolus; prepare fast carbs\n- ↓↓ Dropping rapidly (>3 mg/dL/min): Consume 15g fast carbs immediately; suspend bolus\n\nUsing CGM for bolus adjustment:\n- Pre-meal BG + trend arrow → adjust bolus timing\n- Rising trend before meal: bolus 15-20 min before eating\n- Stable before meal: bolus at meal start\n- Dropping before meal: bolus at end of meal or reduce dose\n\nPattern Recognition:\n- Consistent post-meal spikes: adjust ICR (more insulin per gram carb)\n- Overnight rise (dawn phenomenon): increase early morning basal rate\n- Post-exercise lows: reduce pre/post exercise insulin\n- Nighttime lows: reduce basal or evening bolus"
+    },
+    {
+      "doc_id": "alcohol_diabetes",
+      "title": "Alcohol Consumption and Diabetes Management",
+      "source": "ADA Standards of Care 2024",
+      "category": "clinical_management",
+      "tags": ["alcohol", "hypoglycemia", "liver", "social", "risk"],
+      "language": "en",
+      "content": "Alcohol has complex effects on blood glucose and requires careful management in people with diabetes.\n\nMechanisms:\n- Alcohol inhibits hepatic gluconeogenesis for up to 24 hours\n- This suppresses the liver's ability to release glucose, increasing hypoglycemia risk\n- Sweet mixed drinks and beer contain carbohydrates that initially raise glucose\n- Net effect: initial rise followed by delayed hypoglycemia (6-24 hours later)\n\nGuidelines:\n- Moderate consumption only: ≤1 drink/day for women, ≤2 drinks/day for men\n- One drink = 350mL beer, 150mL wine, or 45mL distilled spirits\n- Never drink on an empty stomach\n- Always consume carbohydrates with alcohol\n\nInsulin Adjustments:\n- Reduce overnight basal insulin by 10-20% after drinking\n- Reduce bolus for carbs consumed with alcohol by 20-30%\n- Set CGM low alert at 80 mg/dL (higher than usual)\n- Have fast-acting glucose readily available\n\nVietnamese Context:\n- Bia (beer): ~13g carb per 330mL can — bolus accordingly but reduce dose\n- Rượu (rice wine): minimal carbs but strong gluconeogenesis inhibition\n- Social drinking culture: common at business meals and celebrations\n- Cà phê sữa đá with alcohol: additional sugar from condensed milk\n\nSafety Rules:\n- Check BG before bed after drinking; eat a snack if BG <120 mg/dL\n- Wear medical ID — alcohol-induced hypoglycemia can mimic intoxication\n- Never skip the next morning's breakfast and medication\n- Educate companions about hypoglycemia signs"
+    },
+    {
+      "doc_id": "pregnancy_diabetes",
+      "title": "Gestational Diabetes and Pregnancy with Pre-existing Diabetes",
+      "source": "ADA Standards of Care 2024",
+      "category": "clinical_management",
+      "tags": ["pregnancy", "gestational", "GDM", "preconception", "tight control"],
+      "language": "en",
+      "content": "Diabetes management during pregnancy requires tighter glycemic control to prevent complications for both mother and fetus.\n\nGlycemic Targets in Pregnancy:\n- Fasting: <95 mg/dL (5.3 mmol/L)\n- 1-hour postprandial: <140 mg/dL (7.8 mmol/L)\n- 2-hour postprandial: <120 mg/dL (6.7 mmol/L)\n- HbA1c: <6.5% (ideally <6.0% if achievable without significant hypoglycemia)\n\nInsulin Changes During Pregnancy:\n- First trimester: Insulin requirements may decrease (hypoglycemia risk increases)\n- Second trimester: Requirements begin increasing due to placental hormones\n- Third trimester: Insulin requirements may be 2-3× pre-pregnancy levels\n- Postpartum: Requirements drop dramatically within hours of delivery\n\nGestational Diabetes (GDM):\n- Screened at 24-28 weeks gestation\n- First-line: diet and exercise therapy\n- If BG targets not met within 1-2 weeks: start insulin\n- Metformin may be used if insulin is refused (but crosses placenta)\n- Most GDM resolves after delivery, but 50% develop T2D within 5-10 years\n\nMedication Safety:\n- Insulin: safe in all trimesters (does not cross placenta)\n- Metformin: generally considered acceptable but crosses placenta\n- All other oral agents: NOT recommended during pregnancy\n- ACE inhibitors and statins: contraindicated in pregnancy\n\nMonitoring:\n- Self-monitoring BG 4-7 times daily (fasting + post-meal)\n- CGM can supplement but does not replace fingerstick confirmation\n- Monthly HbA1c during pregnancy"
+    }
+  ]
+}

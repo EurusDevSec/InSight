@@ -75,7 +75,7 @@ insight-app/
 │   ├── api-gateway/        # Java Spring Boot
 │   ├── vision-service/     # Python
 │   ├── logic-service/      # Java
-│   └── rag-service/        # Java + LangChain4j
+│   └── rag-service/        # Python RAG (Gemini + Milvus)
 ├── mobile/
 │   └── insight_app/        # Flutter
 ├── docs/
@@ -198,7 +198,7 @@ InSight giúp bệnh nhân tiểu đường ước lượng lượng Carbohydrat
 - **Mobile:** Flutter + ONNX Runtime
 - **Backend:** Java 21 + Spring Boot 3.3
 - **Vision:** Python + Depth Anything V2
-- **AI:** LangChain4j + Milvus
+- **AI:** Python RAG + Gemini API + Milvus
 - **Database:** PostgreSQL, Redis
 - **Message Queue:** Apache Kafka
 

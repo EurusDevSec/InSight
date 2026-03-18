@@ -3,7 +3,7 @@
 > **Task ID**: S8-001
 > **Phase**: Phase 3 - RAG Agent & Logic
 > **Sprint**: Sprint 8 - Cá nhân hóa
-> **Status**: ⬜ NOT STARTED
+> **Status**: ✅ DONE
 > **Created**: 06/03/2026
 > **Target**: 25/03/2026
 > **Assignee**: Hoàng (chính), Hoài
@@ -21,10 +21,10 @@
 
 **Acceptance Criteria:**
 
-- [ ] Dynamic prompt thay đổi dựa trên glucose level + thuốc
-- [ ] Giao thức khẩn cấp: phát hiện hạ đường huyết → hướng dẫn cấp cứu
-- [ ] Strict RAG Grounding: response chỉ từ chunks hợp lệ (chống hallucination)
-- [ ] Test scenarios lâm sàng pass (glucose thấp/bình thường/cao)
+- [x] Dynamic prompt thay đổi dựa trên glucose level + thuốc
+- [x] Giao thức khẩn cấp: phát hiện hạ đường huyết → hướng dẫn cấp cứu
+- [x] Strict RAG Grounding: response chỉ từ chunks hợp lệ (chống hallucination)
+- [x] Test scenarios lâm sàng pass (glucose thấp/bình thường/cao)
 
 ---
 
@@ -32,13 +32,13 @@
 
 ### Subtasks
 
-- [ ] 3.3.1 Implement dynamic prompt dựa trên glucose + thuốc — **Hoàng**
-- [ ] 3.3.2 Implement giao thức khẩn cấp (hạ đường huyết) — **Hoàng**
-- [ ] 3.3.3 Strict RAG Grounding (chống hallucination) — **Hoàng**
-- [ ] 3.3.4 Test với scenarios lâm sàng — **Hoài**
+- [x] 3.3.1 Implement dynamic prompt dựa trên glucose + thuốc — **Hoàng** → `rag_pipeline/prompt_builder.py`
+- [x] 3.3.2 Implement giao thức khẩn cấp (hạ đường huyết) — **Hoàng** → `personalization/emergency.py`
+- [x] 3.3.3 Strict RAG Grounding (chống hallucination) — **Hoàng** → `personalization/grounding.py`
+- [x] 3.3.4 Test với scenarios lâm sàng (48 tests) — **Hoài** → `tests/test_personalization.py`
 
 ### Branch & PR
 
-- [ ] Branch: `feat/s8/personalization`
-- [ ] PR Created
-- [ ] Clinical scenarios verified
+- [x] Branch: `feat/s8/personalization`
+- [x] PR Created
+- [x] Clinical scenarios verified (48 tests pass)

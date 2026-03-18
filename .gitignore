@@ -23,6 +23,16 @@ target/
 mobile/insight_app/build/
 mobile/insight_app/.dart_tool/
 mobile/insight_app/.packages
+mobile/insight_app/.env
+mobile/insight_app/.metadata
+mobile/insight_app/.flutter-plugins
+mobile/insight_app/.flutter-plugins-dependencies
+
+# Flutter — unused platforms (Android + iOS only)
+mobile/insight_app/linux/
+mobile/insight_app/macos/
+mobile/insight_app/web/
+mobile/insight_app/windows/
 
 # Data (Image shout not push on git)
 data/raw/*
@@ -50,4 +60,8 @@ node_modules/
 #Example
 
 example/
+
+# Copilot auto-generated skills
+.github/agents/skills/
+skills-lock.json
 

@@ -13,7 +13,7 @@
 > 📌 **Phân công vai trò**:
 >
 > - **Hoàng** (Leader/Architect): Tech Lead + Product Owner + AI Lead — Thiết kế kiến trúc, RAG Agent, ra quyết định kỹ thuật, quản lý tiến độ
-> - **Việt** (Core Developer): Backend Lead + Vision Engineer — Vision Engine (Depth Anything V2), Backend Java/Spring Boot, gRPC
+> - **Việt** (Core Developer): Backend Lead + Vision Engineer — Vision Engine (Depth Anything V2), Backend API, gRPC
 > - **Hoài** (Support Developer): Frontend + Testing + Documentation — Flutter UI, thu thập dữ liệu, viết tài liệu, testing
 
 ---
@@ -61,13 +61,13 @@
 
 ### 1.2. Mục tiêu dự án
 
-| #   | Mục tiêu                            | Đo lường                                   | Ghi chú                     |
-| --- | ----------------------------------- | ------------------------------------------ | --------------------------- |
-| 1   | Ước lượng thể tích món ăn từ ảnh 2D | Sai số ≤ 15% so với đổ nước                | Dùng Depth Anything V2      |
-| 2   | Tính GL chính xác cho món Việt Nam  | Sai số ≤ 20% so với cân thật               | Kết hợp CV + Density Factor |
-| 3   | RAG Agent tư vấn liều Insulin       | Response có ngữ cảnh, ≤ 5 giây             | LangChain4j + Milvus        |
-| 4   | Mobile app chụp ảnh → kết quả       | Latency ≤ 5 giây (chuẩn), ≤ 1 giây (nhanh) | Flutter + gRPC              |
-| 5   | Demo end-to-end cho bảo vệ luận văn | Sẵn sàng bảo vệ                            | Video demo + báo cáo        |
+| #   | Mục tiêu                            | Đo lường                                   | Ghi chú                      |
+| --- | ----------------------------------- | ------------------------------------------ | ---------------------------- |
+| 1   | Ước lượng thể tích món ăn từ ảnh 2D | Sai số ≤ 15% so với đổ nước                | Dùng Depth Anything V2       |
+| 2   | Tính GL chính xác cho món Việt Nam  | Sai số ≤ 20% so với cân thật               | Kết hợp CV + Density Factor  |
+| 3   | RAG Agent tư vấn liều Insulin       | Response có ngữ cảnh, ≤ 5 giây             | Python RAG + Gemini + Milvus |
+| 4   | Mobile app chụp ảnh → kết quả       | Latency ≤ 5 giây (chuẩn), ≤ 1 giây (nhanh) | Flutter + gRPC               |
+| 5   | Demo end-to-end cho bảo vệ luận văn | Sẵn sàng bảo vệ                            | Video demo + báo cáo         |
 
 ### 1.3. Phạm vi (Scope)
 
@@ -96,13 +96,13 @@
 
 > ⚠️ **Lưu ý**: Đây là đồ án tốt nghiệp, tập trung vào ứng dụng thực tiễn.
 
-| Contribution      | Loại        | Mô tả                                                        |
-| ----------------- | ----------- | ------------------------------------------------------------ |
-| Vision Engine     | Engineering | Triển khai Depth Anything V2 cho ước lượng thể tích món ăn   |
-| RAG Agent         | Application | Tích hợp LangChain4j + Milvus cho tư vấn Insulin cá nhân hóa |
-| Density Factor DB | Research    | Xây dựng cơ sở dữ liệu mật độ cho món Việt Nam               |
-| Mobile App        | Product     | Flutter app end-to-end với Panic Mode                        |
-| Documentation     | Education   | Tài liệu kiến trúc chi tiết cho đồ án                        |
+| Contribution      | Loại        | Mô tả                                                           |
+| ----------------- | ----------- | --------------------------------------------------------------- |
+| Vision Engine     | Engineering | Triển khai Depth Anything V2 cho ước lượng thể tích món ăn      |
+| RAG Agent         | Application | Python RAG + Gemini API + Milvus cho tư vấn Insulin cá nhân hóa |
+| Density Factor DB | Research    | Xây dựng cơ sở dữ liệu mật độ cho món Việt Nam                  |
+| Mobile App        | Product     | Flutter app end-to-end với Panic Mode                           |
+| Documentation     | Education   | Tài liệu kiến trúc chi tiết cho đồ án                           |
 
 ### 1.5. Phân công nhóm chi tiết
 
@@ -115,7 +115,7 @@
 **Việt (Core Developer):**
 
 - Vai trò: Backend Lead + Vision Engineer
-- Trách nhiệm: Triển khai Vision Engine (Depth Anything V2), Backend Java/Spring Boot, gRPC
+- Trách nhiệm: Triển khai Vision Engine (Depth Anything V2), Backend API, gRPC
 - Điểm mạnh: Kỹ thuật tốt, implementation nhanh
 - Lưu ý: Cần được giao task cụ thể, rõ ràng
 
@@ -177,18 +177,18 @@ graph TD
     end
 
     subgraph "RAG"
-        Volume -->|Kafka| JavaCore[Java Logic Service]
-        JavaCore --> VectorDB[Milvus Vector DB]
-        JavaCore --> LLM[LLM Agent - LangChain4j]
-        LLM --> JavaCore
+        Volume -->|Kafka| RAGAgent[Python RAG Service]
+        RAGAgent --> VectorDB[Milvus Vector DB]
+        RAGAgent --> LLM[LLM - Gemini API]
+        LLM --> RAGAgent
     end
 
     subgraph "Dữ liệu"
-        JavaCore --> PostgreSQL[PostgreSQL]
-        JavaCore --> Redis[Redis Cache]
+        RAGAgent --> PostgreSQL[PostgreSQL]
+        RAGAgent --> Redis[Redis Cache]
     end
 
-    JavaCore --> Mobile
+    RAGAgent --> Mobile
 ```
 
 ### 3.2 Luồng xử lý
@@ -214,13 +214,13 @@ graph TD
 
 ### 4.1 Core Stack
 
-| Thành phần    | Công nghệ                        | Phiên bản    | Lý do chọn                        |
-| ------------- | -------------------------------- | ------------ | --------------------------------- |
-| Mobile        | Flutter + ONNX Runtime           | 3.x / 1.17   | Cross-platform 60fps              |
-| Backend       | Java 21 + Spring Boot            | 3.3          | Virtual Threads, sẵn sàng GraalVM |
-| Giao tiếp     | gRPC + Protobuf                  | 1.60+        | Nhanh hơn REST 7-10 lần           |
-| Vision Engine | Python 3.11+ / Depth Anything V2 | -            | Deploy qua TorchServe             |
-| GenAI / RAG   | LangChain4j + Milvus             | 0.28+ / 2.3+ | AI native Java, HNSW index        |
+| Thành phần    | Công nghệ                        | Phiên bản  | Lý do chọn                        |
+| ------------- | -------------------------------- | ---------- | --------------------------------- |
+| Mobile        | Flutter + ONNX Runtime           | 3.x / 1.17 | Cross-platform 60fps              |
+| API Gateway   | Java 21 + Spring Boot            | 3.3        | Virtual Threads, sẵn sàng GraalVM |
+| Giao tiếp     | gRPC + Protobuf                  | 1.60+      | Nhanh hơn REST 7-10 lần           |
+| Vision Engine | Python 3.11+ / Depth Anything V2 | -          | Deploy qua TorchServe             |
+| GenAI / RAG   | Python FastAPI + Gemini + Milvus | - / 2.3+   | OpenAI-compatible, HNSW index     |
 
 ### 4.2 Hạ tầng
 
@@ -466,43 +466,43 @@ gantt
 
 > **Mục tiêu Phase**: RAG Agent tư vấn liều Insulin có ngữ cảnh, chính xác lâm sàng
 > **Thời gian**: 5 ngày (21/03 - 25/03)
-> **Hoàng**: RAG setup, LangChain4j | **Việt**: API endpoints | **Hoài**: Thu thập tài liệu y khoa
+> **Hoàng**: RAG setup, Gemini API | **Việt**: API endpoints | **Hoài**: Thu thập tài liệu y khoa
 
 ### Sprint 6: Kiến thức Y khoa (21/03 - 22/03/2026)
 
 | Task ID | Task                     | Subtasks                                                      | Assignee | Target    | Status |
 | ------- | ------------------------ | ------------------------------------------------------------- | -------- | --------- | ------ |
-| 3.1     | **Knowledge Base Setup** |                                                               |          | **22/03** | ⬜     |
-|         |                          | 3.1.1 Thu thập hướng dẫn ADA/MOH về quản lý tiểu đường        | Hoài     |           | ⬜     |
-|         |                          | 3.1.2 Chuẩn hóa & chunk tài liệu y khoa                       | Hoàng    |           | ⬜     |
-|         |                          | 3.1.3 Embedding & nhập vào Milvus                             | Hoàng    |           | ⬜     |
-|         |                          | 3.1.4 Implement hybrid search (keyword + vector + re-ranking) | Hoàng    |           | ⬜     |
+| 3.1     | **Knowledge Base Setup** |                                                               |          | **22/03** | ✅     |
+|         |                          | 3.1.1 Thu thập hướng dẫn ADA/MOH về quản lý tiểu đường        | Hoài     |           | ✅     |
+|         |                          | 3.1.2 Chuẩn hóa & chunk tài liệu y khoa                       | Hoàng    |           | ✅     |
+|         |                          | 3.1.3 Embedding & nhập vào Milvus                             | Hoàng    |           | ✅     |
+|         |                          | 3.1.4 Implement hybrid search (keyword + vector + re-ranking) | Hoàng    |           | ✅     |
 
 ### Sprint 7: RAG Pipeline (23/03 - 24/03/2026)
 
 | Task ID | Task                | Subtasks                                                   | Assignee | Target    | Status |
 | ------- | ------------------- | ---------------------------------------------------------- | -------- | --------- | ------ |
-| 3.2     | **RAG Integration** |                                                            |          | **24/03** | ⬜     |
-|         |                     | 3.2.1 Setup LangChain4j trong Spring Boot                  | Hoàng    |           | ⬜     |
-|         |                     | 3.2.2 Implement RAG pipeline (query → retrieve → generate) | Hoàng    |           | ⬜     |
-|         |                     | 3.2.3 Tạo API endpoints cho RAG service                    | Việt     |           | ⬜     |
-|         |                     | 3.2.4 Test response quality (10 test scenarios)            | Hoài     |           | ⬜     |
+| 3.2     | **RAG Integration** |                                                            |          | **24/03** | ✅     |
+|         |                     | 3.2.1 Setup LLM Client (OpenAI-compatible, Gemini API)     | Hoàng    |           | ✅     |
+|         |                     | 3.2.2 Implement RAG pipeline (query → retrieve → generate) | Hoàng    |           | ✅     |
+|         |                     | 3.2.3 Tạo API endpoints cho RAG service (FastAPI)          | Việt     |           | ✅     |
+|         |                     | 3.2.4 Test response quality (56 test scenarios)            | Hoài     |           | ✅     |
 
 ### Sprint 8: Cá nhân hóa (25/03/2026)
 
 | Task ID | Task                  | Subtasks                                                | Assignee | Target    | Status |
 | ------- | --------------------- | ------------------------------------------------------- | -------- | --------- | ------ |
-| 3.3     | **Dynamic Prompting** |                                                         |          | **25/03** | ⬜     |
-|         |                       | 3.3.1 Implement dynamic prompt dựa trên glucose + thuốc | Hoàng    |           | ⬜     |
-|         |                       | 3.3.2 Implement giao thức khẩn cấp (hạ đường huyết)     | Hoàng    |           | ⬜     |
-|         |                       | 3.3.3 Strict RAG Grounding (chống hallucination)        | Hoàng    |           | ⬜     |
-|         |                       | 3.3.4 Test với scenarios lâm sàng                       | Hoài     |           | ⬜     |
+| 3.3     | **Dynamic Prompting** |                                                         |          | **25/03** | ✅     |
+|         |                       | 3.3.1 Implement dynamic prompt dựa trên glucose + thuốc | Hoàng    |           | ✅     |
+|         |                       | 3.3.2 Implement giao thức khẩn cấp (hạ đường huyết)     | Hoàng    |           | ✅     |
+|         |                       | 3.3.3 Strict RAG Grounding (chống hallucination)        | Hoàng    |           | ✅     |
+|         |                       | 3.3.4 Test với scenarios lâm sàng (48 tests)            | Hoài     |           | ✅     |
 
 **✅ Milestone 5**: RAG Agent hoạt động, response có ngữ cảnh, tư vấn chính xác
 
 **📊 Phase 3 Deliverables**:
 
-- [ ] Knowledge base trong Milvus
+- [x] Knowledge base trong Milvus (25 docs, 50 unit tests ✅ — ingestion vào Milvus pending Docker)
 - [ ] RAG pipeline hoạt động
 - [ ] Dynamic prompting dựa trên glucose
 - [ ] Giao thức khẩn cấp
@@ -520,13 +520,13 @@ gantt
 
 | Task ID | Task            | Subtasks                                              | Assignee | Target    | Status |
 | ------- | --------------- | ----------------------------------------------------- | -------- | --------- | ------ |
-| 4.1     | **Flutter App** |                                                       |          | **23/03** | ⬜     |
-|         |                 | 4.1.1 Setup Flutter project + navigation              | Hoài     |           | ⬜     |
-|         |                 | 4.1.2 Màn hình chụp ảnh (camera + gallery)            | Hoài     |           | ⬜     |
-|         |                 | 4.1.3 Màn hình kết quả GL (số to, ít chữ, thân thiện) | Hoài     |           | ⬜     |
-|         |                 | 4.1.4 Panic Mode UI (1 chạm ước lượng nhanh)          | Hoài     |           | ⬜     |
-|         |                 | 4.1.5 Form hỏi nhanh (loại món, size, topping)        | Hoài     |           | ⬜     |
-|         |                 | 4.1.6 UX design + review                              | Hoàng    |           | ⬜     |
+| 4.1     | **Flutter App** |                                                       |          | **23/03** | ✅     |
+|         |                 | 4.1.1 Setup Flutter project + navigation              | Hoài     |           | ✅     |
+|         |                 | 4.1.2 Màn hình chụp ảnh (camera + gallery)            | Hoài     |           | ✅     |
+|         |                 | 4.1.3 Màn hình kết quả GL (số to, ít chữ, thân thiện) | Hoài     |           | ✅     |
+|         |                 | 4.1.4 Panic Mode UI (1 chạm ước lượng nhanh)          | Hoài     |           | ✅     |
+|         |                 | 4.1.5 Form hỏi nhanh (loại món, size, topping)        | Hoài     |           | ✅     |
+|         |                 | 4.1.6 UX design + review                              | Hoàng    |           | ✅     |
 
 ### Sprint 10: Tích hợp E2E (24/03 - 26/03/2026)
 
