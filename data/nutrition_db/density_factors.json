@@ -8,7 +8,7 @@
     "Food engineering research papers",
     "Commercial product analysis"
   ],
-  "total_items": 12,
+  "total_items": 27,
   "items": [
     {
       "food_id": "com_trang",
@@ -117,6 +117,141 @@
       "density_g_per_ml": 1.05,
       "source": "Commercial product analysis",
       "notes": "90% liquid (tea+milk), 10% tapioca pearls"
+    },
+    {
+      "food_id": "com_rang",
+      "name_vi": "Cơm chiên/rang",
+      "name_en": "Fried rice",
+      "solid_ratio": 1.0,
+      "density_g_per_ml": 1.0,
+      "source": "Estimated",
+      "notes": "Fully solid, slightly less dense than plain rice due to oil"
+    },
+    {
+      "food_id": "bun_cha",
+      "name_vi": "Bún chả",
+      "name_en": "Grilled pork with vermicelli",
+      "solid_ratio": 0.75,
+      "density_g_per_ml": 0.9,
+      "source": "Estimated",
+      "notes": "Bún + chả nướng + nước chấm (25% nước chấm)"
+    },
+    {
+      "food_id": "hu_tieu",
+      "name_vi": "Hủ tiếu",
+      "name_en": "Hu tieu noodle soup",
+      "solid_ratio": 0.35,
+      "density_g_per_ml": 1.02,
+      "source": "Estimated (similar to pho)",
+      "notes": "35% solid (noodles + meat), 65% broth"
+    },
+    {
+      "food_id": "bun_rieu",
+      "name_vi": "Bún riêu",
+      "name_en": "Crab noodle soup",
+      "solid_ratio": 0.35,
+      "density_g_per_ml": 1.03,
+      "source": "Estimated (similar to bun bo hue)",
+      "notes": "Thick broth with crab paste"
+    },
+    {
+      "food_id": "banh_cuon",
+      "name_vi": "Bánh cuốn",
+      "name_en": "Steamed rice rolls",
+      "solid_ratio": 0.9,
+      "density_g_per_ml": 0.95,
+      "source": "Estimated",
+      "notes": "Thin rice sheets, some filling, lighter than rice"
+    },
+    {
+      "food_id": "com_ga",
+      "name_vi": "Cơm gà",
+      "name_en": "Chicken rice plate",
+      "solid_ratio": 0.9,
+      "density_g_per_ml": 1.05,
+      "source": "Estimated (similar to com tam)",
+      "notes": "Mixed plate: rice + chicken + veg"
+    },
+    {
+      "food_id": "banh_canh",
+      "name_vi": "Bánh canh",
+      "name_en": "Thick noodle soup",
+      "solid_ratio": 0.4,
+      "density_g_per_ml": 1.03,
+      "source": "Estimated",
+      "notes": "Thicker noodles than pho, more solid"
+    },
+    {
+      "food_id": "bun_mam",
+      "name_vi": "Bún mắm",
+      "name_en": "Fermented fish noodle soup",
+      "solid_ratio": 0.35,
+      "density_g_per_ml": 1.03,
+      "source": "Estimated (similar to bun bo hue)",
+      "notes": "Rich broth with noodles + seafood"
+    },
+    {
+      "food_id": "pho_ga",
+      "name_vi": "Phở gà",
+      "name_en": "Chicken pho",
+      "solid_ratio": 0.3,
+      "density_g_per_ml": 1.02,
+      "source": "Same as pho_bo_standard",
+      "notes": "Same noodle ratio as beef pho"
+    },
+    {
+      "food_id": "banh_xeo",
+      "name_vi": "Bánh xèo",
+      "name_en": "Vietnamese crispy pancake",
+      "solid_ratio": 0.95,
+      "density_g_per_ml": 0.7,
+      "source": "Estimated",
+      "notes": "Crispy shell, some air inside, light"
+    },
+    {
+      "food_id": "goi_cuon",
+      "name_vi": "Gỏi cuốn",
+      "name_en": "Fresh spring rolls",
+      "solid_ratio": 1.0,
+      "density_g_per_ml": 0.85,
+      "source": "Estimated",
+      "notes": "Rice paper wraps, lighter than rice"
+    },
+    {
+      "food_id": "mi_quang",
+      "name_vi": "Mì Quảng",
+      "name_en": "Quang noodles",
+      "solid_ratio": 0.85,
+      "density_g_per_ml": 0.9,
+      "source": "Estimated",
+      "notes": "Very little broth, mostly solid noodles + toppings"
+    },
+    {
+      "food_id": "cao_lau",
+      "name_vi": "Cao lầu",
+      "name_en": "Cao lau noodles",
+      "solid_ratio": 0.9,
+      "density_g_per_ml": 0.95,
+      "source": "Estimated",
+      "notes": "Dry noodles, minimal sauce"
+    },
+    {
+      "food_id": "bot_chien",
+      "name_vi": "Bột chiên",
+      "name_en": "Fried rice flour cake",
+      "solid_ratio": 1.0,
+      "density_g_per_ml": 0.8,
+      "source": "Estimated",
+      "notes": "Fried, oily, lighter per volume"
+    },
+    {
+      "food_id": "com_binh_dan",
+      "name_vi": "Cơm bình dân",
+      "name_en": "Mixed rice plate",
+      "solid_ratio": 0.9,
+      "density_g_per_ml": 1.05,
+      "source": "Estimated (similar to com tam)",
+      "notes": "Mixed plate: rice + various sides"
     }
   ]
 }

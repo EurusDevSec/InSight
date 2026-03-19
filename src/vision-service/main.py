@@ -66,6 +66,8 @@ ref_detector = ReferenceDetector(
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Load models on startup, cleanup on shutdown."""
+    import time as _time
+    t_start = _time.time()
     logger.info("Starting InSight Vision Service...")
 
     # Pre-load depth model (warm up)
@@ -93,6 +95,9 @@ async def lifespan(app: FastAPI):
         f"Volume estimator ready "
         f"({len(vol_estimator.get_available_foods())} foods loaded)"
     )
+
+    startup_ms = (_time.time() - t_start) * 1000
+    logger.info(f"Vision Service startup complete in {startup_ms:.0f}ms")
 
     yield  # App is running
 
@@ -377,6 +382,10 @@ async def estimate_volume(
             "Defaults to 'vn_com_trang' if omitted or unrecognised."
         ),
     ),
+    debug: Optional[bool] = Form(
+        False,
+        description="If true, include debug data (depth preview, food mask, formula).",
+    ),
 ):
     """
     Full pipeline: image → depth → calibrate → segment → volume → GL.
@@ -410,23 +419,34 @@ async def estimate_volume(
         detections = ref_detector.detect(pil_image)
         scale_factor = ref_detector.get_best_scale_factor(detections)
 
-        if scale_factor is None:
-            raise HTTPException(
-                status_code=422,
-                detail=(
-                    "No reference object detected. "
-                    "Ensure a bowl or spoon is visible in the image."
-                ),
+        no_reference = scale_factor is None
+        if no_reference:
+            # Fallback: estimate scale from image width assuming ~30cm field of view
+            # (typical phone photo of a plate from ~40cm distance)
+            img_w, _img_h = pil_image.size
+            scale_factor = img_w / 30.0  # ~30 px/cm for 900px image
+            logger.warning(
+                "No reference object detected — using fallback scale "
+                "%.1f px/cm (image_w=%d, assumed 30cm FOV). "
+                "Results will be approximate.",
+                scale_factor, img_w,
             )
 
         # ── Step 3: Calibration ───────────────────────────────────────────
-        best_ref = max(detections, key=lambda d: d.confidence)
+        if detections:
+            best_ref = max(detections, key=lambda d: d.confidence)
+            ref_class = best_ref.class_name
+            ref_confidence = best_ref.confidence
+        else:
+            ref_class = "none_fallback"
+            ref_confidence = 0.0
+
         cal_svc = get_calibration_service()
         cal_result = cal_svc.calibrate(
             depth_map=depth_map,
             pixels_per_cm=scale_factor,
-            reference_class=best_ref.class_name,
-            reference_confidence=best_ref.confidence,
+            reference_class=ref_class,
+            reference_confidence=ref_confidence,
             image_size=pil_image.size,
         )
 
@@ -464,7 +484,77 @@ async def estimate_volume(
             food_id=effective_food_id,
         )
 
+        # Override quality to "low" when no reference was found
+        result_quality = vol_result.estimation_quality
+        result_quality_reason = vol_result.quality_reason
+        if no_reference:
+            result_quality = "low"
+            result_quality_reason = (
+                "No reference object detected — using estimated scale factor. "
+                + vol_result.quality_reason
+            )
+
         total_ms = (__import__("time").time() - t_total_start) * 1000
+
+        # ── Debug data (only when requested) ──────────────────────────────
+        debug_depth = None
+        debug_mask = None
+        debug_refs = None
+        debug_scale = None
+        debug_table = None
+        debug_formula = None
+
+        if debug:
+            # Depth map thumbnail (256px wide)
+            depth_vis = depth_result.get("depth_image")
+            if depth_vis is not None:
+                thumb_w = 256
+                ratio = thumb_w / depth_vis.width
+                thumb_h = int(depth_vis.height * ratio)
+                depth_thumb = depth_vis.resize((thumb_w, thumb_h))
+                buf = io.BytesIO()
+                depth_thumb.save(buf, format="PNG")
+                debug_depth = base64.b64encode(buf.getvalue()).decode()
+
+            # Food mask thumbnail (256px wide)
+            mask_np = seg_result.refined_mask
+            if mask_np is not None:
+                mask_img = Image.fromarray((mask_np * 255).astype(np.uint8))
+                thumb_w = 256
+                ratio = thumb_w / mask_img.width
+                thumb_h = int(mask_img.height * ratio)
+                mask_thumb = mask_img.resize((thumb_w, thumb_h))
+                buf = io.BytesIO()
+                mask_thumb.save(buf, format="PNG")
+                debug_mask = base64.b64encode(buf.getvalue()).decode()
+
+            # Reference objects
+            debug_refs = [
+                {
+                    "class": d.class_name,
+                    "confidence": round(d.confidence, 3),
+                    "bbox": d.bbox,
+                }
+                for d in detections
+            ]
+
+            debug_scale = round(scale_factor, 2)
+
+            debug_table = round(vol_result.table_level_cm, 3)
+
+            # Formula breakdown
+            food_px = seg_result.food_area_pixels
+            debug_formula = (
+                f"V = ∫∫ depth(x,y) dA\n"
+                f"  = Σ max(0, depth_food − table_level) × pixel_area_cm²\n"
+                f"  pixel_area = {cal_result.cm_per_pixel:.4f}² = {cal_result.cm_per_pixel**2:.6f} cm²\n"
+                f"  table_level = {debug_table or 'N/A'} cm\n"
+                f"  food_pixels = {food_px}\n"
+                f"  V = {vol_result.volume_cm3:.1f} cm³ = {vol_result.volume_ml:.1f} mL\n"
+                f"  Weight = V × solid_ratio({vol_result.solid_ratio}) × density({vol_result.density_g_per_ml}) = {vol_result.weight_g:.1f} g\n"
+                f"  Carb = weight × carb_per_100g / 100 = {vol_result.carb_g:.1f} g\n"
+                f"  GL = carb × GI({vol_result.glycemic_index}) / 100 = {vol_result.glycemic_load:.1f}"
+            )
 
         return VolumeEstimationResponse(
             volume_cm3=vol_result.volume_cm3,
@@ -481,10 +571,16 @@ async def estimate_volume(
             density_g_per_ml=vol_result.density_g_per_ml,
             food_area_cm2=vol_result.food_area_cm2,
             mean_food_height_cm=vol_result.mean_food_height_cm,
-            estimation_quality=vol_result.estimation_quality,
-            quality_reason=vol_result.quality_reason,
+            estimation_quality=result_quality,
+            quality_reason=result_quality_reason,
             volume_time_ms=vol_result.estimation_time_ms,
             total_pipeline_time_ms=total_ms,
+            debug_depth_preview=debug_depth,
+            debug_food_mask_preview=debug_mask,
+            debug_reference_objects=debug_refs,
+            debug_scale_px_per_cm=debug_scale,
+            debug_table_level_cm=debug_table,
+            debug_formula=debug_formula,
         )
 
     except HTTPException:

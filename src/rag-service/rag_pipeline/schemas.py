@@ -158,3 +158,17 @@ class AdviceResponse(BaseModel):
         default=Confidence.MEDIUM, description="Response confidence"
     )
     disclaimer: str = Field(default=DISCLAIMER)
+
+    # ── Debug / Developer Mode ─────────────────────────────────────
+    debug_retrieved_chunks: list[dict] | None = Field(
+        default=None,
+        description="Retrieved KB chunks [{source, category, score, content_preview}]",
+    )
+    debug_prompt_preview: str | None = Field(
+        default=None,
+        description="Truncated user prompt sent to LLM (first 500 chars)",
+    )
+    debug_llm_raw: str | None = Field(
+        default=None,
+        description="Raw LLM response text before JSON parsing",
+    )

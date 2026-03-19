@@ -55,6 +55,8 @@ _grounding_validator: GroundingValidator | None = None
 @app.on_event("startup")
 async def _startup() -> None:
     global _rag_service, _clinical_rules, _grounding_validator
+    import time as _time
+    t_start = _time.time()
 
     # Embedding
     embedding_svc = EmbeddingService()
@@ -74,7 +76,7 @@ async def _startup() -> None:
         base_url=os.getenv("LLM_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/"),
         api_key=os.getenv("GEMINI_API_KEY", ""),
         max_tokens=int(os.getenv("LLM_MAX_TOKENS", "1024")),
-        temperature=float(os.getenv("LLM_TEMPERATURE", "0.3")),
+        temperature=float(os.getenv("LLM_TEMPERATURE", "0.1")),
     )
     llm.connect()
 
@@ -89,7 +91,8 @@ async def _startup() -> None:
     _clinical_rules = ClinicalRules()
     _grounding_validator = GroundingValidator()
 
-    logger.info("RAG service started successfully.")
+    startup_ms = (_time.time() - t_start) * 1000
+    logger.info(f"RAG service started successfully in {startup_ms:.0f}ms")
 
 
 # ── Endpoints ──────────────────────────────────────────────────────
@@ -101,16 +104,17 @@ async def health() -> dict:
 
 
 @app.post("/api/rag/advise", response_model=AdviceResponse)
-async def advise(request: AdviceRequest) -> AdviceResponse:
+async def advise(request: AdviceRequest, debug: bool = False) -> AdviceResponse:
     """Main RAG advisory endpoint.
 
     Flow: query → retrieve medical chunks → build prompt → LLM → structured response.
+    Pass debug=true to include retrieved chunks, prompt preview, and raw LLM output.
     """
     if _rag_service is None:
         raise HTTPException(status_code=503, detail="Service not initialized")
 
     try:
-        response = _rag_service.advise(request)
+        response = _rag_service.advise(request, debug=debug)
         return response
     except Exception:
         logger.exception("Error in RAG advise endpoint")

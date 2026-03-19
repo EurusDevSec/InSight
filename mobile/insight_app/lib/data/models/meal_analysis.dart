@@ -11,6 +11,9 @@ class MealAnalysis {
   final String? insulinSuggestion;
   final List<String> warnings;
 
+  // Debug / Developer Mode data
+  final DebugData? debug;
+
   const MealAnalysis({
     required this.foodName,
     required this.volumeMl,
@@ -22,6 +25,7 @@ class MealAnalysis {
     this.advice,
     this.insulinSuggestion,
     this.warnings = const [],
+    this.debug,
   });
 
   factory MealAnalysis.fromJson(Map<String, dynamic> json) {
@@ -39,6 +43,55 @@ class MealAnalysis {
               ?.map((e) => e.toString())
               .toList() ??
           [],
+      debug: json['debug'] != null
+          ? DebugData.fromJson(json['debug'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+/// Developer mode debug data from the pipeline.
+class DebugData {
+  // Vision debug
+  final String? depthPreview;
+  final String? foodMaskPreview;
+  final List<Map<String, dynamic>>? referenceObjects;
+  final double? scalePxPerCm;
+  final double? tableLevelCm;
+  final String? formula;
+
+  // RAG debug
+  final List<Map<String, dynamic>>? retrievedChunks;
+  final String? promptPreview;
+  final String? llmRaw;
+
+  const DebugData({
+    this.depthPreview,
+    this.foodMaskPreview,
+    this.referenceObjects,
+    this.scalePxPerCm,
+    this.tableLevelCm,
+    this.formula,
+    this.retrievedChunks,
+    this.promptPreview,
+    this.llmRaw,
+  });
+
+  factory DebugData.fromJson(Map<String, dynamic> json) {
+    return DebugData(
+      depthPreview: json['depth_preview'] as String?,
+      foodMaskPreview: json['food_mask_preview'] as String?,
+      referenceObjects: (json['reference_objects'] as List<dynamic>?)
+          ?.map((e) => Map<String, dynamic>.from(e as Map))
+          .toList(),
+      scalePxPerCm: (json['scale_px_per_cm'] as num?)?.toDouble(),
+      tableLevelCm: (json['table_level_cm'] as num?)?.toDouble(),
+      formula: json['formula'] as String?,
+      retrievedChunks: (json['retrieved_chunks'] as List<dynamic>?)
+          ?.map((e) => Map<String, dynamic>.from(e as Map))
+          .toList(),
+      promptPreview: json['prompt_preview'] as String?,
+      llmRaw: json['llm_raw'] as String?,
     );
   }
 }

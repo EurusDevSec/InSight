@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_MODEL = "gemini-2.0-flash"
 DEFAULT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"  # Gemini OpenAI-compatible
 DEFAULT_MAX_TOKENS = 1024
-DEFAULT_TEMPERATURE = 0.3  # low temp for medical accuracy
+DEFAULT_TEMPERATURE = 0.1  # near-deterministic for medical accuracy
 
 
 @dataclass
@@ -107,14 +107,39 @@ class LLMClient:
         failure.
         """
         raw = self.generate(system_prompt, user_prompt)
-        # Strip markdown code fences if present
-        cleaned = raw.strip()
-        if cleaned.startswith("```"):
-            lines = cleaned.split("\n")
-            lines = [l for l in lines if not l.strip().startswith("```")]
-            cleaned = "\n".join(lines).strip()
+        cleaned = self._extract_json(raw)
         try:
             return json.loads(cleaned)
         except json.JSONDecodeError:
             logger.warning("LLM did not return valid JSON; wrapping raw text.")
-            return {"advice": raw}
+            return {"advice": self._clean_markdown(raw)}
+
+    # ── Helpers ────────────────────────────────────────────────────
+
+    @staticmethod
+    def _extract_json(text: str) -> str:
+        """Extract JSON from LLM output, stripping markdown code fences."""
+        import re
+
+        text = text.strip()
+        # Match ```json ... ``` or ``` ... ```
+        m = re.search(r"```(?:json)?\s*\n?(.*?)```", text, re.DOTALL)
+        if m:
+            return m.group(1).strip()
+        # Fallback: find first { ... last }
+        start = text.find("{")
+        end = text.rfind("}")
+        if start != -1 and end != -1 and end > start:
+            return text[start : end + 1]
+        return text
+
+    @staticmethod
+    def _clean_markdown(text: str) -> str:
+        """Strip markdown formatting artifacts from plain text."""
+        import re
+
+        text = re.sub(r"```\w*\n?", "", text)  # code fences
+        text = re.sub(r"\*\*(.+?)\*\*", r"\1", text)  # bold
+        text = re.sub(r"\*(.+?)\*", r"\1", text)  # italic
+        text = re.sub(r"\n{3,}", "\n\n", text)  # excess newlines
+        return text.strip()

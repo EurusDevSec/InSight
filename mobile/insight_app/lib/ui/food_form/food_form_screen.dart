@@ -19,16 +19,42 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
   String? _dishType;
   String? _size;
   final List<String> _toppings = [];
+  final _customFoodController = TextEditingController();
+
+  @override
+  void dispose() {
+    _customFoodController.dispose();
+    super.dispose();
+  }
 
   static const _dishTypes = [
-    'Cơm',
-    'Phở',
-    'Bún',
-    'Cháo',
+    // Cơm
+    'Cơm tấm',
+    'Cơm trắng',
+    'Cơm gà',
+    'Cơm chiên',
+    'Cơm bình dân',
+    // Phở / Bún / Mì
+    'Phở bò',
+    'Phở gà',
+    'Bún bò',
+    'Bún chả',
+    'Bún riêu',
+    'Bún mắm',
+    'Bún thịt nướng',
+    'Hủ tiếu',
+    'Mì xào',
+    'Mì Quảng',
+    'Cao lầu',
+    'Bánh canh',
+    // Bánh / Khác
     'Bánh mì',
+    'Bánh cuốn',
+    'Bánh xèo',
+    'Gỏi cuốn',
     'Xôi',
-    'Miến',
-    'Mì',
+    'Cháo',
+    'Bột chiên',
     'Khác',
   ];
 
@@ -85,6 +111,25 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
                       );
                     },
                   ),
+                // Top-down photo guidance
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Row(
+                    children: [
+                      Icon(Icons.camera_alt, size: 16, color: Colors.blue[700]),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'Chụp từ trên xuống (top-down) cho kết quả chính xác nhất',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.blue[700],
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 24),
 
                 // Dish type (optional — auto-detected from image if not selected)
@@ -111,15 +156,39 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
                           if (_dishType == type) {
                             _dishType = null;
                             vm.setFoodType(null);
+                            vm.setCustomFoodName(null);
                           } else {
                             _dishType = type;
                             vm.setFoodType(type);
+                            if (type != 'Khác') {
+                              vm.setCustomFoodName(null);
+                              _customFoodController.clear();
+                            }
                           }
                         });
                       },
                     );
                   }).toList(),
                 ),
+                // Custom food name input when "Khác" is selected
+                if (_dishType == 'Khác') ...[
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _customFoodController,
+                    decoration: InputDecoration(
+                      labelText: 'Tên món ăn',
+                      hintText: 'VD: Bún đậu mắm tôm, Bánh tráng trộn...',
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.restaurant),
+                      helperText: 'Nhập tên món để AI tư vấn chính xác hơn',
+                      helperStyle: TextStyle(color: Colors.grey[600]),
+                    ),
+                    onChanged: (value) => vm.setCustomFoodName(
+                      value.trim().isEmpty ? null : value.trim(),
+                    ),
+                    textCapitalization: TextCapitalization.sentences,
+                  ),
+                ],
                 const SizedBox(height: 24),
 
                 // Size
@@ -161,7 +230,22 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
                     );
                   }).toList(),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
+
+                // Developer Mode toggle
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Developer Mode'),
+                  subtitle: const Text('Hiển thị depth map, formula, RAG chunks'),
+                  secondary: Icon(
+                    Icons.developer_mode,
+                    color: vm.debugMode ? Colors.greenAccent : Colors.grey,
+                  ),
+                  value: vm.debugMode,
+                  onChanged: (_) => vm.toggleDebugMode(),
+                ),
+
+                const SizedBox(height: 16),
 
                 // Analyze button
                 SizedBox(

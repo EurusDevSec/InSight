@@ -35,7 +35,7 @@ public class VisionServiceClient {
     }
 
     @SuppressWarnings("unchecked")
-    public Map<String, Object> estimateVolume(MultipartFile image, String foodId) throws IOException {
+    public Map<String, Object> estimateVolume(MultipartFile image, String foodId, boolean debug) throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
@@ -53,6 +53,9 @@ public class VisionServiceClient {
         });
         if (foodId != null && !foodId.isBlank()) {
             body.add("food_id", foodId);
+        }
+        if (debug) {
+            body.add("debug", "true");
         }
 
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);

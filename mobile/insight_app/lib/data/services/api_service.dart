@@ -27,7 +27,9 @@ class ApiService {
   Future<MealAnalysis> analyzePipeline({
     required XFile imageFile,
     String? foodId,
+    String? customFoodName,
     PatientContext? patient,
+    bool debug = false,
   }) async {
     final uri = Uri.parse('$gatewayBaseUrl/api/gateway/analyze');
 
@@ -37,6 +39,10 @@ class ApiService {
         http.MultipartFile.fromBytes('image', bytes, filename: imageFile.name),
       );
     if (foodId != null) request.fields['food_id'] = foodId;
+    if (customFoodName != null) {
+      request.fields['custom_food_name'] = customFoodName;
+    }
+    if (debug) request.fields['debug'] = 'true';
     if (patient != null) {
       if (patient.glucoseLevel != null) {
         request.fields['glucose_level'] = patient.glucoseLevel.toString();

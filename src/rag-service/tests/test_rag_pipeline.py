@@ -569,3 +569,58 @@ class TestSchemas:
         assert data["glucose_classification"] == "normal"
         assert data["confidence"] == "high"
         assert "disclaimer" in data
+
+
+# ═══════════════════════════════════════════════════════════════════
+# 7. LLM Client — JSON Extraction & Markdown Cleaning (Task 4.4)
+# ═══════════════════════════════════════════════════════════════════
+
+
+class TestLLMClientExtractJson:
+    """Test LLMClient._extract_json() static method."""
+
+    def test_plain_json(self):
+        text = '{"advice": "Take 4U insulin"}'
+        assert LLMClient._extract_json(text) == '{"advice": "Take 4U insulin"}'
+
+    def test_markdown_code_fence(self):
+        text = '```json\n{"advice": "hello"}\n```'
+        assert '"advice"' in LLMClient._extract_json(text)
+
+    def test_code_fence_no_language(self):
+        text = '```\n{"advice": "world"}\n```'
+        result = LLMClient._extract_json(text)
+        assert '"advice"' in result
+
+    def test_json_embedded_in_text(self):
+        text = 'Here is my response:\n{"advice": "eat less"}\nHope that helps!'
+        result = LLMClient._extract_json(text)
+        assert result == '{"advice": "eat less"}'
+
+    def test_no_json_returns_original(self):
+        text = "No JSON here, just text"
+        assert LLMClient._extract_json(text) == text
+
+
+class TestLLMClientCleanMarkdown:
+    """Test LLMClient._clean_markdown() static method."""
+
+    def test_bold_stripped(self):
+        assert LLMClient._clean_markdown("**Bold text**") == "Bold text"
+
+    def test_italic_stripped(self):
+        assert LLMClient._clean_markdown("*italic text*") == "italic text"
+
+    def test_code_fence_stripped(self):
+        assert "```" not in LLMClient._clean_markdown("```json\ncode\n```")
+
+    def test_excessive_newlines_collapsed(self):
+        result = LLMClient._clean_markdown("a\n\n\n\n\nb")
+        assert result == "a\n\nb"
+
+    def test_mixed_markdown(self):
+        text = "**Bold** and *italic* with ```code```"
+        result = LLMClient._clean_markdown(text)
+        assert "**" not in result
+        assert "*" not in result or result.count("*") == 0
+        assert "```" not in result

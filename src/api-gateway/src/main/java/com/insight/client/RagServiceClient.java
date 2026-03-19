@@ -36,7 +36,8 @@ public class RagServiceClient {
             String mealDescription,
             Double glycemicLoad,
             Double carbsG,
-            Map<String, Object> patientContext) {
+            Map<String, Object> patientContext,
+            boolean debug) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("meal_description", mealDescription);
         if (glycemicLoad != null)
@@ -52,8 +53,13 @@ public class RagServiceClient {
 
         log.info("POST {}/api/rag/advise (meal={})", baseUrl, mealDescription);
 
+        String url = baseUrl + "/api/rag/advise";
+        if (debug) {
+            url += "?debug=true";
+        }
+
         ResponseEntity<Map> response = restTemplate.postForEntity(
-                baseUrl + "/api/rag/advise",
+                url,
                 entity,
                 Map.class);
 

@@ -41,15 +41,17 @@ public class AnalysisController {
     public ResponseEntity<Map<String, Object>> analyze(
             @RequestParam("image") MultipartFile image,
             @RequestParam(value = "food_id", required = false) String foodId,
+            @RequestParam(value = "custom_food_name", required = false) String customFoodName,
             @RequestParam(value = "glucose_level", required = false) Double glucoseLevel,
             @RequestParam(value = "diabetes_type", required = false, defaultValue = "type_2") String diabetesType,
             @RequestParam(value = "insulin_carb_ratio", required = false) Double insulinCarbRatio,
             @RequestParam(value = "correction_factor", required = false) Double correctionFactor,
-            @RequestParam(value = "target_glucose", required = false, defaultValue = "120") Double targetGlucose)
+            @RequestParam(value = "target_glucose", required = false, defaultValue = "120") Double targetGlucose,
+            @RequestParam(value = "debug", required = false, defaultValue = "false") Boolean debug)
             throws IOException {
         Map<String, Object> result = pipelineService.analyzeFull(
-                image, foodId, glucoseLevel, diabetesType,
-                insulinCarbRatio, correctionFactor, targetGlucose);
+                image, foodId, customFoodName, glucoseLevel, diabetesType,
+                insulinCarbRatio, correctionFactor, targetGlucose, debug);
         return ResponseEntity.ok(result);
     }
 }

@@ -93,3 +93,29 @@ class VolumeEstimationResponse(BaseModel):
             "reference detection, calibration, segmentation, and volume (ms)"
         ),
     )
+
+    # ── Debug / Developer Mode ────────────────────────────────────────────
+    debug_depth_preview: str | None = Field(
+        default=None,
+        description="Base64-encoded depth map thumbnail (256px wide, PNG)",
+    )
+    debug_food_mask_preview: str | None = Field(
+        default=None,
+        description="Base64-encoded food mask thumbnail (256px wide, PNG)",
+    )
+    debug_reference_objects: list[dict] | None = Field(
+        default=None,
+        description="Detected reference objects [{class, confidence, bbox}]",
+    )
+    debug_scale_px_per_cm: float | None = Field(
+        default=None,
+        description="Calibrated scale factor (pixels per cm)",
+    )
+    debug_table_level_cm: float | None = Field(
+        default=None,
+        description="Estimated table surface depth (cm) used as baseline",
+    )
+    debug_formula: str | None = Field(
+        default=None,
+        description="Human-readable formula breakdown for volume computation",
+    )

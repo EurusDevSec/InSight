@@ -88,10 +88,10 @@ class CalibrationService:
     """
 
     # Depth map normalization range
-    # Depth Anything V2 outputs 0-255, where higher = closer to camera
-    # We need to decide a reference depth scale
-    # For food on a table, typical depth range is 2-15cm
-    DEPTH_RANGE_CM = (0.0, 15.0)  # Min/max food height in cm
+    # Depth Anything V2 outputs RELATIVE depth (0-255), not metric.
+    # Real food heights: plate food 1-3cm, bowl food 3-8cm.
+    # 5cm covers most Vietnamese dishes without over-inflating volume.
+    DEPTH_RANGE_CM = (0.0, 5.0)  # Min/max food height in cm
 
     def __init__(self):
         self._last_calibration: Optional[CalibrationResult] = None

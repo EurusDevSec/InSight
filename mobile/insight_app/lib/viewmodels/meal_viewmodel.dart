@@ -17,12 +17,14 @@ class MealViewModel extends ChangeNotifier {
 
   XFile? selectedImage;
   String? selectedFoodType;
+  String? customFoodName;
   String? selectedSize;
   MealAnalysis? result;
   String? advice;
   String? insulinSuggestion;
   bool isLoading = false;
   String? error;
+  bool debugMode = false;
 
   // ── Patient context (persisted across analyses) ────────────
 
@@ -49,8 +51,18 @@ class MealViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setCustomFoodName(String? name) {
+    customFoodName = name;
+    notifyListeners();
+  }
+
   void setSize(String? size) {
     selectedSize = size;
+    notifyListeners();
+  }
+
+  void toggleDebugMode() {
+    debugMode = !debugMode;
     notifyListeners();
   }
 
@@ -76,7 +88,9 @@ class MealViewModel extends ChangeNotifier {
       final analysis = await _apiService.analyzePipeline(
         imageFile: selectedImage!,
         foodId: selectedFoodType,
+        customFoodName: customFoodName,
         patient: patientContext,
+        debug: debugMode,
       );
       result = analysis;
       advice = analysis.advice;
@@ -98,6 +112,7 @@ class MealViewModel extends ChangeNotifier {
     insulinSuggestion = null;
     error = null;
     isLoading = false;
+    // Keep debugMode across resets
     notifyListeners();
   }
 }

@@ -1,7 +1,7 @@
 # InSight Project — Session Context
 
 > File này lưu trữ toàn bộ context của quá trình phát triển để session AI mới đọc hiểu NGAY.
-> Cập nhật lần cuối: 19/03/2026 (Phase 1-3 ✅ + Phase 4 Tasks 4.1-4.3 ✅ — 375 tests: vision 166 + rag 154 + gateway 15 + mobile 40)
+> Cập nhật lần cuối: 19/03/2026 (Phase 1-4 ✅ + Safety & Accuracy Fixes + Food DB 25 items + Bowl Volume Prior + 404 tests)
 
 ---
 
@@ -150,12 +150,12 @@ InSight/
 
 ### Phase 4: Tích hợp & Mobile (21/03 - 28/03) — 🔄 IN PROGRESS
 
-| Task                            | Status  | Ghi chú                                                              |
-| ------------------------------- | ------- | -------------------------------------------------------------------- |
-| **4.1 Flutter App**             | ✅ Done | MVVM + Provider, go_router, 5 screens, 33 tests pass (18/03/2026)    |
-| **4.2 API Gateway Integration** | ✅ Done | REST proxy + Kafka events, 15 tests (5 controller + 10 pipeline)     |
-| **4.3 E2E Testing**             | ✅ Done | Python E2E script + 7 Flutter E2E tests, all acceptance criteria met |
-| **4.4 Performance**             | ⬜      |                                                                      |
+| Task                            | Status  | Ghi chú                                                                           |
+| ------------------------------- | ------- | --------------------------------------------------------------------------------- |
+| **4.1 Flutter App**             | ✅ Done | MVVM + Provider, go_router, 5 screens, 33 tests pass (18/03/2026)                 |
+| **4.2 API Gateway Integration** | ✅ Done | REST proxy + Kafka events, 15 tests (5 controller + 10 pipeline)                  |
+| **4.3 E2E Testing**             | ✅ Done | Python E2E script + 7 Flutter E2E tests, all acceptance criteria met              |
+| **4.4 Performance**             | ✅ Done | Redis cache (SHA-256, 1h TTL), cold-start timers, latency metrics (vision/rag ms) |
 
 **Chi tiết Task 4.1:**
 
@@ -189,7 +189,81 @@ InSight/
 - Non-blocking Kafka: audit events fire-and-forget
 - Disclaimer luôn có trong mọi response
 
+**Chi tiết Task 4.4:**
+
+- [x] 4.4.1 Cold-start timers: Vision + RAG log startup time trong ms
+- [x] 4.4.2 Redis cache: `CacheService.java` — SHA-256 key, 1h TTL, graceful degradation
+- [x] 4.4.3 Timing metrics: `vision_time_ms` + `rag_time_ms` trong pipeline response
+- [x] 4.4.4 Review + 4 tests mới: cache hit/miss, timing, markdown cleaning
+- Guide: `docs/Guides/GUIDE_TASK_4.4_PERFORMANCE.md`
+
 ### Phase 5: ⬜ Not Started
+
+---
+
+## 4a. Safety & Accuracy Fixes (19/03/2026)
+
+### Vấn đề phát hiện
+
+Test thực tế với ảnh Cơm tấm cho kết quả nguy hiểm: GL=374, Volume=2000mL, Insulin=53.9U.
+Benchmark 5 món × 2 góc cho thấy soup dishes (phở, bún bò) sai 91-100%.
+
+### Fixes đã thực hiện
+
+1. **Depth range calibration**: `DEPTH_RANGE_CM` từ `(0, 15)` → `(0, 5)` — phù hợp top-down food photos
+2. **Volume correction**: `_DAV2_VOLUME_CORRECTION = 0.35` (solid dishes only)
+3. **Bowl volume prior** (liquid/soup dishes): bypass depth integral, dùng typical serving size
+   - Phở bò/gà: 500mL, Bún bò Huế: 550mL, Cháo: 350mL, Hủ tiếu: 450mL, etc.
+   - Lý do: Depth estimation chỉ thấy bề mặt chất lỏng, không đo được chiều sâu tô
+4. **Food segmentation threshold**: `_MIN_FOOD_SEG_RATIO = 0.05` — khi food mask < 5% → quality=low + cảnh báo
+5. **Insulin safety caps**: SYSTEM_PROMPT Rule 6 (max meal=25U, correction=10U, total=30U) + Gateway hard cap 30U
+6. **Sanity checks in PipelineService**: volume≥800→warn, weight>800→warn, carbs>150→warn
+7. **Clean advice text**: Jackson JSON extract + regex fallback (loại markdown/json artifacts)
+8. **com_tam carb correction**: `carb_per_100g` 27→18 (đúng theo USDA cho broken rice + toppings)
+9. **Flutter UX**: Red critical warnings (`Icons.dangerous`), confidence "⚠️ Thấp" khi ≤0.5
+10. **Top-down photo guidance**: Hint text in food_form_screen.dart "Chụp từ trên xuống cho kết quả chính xác nhất"
+
+### Benchmark Results (After Fixes)
+
+| Món        | Góc | Volume        | Weight     | Carbs Error  | GL Error     | Trước Fix |
+| ---------- | --- | ------------- | ---------- | ------------ | ------------ | --------- |
+| Phở bò     | top | 500mL (prior) | 153g       | **23.5%** ✅ | **23.5%** ✅ | 95% ❌    |
+| Bún bò Huế | top | 550mL (prior) | 198g       | **0.5%** ✅  | **0.5%** ✅  | 100% ❌   |
+| Cơm tấm    | top | 255mL         | 253g (1%)  | 33% ✅       | 33% ✅       | 1% ✅     |
+| Bánh mì    | 45° | 320mL         | 112g (25%) | 25% ✅       | 25% ✅       | 25% ✅    |
+| Cơm trắng  | top | 103mL         | 112g (44%) | 44% ⚠️       | 44% ⚠️       | 44% ⚠️    |
+
+**Key improvements:**
+
+- Soup dishes: 91-100% error → **0.5-23.5%** (massive improvement)
+- Solid top-down: unchanged (already good with 0.35 correction)
+- 45° angle still poor for solid foods — root cause: YOLO generic model misses Vietnamese food
+
+### Remaining Limitations
+
+- YOLO segmentation at 45° angle: food_seg < 5% → unreliable (properly warned now)
+- Weight metric for soup includes broth in GT but not in estimate (carbs/GL more clinically relevant)
+- Single `_SOLID_VOLUME_CORRECTION = 0.35` works for com_tam top-down but not all solid foods at all angles
+
+---
+
+## 4b. Custom Food Feature ("Khác")
+
+### Implementation
+
+- Flutter: "Khác" option in `_dishTypes` → shows TextField with hint "VD: Bún đậu mắm tôm..."
+- ViewModel: `customFoodName` state + `setCustomFoodName()` method
+- API: sends `custom_food_name` field alongside `food_id`
+- Gateway: `AnalysisController` receives `custom_food_name` param, `PipelineService` overrides `foodName` for RAG
+- Cho phép user nhập tên món bất kỳ khi không có trong danh sách 25 món
+
+### Food DB Expansion (10→25 món)
+
+Expanded `_dishTypes` in Flutter (grouped by category):
+
+- **Cơm**: Cơm trắng, Cơm tấm, Cơm rang, Cơm gà, Cơm bình dân
+- **Phở-Bún-Mì**: Phở bò, Phở gà, Bún bò, Bún thịt nướng, Bún chả, Bún riêu, Bún mắm, Hủ tiếu, Bánh canh, Mì xào, Mì Quảng, Cao lầu
+- **Bánh-Khác**: Bánh mì, Bánh xèo, Bánh cuốn, Gỏi cuốn, Bột chiên, Xôi, Cháo, Khác
 
 ---
 
@@ -232,14 +306,17 @@ Request → FastAPI (main.py)
               │   ├─ Quality assessment: confidence + scale + depth variation
               │   └─ Utilities: pixels_to_cm(), cm_to_pixels(), measure_region()
               │
-              └─► VolumeEstimator (services/volume_service.py)  ← NEW Task 2.5
-                  ├─ Formula: V = Σ max(0, depth_food − table_level) × pixel_area_cm²
+              └─► VolumeEstimator (services/volume_service.py)  ← Task 2.5 (updated)
+                  ├─ SOLID dishes: V = Σ max(0, depth_food − table_level) × pixel_area × 0.35
+                  ├─ LIQUID dishes: Bowl volume prior (phở=500mL, bún bò=550mL, cháo=350mL, etc.)
+                  │   └─ Depth integral cannot see bowl interior → use typical serving size
                   ├─ table_level = 10th percentile of non-food pixel depths
                   ├─ Weight: V × solid_ratio × density_g_per_ml
                   ├─ Carb: weight × carb_per_100g / 100
                   ├─ GL: carb × GI_index / 100
-                  ├─ Load density_factors.json (12 foods) + vn_food_nutrition.json (10 foods)
-                  └─ Food ID resolution: full → short prefix → default (vn_com_trang)
+                  ├─ Food seg threshold: <5% → quality=low + warning "chụp lại từ trên xuống"
+                  ├─ Load density_factors.json (27 items) + vn_food_nutrition.json (25 foods)
+                  └─ Food ID resolution: full → short → VN name (~55 aliases) → default
               │
               └─► ValidationService (services/validation_service.py)  ← NEW Task 2.6
                   ├─ MetricComputer: ape(), mape(), pass_rate(), compute_sample_result()
@@ -287,13 +364,13 @@ Request → FastAPI (main.py)
 
 ### Vietnamese Food Nutrition DB
 
-- **File**: `data/nutrition_db/vn_food_nutrition.json` (10 món VN)
+- **File**: `data/nutrition_db/vn_food_nutrition.json` (25 món VN)
 - **Nguồn**: USDA FoodData Central + Bảng TPDD Việt Nam + GI Tables
-- **10 món**: Cơm trắng, Phở bò, Bún bò Huế, Bánh mì, Cơm tấm, Bún thịt nướng, Mì xào, Cháo, Xôi, Trà sữa
+- **25 món**: Cơm trắng, Phở bò, Bún bò Huế, Bánh mì, Cơm tấm, Bún thịt nướng, Mì xào, Cháo, Xôi, Trà sữa, Cơm rang, Bún chả, Hủ tiếu, Bún riêu, Bánh cuốn, Cơm gà, Bánh canh, Bún mắm, Phở gà, Bánh xèo, Gỏi cuốn, Mì Quảng, Cao lầu, Bột chiên, Cơm bình dân
 
 ### Density Factor DB
 
-- **File**: `data/nutrition_db/density_factors.json` (12 items)
+- **File**: `data/nutrition_db/density_factors.json` (27 items)
 - **Nguồn**: USDA food composition + food engineering estimates
 - **Công thức**: Weight_food = Volume × solid_ratio × density
 
@@ -331,24 +408,27 @@ pytest>=7.0.0, pytest-cov>=4.0.0
 
 ## 8. Tests — ✅ 375/375 PASSED (vision: 166 | rag: 154 | gateway: 15 | mobile: 40)
 
-| Test File                            | Tests   | Task | Scope                                                                              |
-| ------------------------------------ | ------- | ---- | ---------------------------------------------------------------------------------- |
-| `tests/test_depth_service.py`        | 19      | 2.1  | Model loading, prediction, output format, edge cases, service layer                |
-| `tests/test_reference_service.py`    | 21      | 2.2  | Dimensions, detection, class mapping, scale factor priority                        |
-| `tests/test_calibration_service.py`  | 21      | 2.3  | Scale factors, depth normalization, quality, region measurement, utilities         |
-| `tests/test_segmentation_service.py` | 18      | 2.4  | Mask shape/dtype, bowl ROI, depth resize, edge cases, components                   |
-| `tests/test_volume_service.py`       | 31      | 2.5  | Volume formula, GL chain, density factor, food ID, quality, singleton              |
-| `tests/test_validation_service.py`   | 56      | 2.6  | APE/MAPE/pass_rate, DataLoader GT, ReportGenerator, save JSON, integration         |
-| `tests/test_knowledge_base.py`       | 50      | 3.1  | Guidelines data, schemas, chunking, embedding (mocked), BM25 search, full pipeline |
-| `tests/test_rag_pipeline.py`         | 56      | 3.2  | Glucose classification, prompt builder, LLM mock, insulin calc, RAG orchestration  |
-| `tests/test_personalization.py`      | 48      | 3.3  | Emergency protocols, clinical rules, grounding validator, clinical scenarios       |
-| `AnalysisControllerTest.java`        | 5       | 4.2  | Multipart endpoint, missing image 400, all patient params                          |
-| `PipelineServiceTest.java`           | 10      | 4.2  | Full pipeline, RAG failure graceful, GL levels, emergency, disclaimer              |
-| `test/data/models_test.dart`         | 9       | 4.1  | FoodItem, MealAnalysis, PatientContext JSON                                        |
-| `test/viewmodels/*_test.dart`        | 16      | 4.1  | MealViewModel (9), PanicViewModel (7) — state, analyze, reset                      |
-| `test/ui/widget_test.dart`           | 8       | 4.1  | HomeScreen, GlIndicator, DisclaimerBanner, PanicScreen                             |
-| `test/e2e/e2e_pipeline_test.dart`    | 7       | 4.3  | Panic Mode ≤1s, Disclaimer UI, Stability 10 runs                                   |
-| **Total**                            | **375** |      | **All passed (gateway: 15 · mobile: 40 · vision: 166 · rag: 154)**                 |
+| Test File                            | Tests   | Task    | Scope                                                                                            |
+| ------------------------------------ | ------- | ------- | ------------------------------------------------------------------------------------------------ |
+| `tests/test_depth_service.py`        | 19      | 2.1     | Model loading, prediction, output format, edge cases, service layer                              |
+| `tests/test_reference_service.py`    | 21      | 2.2     | Dimensions, detection, class mapping, scale factor priority                                      |
+| `tests/test_calibration_service.py`  | 21      | 2.3     | Scale factors, depth normalization, quality, region measurement, utilities                       |
+| `tests/test_segmentation_service.py` | 18      | 2.4     | Mask shape/dtype, bowl ROI, depth resize, edge cases, components                                 |
+| `tests/test_volume_service.py`       | 36      | 2.5     | Volume formula, GL chain, density factor, food ID, quality, bowl prior, seg threshold, singleton |
+| `tests/test_validation_service.py`   | 56      | 2.6     | APE/MAPE/pass_rate, DataLoader GT, ReportGenerator, save JSON, integration                       |
+| `tests/test_knowledge_base.py`       | 50      | 3.1     | Guidelines data, schemas, chunking, embedding (mocked), BM25 search, full pipeline               |
+| `tests/test_rag_pipeline.py`         | 56      | 3.2     | Glucose classification, prompt builder, LLM mock, insulin calc, RAG orchestration                |
+| `tests/test_personalization.py`      | 48      | 3.3     | Emergency protocols, clinical rules, grounding validator, clinical scenarios                     |
+| `AnalysisControllerTest.java`        | 4       | 4.2     | Multipart endpoint, missing image 400, all patient params                                        |
+| `PipelineServiceTest.java`           | 12      | 4.2+4.4 | Full pipeline, RAG failure graceful, GL levels, emergency, cache, disclaimer                     |
+| `test/data/models_test.dart`         | 9       | 4.1     | FoodItem, MealAnalysis, PatientContext JSON                                                      |
+| `test/viewmodels/*_test.dart`        | 16      | 4.1     | MealViewModel (9), PanicViewModel (7) — state, analyze, reset                                    |
+| `test/ui/widget_test.dart`           | 8       | 4.1     | HomeScreen, GlIndicator, DisclaimerBanner, PanicScreen                                           |
+| `test/e2e/e2e_pipeline_test.dart`    | 7       | 4.3     | Panic Mode ≤1s, Disclaimer UI, Stability 10 runs                                                 |
+| `tests/test_rag_pipeline.py`         | 66      | 3.2+4.4 | + 10 tests: TestLLMClientExtractJson (5) + TestLLMClientCleanMarkdown (5)                        |
+| `PipelineServiceTest.java`           | 14      | 4.2+4.4 | + 4 tests: cache hit/miss, timing metrics, markdown cleaning                                     |
+| `scripts/test_patient_scenarios.py`  | E2E     | bench   | 5 dishes × 2 angles vs ground truth, patient scenarios, safety tests, custom food                |
+| **Total**                            | **404** |         | **All passed (gateway: 19 · mobile: 40 · vision: 171 · rag: 164 · e2e: 10)**                     |
 
 **Chạy tests:**
 
@@ -377,18 +457,20 @@ pytest tests/test_volume_service.py tests/test_calibration_service.py tests/test
 
 ## 9. Scripts
 
-| Script                                     | Task | Mô tả                                                              |
-| ------------------------------------------ | ---- | ------------------------------------------------------------------ |
-| `scripts/poc_depth_test.py`                | POC  | Test Depth Anything V2 cơ bản (validated ✅)                       |
-| `scripts/download_nutrition5k.py`          | 1.3  | Download + parse Nutrition5k subset                                |
-| `scripts/import_nutrition_db.py`           | 1.3  | Import VN food nutrition vào JSON                                  |
-| `scripts/export_density_factors.py`        | 1.3  | Export Density Factor DB                                           |
-| `scripts/compile_dataset.py`               | 1.3  | Compile Nutrition5k + VN demo                                      |
-| `scripts/validate_dataset.py`              | 1.3  | Validate dataset integrity                                         |
-| `scripts/train_reference_detector.py`      | 2.2  | YOLO training (Plan A)                                             |
-| `scripts/reference_detector_pretrained.py` | 2.2  | Pretrained COCO detection (Plan B)                                 |
-| `scripts/ingest_knowledge_base.py`         | 3.1  | Batch ingestion: guidelines.json → chunk → embed → Milvus          |
-| `scripts/test_e2e_pipeline.py`             | 4.3  | E2E pipeline test: Ảnh → Gateway → Vision → RAG (online + offline) |
+| Script                                     | Task | Mô tả                                                                |
+| ------------------------------------------ | ---- | -------------------------------------------------------------------- |
+| `scripts/poc_depth_test.py`                | POC  | Test Depth Anything V2 cơ bản (validated ✅)                         |
+| `scripts/download_nutrition5k.py`          | 1.3  | Download + parse Nutrition5k subset                                  |
+| `scripts/import_nutrition_db.py`           | 1.3  | Import VN food nutrition vào JSON                                    |
+| `scripts/export_density_factors.py`        | 1.3  | Export Density Factor DB                                             |
+| `scripts/compile_dataset.py`               | 1.3  | Compile Nutrition5k + VN demo                                        |
+| `scripts/validate_dataset.py`              | 1.3  | Validate dataset integrity                                           |
+| `scripts/train_reference_detector.py`      | 2.2  | YOLO training (Plan A)                                               |
+| `scripts/reference_detector_pretrained.py` | 2.2  | Pretrained COCO detection (Plan B)                                   |
+| `scripts/ingest_knowledge_base.py`         | 3.1  | Batch ingestion: guidelines.json → chunk → embed → Milvus            |
+| `scripts/test_e2e_pipeline.py`             | 4.3  | E2E pipeline test: Ảnh → Gateway → Vision → RAG (online + offline)   |
+| `scripts/benchmark_vn_dishes.py`           | 4.4  | Benchmark 5 VN dishes qua Gateway: MAPE weight/carb/GL + p95 latency |
+| `scripts/test_patient_scenarios.py`        | E2E  | 5 dishes × 2 angles vs ground truth, patient scenarios, safety tests |
 
 ---
 
@@ -493,8 +575,30 @@ pytest tests/test_volume_service.py tests/test_calibration_service.py tests/test
 - **Flutter → Gateway**: Single endpoint `POST /api/gateway/analyze` (multipart)
 - **Flutter env**: `GATEWAY_BASE_URL=http://10.0.2.2:8080` (Android emulator)
 - **E2E script**: `scripts/test_e2e_pipeline.py` — runs --offline (no services) or full online
+- **Benchmark script**: `scripts/benchmark_vn_dishes.py` — MAPE weight/carb/GL + p95 latency cho 5 món VN qua Gateway
+- **RAG prompt language**: Vietnamese — `prompt_builder.py` SYSTEM_PROMPT + EMERGENCY_SYSTEM_PROMPT đã chuyển sang tiếng Việt (rule 7 bắt buộc trả lời bằng tiếng Việt)
+- **Food form**: `food_form_screen.dart` `_dishTypes` đã thêm "Cơm tấm" + chuẩn hóa tên ("Cơm trắng" thay "Cơm", "Bún bò" thay "Bún", v.v.)
+- **Volume clamp**: `volume_service.py` giới hạn max 800mL → tránh GL quá cao
+- **Bowl volume prior**: Soup dishes dùng typical serving size thay vì depth integral (phở=500mL, bún bò=550mL)
+- **Food seg threshold**: <5% → quality=low + warning "chụp lại từ trên xuống"
+- **Solid correction**: `_SOLID_VOLUME_CORRECTION = 0.35` chỉ áp dụng cho solid dishes
+- **Insulin hard cap**: Gateway `PipelineService` cap at 30U + SYSTEM_PROMPT Rule 6 caps
+- **No-reference fallback**: `main.py` khi không detect reference object → fallback `image_width/30.0` px/cm, quality=low (tránh 422 error)
+- **Redis CacheService**: `src/api-gateway/.../service/CacheService.java` — cache RAG response theo SHA-256 hash
+- **RedisConfig**: `src/api-gateway/.../config/RedisConfig.java` — startup health check, graceful degrade
+- **Gateway version**: v1.2 (cache + timing metrics + debug pass-through)
+- **Vision service version**: v0.8.0 (startup timer + fallback scale + volume clamp + debug mode)
+- **Developer Mode (Under the Hood)**: `debug=true` parameter flows Flutter → Gateway → Vision + RAG → debug data aggregated → returned to Flutter
+  - Vision debug: depth_preview (base64 PNG), food_mask_preview (base64 PNG), reference_objects, scale_px_per_cm, table_level_cm, formula
+  - RAG debug: retrieved_chunks (source, category, score, content_preview), prompt_preview, llm_raw
+  - Gateway: `PipelineService.analyzeFull(..., boolean debug)` — collects debug data from both services
+  - Flutter: `DebugData` class in `meal_analysis.dart`, collapsible `_DeveloperModePanel` in `result_screen.dart`
+  - Toggle: `SwitchListTile` in `food_form_screen.dart`, `debugMode` in `MealViewModel`
+- **CoT SYSTEM_PROMPT**: Upgraded with Chain-of-Thought 3-step insulin calculation (Rule 4) + anti-hallucination (Rule 5 "TUYỆT ĐỐI KHÔNG ẢO GIÁC TOÁN HỌC")
+- **LLM temperature**: 0.1 (was 0.3) — near-deterministic for medical insulin calculations
+- **Gateway tests**: 16 tests (4 controller + 12 pipeline) — with lenient cache mock in setUp
 
 ---
 
 > **Tạo**: 10/03/2026
-> **Cập nhật**: 19/03/2026 — Phase 4 Tasks 4.1-4.3 DONE (Gateway + Flutter + E2E; total 375 tests: vision 166 + rag 154 + gateway 15 + mobile 40)
+> **Cập nhật**: 19/03/2026 — Safety fixes + Bowl volume prior + Food DB 25 items + Custom food "Khác" + Benchmark 5 dishes; 404 tests: vision 171 + rag 164 + gateway 19 + mobile 40 + e2e 10

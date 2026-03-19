@@ -40,11 +40,12 @@ class RAGService:
 
     # ── Public API ─────────────────────────────────────────────────
 
-    def advise(self, request: AdviceRequest) -> AdviceResponse:
+    def advise(self, request: AdviceRequest, *, debug: bool = False) -> AdviceResponse:
         """End-to-end RAG advisory: retrieve → augment → generate.
 
         Args:
             request: Meal + patient context.
+            debug: If True, include retrieved chunks, prompt preview, raw LLM output.
 
         Returns:
             Structured advisory response.
@@ -62,8 +63,17 @@ class RAGService:
             request, search_results, glucose_level
         )
 
-        # 3. Generate LLM response
-        llm_output = self.llm_client.generate_json(system_prompt, user_prompt)
+        # 3. Generate LLM response (capture raw for debug)
+        raw_llm_text = self.llm_client.generate(system_prompt, user_prompt) if debug else None
+        if raw_llm_text is not None:
+            cleaned = LLMClient._extract_json(raw_llm_text)
+            import json as _json
+            try:
+                llm_output = _json.loads(cleaned)
+            except _json.JSONDecodeError:
+                llm_output = {"advice": LLMClient._clean_markdown(raw_llm_text)}
+        else:
+            llm_output = self.llm_client.generate_json(system_prompt, user_prompt)
 
         # 4. Compute insulin recommendation (rule-based, not from LLM)
         insulin_rec = self._compute_insulin(request, glucose_level)
@@ -90,6 +100,8 @@ class RAGService:
         confidence = self._assess_confidence(search_results, request)
 
         advice_text = llm_output.get("advice", "")
+        # Clean any residual markdown formatting from the LLM output
+        advice_text = LLMClient._clean_markdown(advice_text)
         if emergency_alert:
             # Prepend emergency prefix if LLM didn't
             if not advice_text.upper().startswith(("WARNING", "EMERGENCY", "⚠")):
@@ -98,6 +110,23 @@ class RAGService:
                     + advice_text
                 )
 
+        # 8. Debug data
+        debug_chunks = None
+        debug_prompt = None
+        debug_raw = None
+        if debug:
+            debug_chunks = [
+                {
+                    "source": r.source,
+                    "category": r.category,
+                    "score": round(r.combined_score, 3),
+                    "content_preview": r.content[:200],
+                }
+                for r in search_results
+            ]
+            debug_prompt = user_prompt[:500]
+            debug_raw = raw_llm_text
+
         return AdviceResponse(
             advice=advice_text,
             insulin_recommendation=insulin_rec,
@@ -105,6 +134,9 @@ class RAGService:
             glucose_classification=glucose_level,
             sources=sources,
             confidence=confidence,
+            debug_retrieved_chunks=debug_chunks,
+            debug_prompt_preview=debug_prompt,
+            debug_llm_raw=debug_raw,
         )
 
     # ── Retrieval ──────────────────────────────────────────────────

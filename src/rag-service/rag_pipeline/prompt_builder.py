@@ -13,23 +13,36 @@ from rag_pipeline.schemas import AdviceRequest, GlucoseLevel
 # ── System Prompt ──────────────────────────────────────────────────
 
 SYSTEM_PROMPT = """\
-You are InSight Medical Advisor, a clinical decision-support assistant for \
-diabetes management.
+Bạn là InSight Medical Advisor — trợ lý hỗ trợ quyết định lâm sàng cho bệnh nhân tiểu đường tại Việt Nam.
 
-STRICT RULES:
-1. Base ALL recommendations ONLY on the provided medical guidelines below.
-2. Do NOT invent facts. If the guidelines do not cover a question, say so.
-3. Always include the disclaimer that this is educational, not medical advice.
-4. When recommending insulin doses, show your calculation step-by-step.
-5. For emergency situations (hypoglycemia <70 mg/dL, DKA risk >300 mg/dL), \
-   lead with the emergency protocol FIRST.
-6. Cite sources by name (e.g. "ADA Standards of Care 2024").
+QUY TẮC BẮT BUỘC:
+1. CHỈ dựa vào các hướng dẫn y khoa được cung cấp bên dưới.
+2. KHÔNG bịa đặt thông tin. Nếu hướng dẫn không đề cập, hãy nói rõ.
+3. Luôn kèm tuyên bố miễn trừ trách nhiệm: đây là thông tin tham khảo, không thay thế bác sĩ.
+4. TƯ DUY TỪNG BƯỚC (Chain of Thought) KHI TÍNH LIỀU INSULIN:
+   - Bước 1: Tính liều thức ăn (Meal Dose) = Tổng Carb / ICR.
+   - Bước 2: Tính liều hiệu chỉnh (Correction Dose) = (Đường huyết hiện tại - Mục tiêu) / ISF.
+   - Bước 3: Tổng liều (Total Dose) = Meal Dose + Correction Dose. \
+     Trình bày rõ ràng phép tính này trong phần "calculation".
+5. TUYỆT ĐỐI KHÔNG ẢO GIÁC TOÁN HỌC: Con số tổng liều tiêm được nhắc đến \
+   trong phần "advice" PHẢI KHỚP CHÍNH XÁC 100% với kết quả phép cộng ở Bước 3. \
+   Không được tự ý làm tròn số nếu không tuân theo quy tắc toán học.
+6. NGƯỠNG AN TOÀN INSULIN (BẮT BUỘC):
+   - Meal Dose tối đa = 25 units. Nếu tính ra > 25 → giới hạn = 25 units.
+   - Correction Dose tối đa = 10 units. Nếu tính ra > 10 → giới hạn = 10 units.
+   - Total Dose tối đa = 30 units. Nếu tính ra > 30 → giới hạn = 30 units.
+   - Nếu liều BỊ GIỚI HẠN, GHI RÕ trong advice: "Liều đã bị giới hạn từ X xuống Y units \
+     theo ngưỡng an toàn. Lượng Carb ước lượng có thể không chính xác, vui lòng kiểm tra lại."
+7. Với tình huống khẩn cấp (hạ đường huyết <70 mg/dL, nguy cơ DKA >300 mg/dL), \
+   ưu tiên hướng dẫn khẩn cấp TRƯỚC TIÊN.
+8. Trích dẫn nguồn theo tên (ví dụ: "ADA Standards of Care 2024").
+9. PHẢI trả lời HOÀN TOÀN BẰNG TIẾNG VIỆT.
 
-RESPONSE FORMAT (JSON):
+ĐỊNH DẠNG PHẢN HỒI (JSON):
 {
-  "advice": "<main advice text with source citations>",
-  "calculation": "<step-by-step insulin calculation if applicable>",
-  "emergency_note": "<emergency note if glucose is dangerous, else null>",
+  "advice": "<nội dung tư vấn bằng tiếng Việt, chỉ định rõ số Unit cần tiêm KHỚP với calculation, kèm trích dẫn nguồn>",
+  "calculation": "<tính toán liều insulin từng bước theo đúng 3 bước: Meal Dose, Correction Dose, Total>",
+  "emergency_note": "<cảnh báo khẩn cấp nếu đường huyết nguy hiểm, nếu không thì null>",
   "confidence": "high | medium | low"
 }
 """
@@ -37,20 +50,21 @@ RESPONSE FORMAT (JSON):
 # ── Emergency Prompt Override ──────────────────────────────────────
 
 EMERGENCY_SYSTEM_PROMPT = """\
-You are InSight Emergency Advisor. The patient may be in a DANGEROUS \
-glucose state. Respond with URGENCY.
+Bạn là InSight Emergency Advisor. Bệnh nhân có thể đang trong tình trạng NGUY HIỂM về đường huyết.
+Phản hồi KHẨN CẤP, rõ ràng, ngắn gọn.
 
-STRICT RULES:
-1. Lead with the emergency protocol IMMEDIATELY.
-2. Use ONLY the emergency guidelines provided below.
-3. Be clear, concise, and actionable.
-4. Include when to call emergency services.
+QUY TẮC BẮT BUỘC:
+1. Đưa ra hướng dẫn khẩn cấp NGAY LẬP TỨC.
+2. CHỈ dùng các hướng dẫn khẩn cấp được cung cấp.
+3. Rõ ràng, súc tích, có thể hành động ngay.
+4. Nêu rõ khi nào cần gọi cấp cứu.
+5. PHẢI trả lời HOÀN TOÀN BẰNG TIẾNG VIỆT.
 
-RESPONSE FORMAT (JSON):
+ĐỊNH DẠNG PHẢN HỒI (JSON):
 {
-  "advice": "<emergency advice with immediate steps>",
+  "advice": "<hướng dẫn khẩn cấp bằng tiếng Việt với các bước cụ thể>",
   "calculation": null,
-  "emergency_note": "<severity and what to do>",
+  "emergency_note": "<mức độ nghiêm trọng và hành động cần làm>",
   "confidence": "high"
 }
 """
@@ -115,62 +129,62 @@ class PromptBuilder:
 
         # --- Section 1: Patient Context ---
         ctx = request.patient_context
-        lines.append("=== PATIENT CONTEXT ===")
+        lines.append("=== THÔNG TIN BỆNH NHÂN ===")
         if ctx.current_glucose_mg_dl is not None:
-            level_str = glucose_level.value if glucose_level else "unknown"
+            level_str = glucose_level.value if glucose_level else "không xác định"
             lines.append(
-                f"Current blood glucose: {ctx.current_glucose_mg_dl} mg/dL "
-                f"(classification: {level_str})"
+                f"Đường huyết hiện tại: {ctx.current_glucose_mg_dl} mg/dL "
+                f"(phân loại: {level_str})"
             )
-        lines.append(f"Diabetes type: {ctx.diabetes_type.value}")
+        lines.append(f"Loại tiểu đường: {ctx.diabetes_type.value}")
         if ctx.medications:
-            lines.append(f"Medications: {', '.join(ctx.medications)}")
+            lines.append(f"Thuốc đang dùng: {', '.join(ctx.medications)}")
         if ctx.insulin_to_carb_ratio is not None:
             lines.append(
-                f"Insulin-to-Carb Ratio (ICR): 1 Unit per {ctx.insulin_to_carb_ratio}g carb"
+                f"Tỷ lệ Insulin-Carb (ICR): 1 đơn vị / {ctx.insulin_to_carb_ratio}g carb"
             )
         if ctx.correction_factor is not None:
             lines.append(
-                f"Correction Factor (CF): 1 Unit per {ctx.correction_factor} mg/dL"
+                f"Hệ số hiệu chỉnh (CF): 1 đơn vị / {ctx.correction_factor} mg/dL"
             )
-        lines.append(f"Target glucose: {ctx.target_glucose_mg_dl} mg/dL")
+        lines.append(f"Mục tiêu đường huyết: {ctx.target_glucose_mg_dl} mg/dL")
         lines.append("")
 
         # --- Section 2: Meal Information ---
-        lines.append("=== MEAL INFORMATION ===")
-        lines.append(f"Meal: {request.meal_description}")
+        lines.append("=== THÔNG TIN BỮA ĂN ===")
+        lines.append(f"Món ăn: {request.meal_description}")
         if request.carbs_g is not None:
-            lines.append(f"Estimated carbohydrates: {request.carbs_g:.1f} g")
+            lines.append(f"Carbohydrate ước tính: {request.carbs_g:.1f} g")
         if request.glycemic_load is not None:
-            lines.append(f"Estimated Glycemic Load: {request.glycemic_load:.1f}")
+            lines.append(f"Chỉ số Glycemic Load ước tính: {request.glycemic_load:.1f}")
         lines.append("")
 
         # --- Section 3: Retrieved Medical Guidelines ---
-        lines.append("=== MEDICAL GUIDELINES (from verified sources) ===")
+        lines.append("=== HƯỚNG DẪN Y KHOA (từ nguồn đã xác minh) ===")
         if search_results:
             for i, r in enumerate(search_results, 1):
                 lines.append(
-                    f"[{i}] Source: {r.source} | Category: {r.category} "
-                    f"| Relevance: {r.combined_score:.2f}"
+                    f"[{i}] Nguồn: {r.source} | Danh mục: {r.category} "
+                    f"| Độ liên quan: {r.combined_score:.2f}"
                 )
                 lines.append(r.content)
                 lines.append("")
         else:
-            lines.append("No matching guidelines found for this query.")
+            lines.append("Không tìm thấy hướng dẫn phù hợp cho yêu cầu này.")
             lines.append("")
 
         # --- Section 4: Question ---
-        lines.append("=== QUESTION ===")
+        lines.append("=== CÂU HỎI ===")
         if PromptBuilder.is_emergency(glucose_level):
             lines.append(
-                "The patient's glucose is at a DANGEROUS level. "
-                "Provide the emergency protocol FIRST, then any meal advice."
+                "Đường huyết bệnh nhân đang ở mức NGUY HIỂM. "
+                "Cung cấp hướng dẫn khẩn cấp TRƯỚC, sau đó mới tư vấn về bữa ăn."
             )
         else:
             lines.append(
-                f"Based on the guidelines above, provide insulin dosing advice "
-                f"for this meal ({request.meal_description}) considering the "
-                f"patient's current glucose and medications."
+                f"Dựa trên các hướng dẫn y khoa trên, hãy tư vấn liều insulin "
+                f"cho bữa ăn này ({request.meal_description}) dựa trên đường huyết "
+                f"và thuốc hiện tại của bệnh nhân. Trả lời bằng tiếng Việt."
             )
 
         return "\n".join(lines)

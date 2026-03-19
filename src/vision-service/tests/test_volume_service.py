@@ -89,13 +89,14 @@ class TestVolumeFormula:
     def test_exact_volume_known_geometry(self, estimator, flat_depth_food):
         """
         With known geometry: 50×50 food at height 5cm above table,
-        pixel_area=0.01 cm², expected V = 125 cm³.
+        pixel_area=0.01 cm², raw V = 125 cm³.
+        After DAv2 correction factor (0.35): expected V = 43.75 cm³.
 
         Tolerance: ±5% to account for percentile estimator of table_level.
         """
         depth, mask = flat_depth_food
         result = estimator.estimate(depth, mask, cm_per_pixel=0.1)
-        expected = 125.0
+        expected = 125.0 * 0.35  # raw volume × DAv2 correction factor
         assert abs(result.volume_cm3 - expected) / expected < 0.05
 
     def test_volume_equals_volume_ml(self, estimator, flat_depth_food):
@@ -215,10 +216,12 @@ class TestDensityFactor:
         assert result.solid_ratio < 1.0
         assert result.is_liquid_dish is True
 
-    def test_pho_weight_less_than_rice_same_volume(self, estimator, flat_depth_food):
+    def test_pho_weight_less_than_rice_per_ml(self, estimator, flat_depth_food):
         """
-        Same volume, same depth map → pho should weigh LESS than rice because
+        Per-mL effective weight of pho should be less than rice because
         solid_ratio(pho) = 0.3 << solid_ratio(rice) = 1.0.
+        Note: Pho uses bowl volume prior, rice uses depth integral,
+        so absolute volumes differ.
         """
         depth, mask = flat_depth_food
         rice_result = estimator.estimate(
@@ -227,7 +230,10 @@ class TestDensityFactor:
         pho_result = estimator.estimate(
             depth, mask, cm_per_pixel=0.1, food_id="vn_pho_bo"
         )
-        assert pho_result.weight_g < rice_result.weight_g
+        # Effective density (g per mL) should be lower for soup
+        rice_gpm = rice_result.weight_g / rice_result.volume_ml
+        pho_gpm = pho_result.weight_g / pho_result.volume_ml
+        assert pho_gpm < rice_gpm
 
     def test_bun_bo_hue_is_liquid(self, estimator, flat_depth_food):
         """Bún bò Huế must be classified as liquid dish."""
@@ -238,12 +244,14 @@ class TestDensityFactor:
 
     def test_weight_formula_manual_check(self, estimator, flat_depth_food):
         """
-        Manual check: volume=125mL, pho solid_ratio=0.3, density=1.02
-        weight = 125 × 0.3 × 1.02 = 38.25 g (within 5% tolerance).
+        Manual check for phở: bowl prior = 500 mL,
+        solid_ratio=0.3, density=1.02.
+        weight = 500 × 0.3 × 1.02 = 153 g.
         """
         depth, mask = flat_depth_food
         result = estimator.estimate(depth, mask, cm_per_pixel=0.1, food_id="vn_pho_bo")
-        # Volume ≈ 125 mL (verified in test_exact_volume_known_geometry)
+        # Phở uses bowl volume prior (500 mL)
+        assert abs(result.volume_ml - 500.0) < 1.0
         expected_weight = result.volume_ml * 0.3 * 1.02
         assert abs(result.weight_g - expected_weight) < 0.01
 
@@ -327,6 +335,52 @@ class TestQualityAssessment:
         result = estimator.estimate(depth, mask, cm_per_pixel=0.1)
         assert isinstance(result.quality_reason, str)
         assert len(result.quality_reason) > 0
+
+    def test_low_seg_override_quality(self, estimator):
+        """
+        Food mask covering < 5% of image should force quality='low' with
+        segmentation warning, even if other criteria are OK.
+        """
+        depth = np.full((200, 200), 2.0, dtype=np.float64)
+        mask = np.zeros((200, 200), dtype=bool)
+        # ~2% food coverage (< 5% threshold)
+        mask[95:105, 95:105] = True  # 100 pixels out of 40000 = 0.25%
+        depth[95:105, 95:105] = 7.0
+        result = estimator.estimate(depth, mask, cm_per_pixel=0.1)
+        assert result.estimation_quality == "low"
+        assert "segmentation" in result.quality_reason.lower()
+
+
+# ============================================================
+# Tests: Bowl volume prior for soup dishes
+# ============================================================
+class TestBowlVolumePrior:
+    """Test that liquid dishes use bowl volume prior instead of depth integral."""
+
+    def test_pho_uses_bowl_prior(self, estimator, flat_depth_food):
+        """Phở bò (liquid) should use 500mL bowl prior."""
+        depth, mask = flat_depth_food
+        result = estimator.estimate(depth, mask, cm_per_pixel=0.1, food_id="vn_pho_bo")
+        assert abs(result.volume_ml - 500.0) < 1.0
+
+    def test_bun_bo_hue_uses_bowl_prior(self, estimator, flat_depth_food):
+        """Bún bò Huế (liquid) should use 550mL bowl prior."""
+        depth, mask = flat_depth_food
+        result = estimator.estimate(depth, mask, cm_per_pixel=0.1, food_id="vn_bun_bo_hue")
+        assert abs(result.volume_ml - 550.0) < 1.0
+
+    def test_solid_food_uses_depth_integral(self, estimator, flat_depth_food):
+        """Cơm trắng (solid) should NOT use bowl prior — uses depth integral."""
+        depth, mask = flat_depth_food
+        result = estimator.estimate(depth, mask, cm_per_pixel=0.1, food_id="vn_com_trang")
+        # Depth integral: raw=125, corrected=43.75
+        assert result.volume_ml < 100  # Much less than any bowl prior
+
+    def test_chao_uses_bowl_prior(self, estimator, flat_depth_food):
+        """Cháo (liquid porridge) should use 350mL bowl prior."""
+        depth, mask = flat_depth_food
+        result = estimator.estimate(depth, mask, cm_per_pixel=0.1, food_id="vn_chao")
+        assert abs(result.volume_ml - 350.0) < 1.0
 
 
 # ============================================================
