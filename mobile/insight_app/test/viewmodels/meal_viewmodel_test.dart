@@ -9,13 +9,15 @@ import 'package:insight_app/viewmodels/meal_viewmodel.dart';
 /// Fake API service for testing.
 ///
 /// Must match the EXACT signature of [ApiService.analyzePipeline]:
-///   Future<MealAnalysis> analyzePipeline({
-///     required XFile imageFile,   ← XFile from image_picker, NOT dart:io File
-///     String? foodId,
-///     String? customFoodName,     ← added in latest ApiService
-///     PatientContext? patient,
-///     bool debug = false,         ← added in latest ApiService
-///   })
+/// ```
+/// Future analyzePipeline({
+///   required XFile imageFile,  // XFile from image_picker, NOT dart:io File
+///   String? foodId,
+///   String? customFoodName,    // added in latest ApiService
+///   PatientContext? patient,
+///   bool debug = false,        // added in latest ApiService
+/// })
+/// ```
 class FakeApiService extends ApiService {
   bool analyzeCalled = false;
   bool shouldThrow = false;
