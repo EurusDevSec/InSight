@@ -90,8 +90,14 @@ jobs:
         run: |
           if [ -d "mobile/insight_app" ] && [ -f "mobile/insight_app/pubspec.yaml" ]; then
             cd mobile/insight_app
+
+            # Create .env placeholder (.env is gitignored but declared as a pubspec asset).
+            # flutter analyze / flutter test need the file to exist at analysis time.
+            echo "GATEWAY_BASE_URL=http://localhost:8080" > .env
+
             flutter pub get
             flutter analyze
+            flutter test
           else
             echo "Mobile app (insight_app) not initialized or missing pubspec.yaml. Skipping."
           fi

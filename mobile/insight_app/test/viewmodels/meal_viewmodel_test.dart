@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:insight_app/data/models/meal_analysis.dart';
 import 'package:insight_app/data/models/patient_context.dart';
@@ -8,6 +7,15 @@ import 'package:insight_app/data/services/api_service.dart';
 import 'package:insight_app/viewmodels/meal_viewmodel.dart';
 
 /// Fake API service for testing.
+///
+/// Must match the EXACT signature of [ApiService.analyzePipeline]:
+///   Future<MealAnalysis> analyzePipeline({
+///     required XFile imageFile,   ← XFile from image_picker, NOT dart:io File
+///     String? foodId,
+///     String? customFoodName,     ← added in latest ApiService
+///     PatientContext? patient,
+///     bool debug = false,         ← added in latest ApiService
+///   })
 class FakeApiService extends ApiService {
   bool analyzeCalled = false;
   bool shouldThrow = false;
@@ -16,9 +24,11 @@ class FakeApiService extends ApiService {
 
   @override
   Future<MealAnalysis> analyzePipeline({
-    required File imageFile,
+    required XFile imageFile,   // XFile, NOT File
     String? foodId,
+    String? customFoodName,
     PatientContext? patient,
+    bool debug = false,
   }) async {
     analyzeCalled = true;
     if (shouldThrow) throw Exception('Network error');
@@ -60,10 +70,11 @@ void main() {
       var notified = false;
       vm.addListener(() => notified = true);
 
-      final file = File('test.jpg');
-      vm.setImage(file);
+      // Use XFile (from image_picker) — matches ViewModel.setImage(XFile)
+      final xfile = XFile('test.jpg');
+      vm.setImage(xfile);
 
-      expect(vm.selectedImage, file);
+      expect(vm.selectedImage, xfile);
       expect(vm.result, isNull);
       expect(notified, isTrue);
     });
@@ -109,6 +120,33 @@ void main() {
     test('default patient context has values', () {
       expect(vm.patientContext.glucoseLevel, isNotNull);
       expect(vm.patientContext.insulinCarbRatio, isNotNull);
+    });
+
+    test('analyze with image calls API and sets result', () async {
+      var notified = false;
+      vm.addListener(() => notified = true);
+
+      vm.setImage(XFile('food.jpg'));
+      await vm.analyze();
+
+      expect(fakeApi.analyzeCalled, isTrue);
+      expect(vm.result, isNotNull);
+      expect(vm.result!.foodName, 'Test Food');
+      expect(vm.advice, 'Test advice');
+      expect(vm.isLoading, isFalse);
+      expect(vm.error, isNull);
+      expect(notified, isTrue);
+    });
+
+    test('analyze failure sets error state', () async {
+      fakeApi.shouldThrow = true;
+      vm.setImage(XFile('food.jpg'));
+      await vm.analyze();
+
+      expect(vm.error, isNotNull);
+      expect(vm.error, contains('Network error'));
+      expect(vm.result, isNull);
+      expect(vm.isLoading, isFalse);
     });
   });
 }

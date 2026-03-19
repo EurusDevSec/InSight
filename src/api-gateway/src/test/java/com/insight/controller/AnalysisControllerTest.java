@@ -33,11 +33,19 @@ class AnalysisControllerTest {
                                 new AnalysisController(pipelineService)).build();
         }
 
+        // analyzeFull signature = 9 params:
+        // (MultipartFile, String foodId, String customFoodName,
+        //  Double glucoseLevel, String diabetesType,
+        //  Double insulinCarbRatio, Double correctionFactor, Double targetGlucose,
+        //  boolean debug)
+        // → mock with: any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean()
+
         @Test
         void analyzeShouldReturnMealResult() throws Exception {
                 Map<String, Object> mockResult = createMockResult();
 
-                when(pipelineService.analyzeFull(any(), any(), any(), any(), any(), any(), any(), anyBoolean()))
+                when(pipelineService.analyzeFull(
+                                any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean()))
                                 .thenReturn(mockResult);
 
                 MockMultipartFile image = new MockMultipartFile(
@@ -57,7 +65,8 @@ class AnalysisControllerTest {
 
         @Test
         void analyzeShouldWorkWithImageOnly() throws Exception {
-                when(pipelineService.analyzeFull(any(), any(), any(), any(), any(), any(), any(), anyBoolean()))
+                when(pipelineService.analyzeFull(
+                                any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean()))
                                 .thenReturn(createMockResult());
 
                 MockMultipartFile image = new MockMultipartFile(
@@ -77,7 +86,8 @@ class AnalysisControllerTest {
 
         @Test
         void analyzeShouldIncludeAllPatientParams() throws Exception {
-                when(pipelineService.analyzeFull(any(), any(), any(), any(), any(), any(), any(), anyBoolean()))
+                when(pipelineService.analyzeFull(
+                                any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean()))
                                 .thenReturn(createMockResult());
 
                 MockMultipartFile image = new MockMultipartFile(
@@ -91,6 +101,22 @@ class AnalysisControllerTest {
                                 .param("insulin_carb_ratio", "10")
                                 .param("correction_factor", "50")
                                 .param("target_glucose", "100"))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.food_name").exists());
+        }
+
+        @Test
+        void analyzeShouldAcceptCustomFoodName() throws Exception {
+                when(pipelineService.analyzeFull(
+                                any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean()))
+                                .thenReturn(createMockResult());
+
+                MockMultipartFile image = new MockMultipartFile(
+                                "image", "test.jpg", "image/jpeg", "data".getBytes());
+
+                mockMvc.perform(multipart("/api/gateway/analyze")
+                                .file(image)
+                                .param("custom_food_name", "Bún bò Huế"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.food_name").exists());
         }

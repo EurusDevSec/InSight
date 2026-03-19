@@ -38,8 +38,24 @@ class PipelineServiceTest {
                 lenient().when(cacheService.get(any())).thenReturn(null);
         }
 
+        // ── Helper: call analyzeFull with no patient context, no custom name ──
+        //
+        // analyzeFull signature (9 params):
+        //   MultipartFile image,
+        //   String        foodId,
+        //   String        customFoodName,   <-- added; was missing in old tests
+        //   Double        glucoseLevel,
+        //   String        diabetesType,
+        //   Double        insulinCarbRatio,
+        //   Double        correctionFactor,
+        //   Double        targetGlucose,
+        //   boolean       debug
+        //
+        private Map<String, Object> callFull(MockMultipartFile image) throws Exception {
+                return service.analyzeFull(image, null, null, null, null, null, null, null, false);
+        }
+
         @Test
-        @SuppressWarnings("unchecked")
         void fullPipelineReturnsCorrectResult() throws Exception {
                 MockMultipartFile image = mockImage();
 
@@ -51,8 +67,9 @@ class PipelineServiceTest {
                                                 "total_units", 4.5,
                                                 "calculation_details", "ICR=10, 45g carbs")));
 
+                // Full call with all patient params + customFoodName
                 Map<String, Object> result = service.analyzeFull(
-                                image, "vn_com_trang", 120.0, "type_2", 10.0, 50.0, 120.0, false);
+                                image, "vn_com_trang", null, 120.0, "type_2", 10.0, 50.0, 120.0, false);
 
                 assertThat(result.get("food_name")).isEqualTo("Cơm trắng");
                 assertThat((Double) result.get("volume_ml")).isEqualTo(433.2);
@@ -74,8 +91,7 @@ class PipelineServiceTest {
                 when(ragClient.getAdvice(any(), any(), any(), any(), anyBoolean()))
                                 .thenThrow(new RuntimeException("RAG service unavailable"));
 
-                Map<String, Object> result = service.analyzeFull(
-                                mockImage(), null, null, null, null, null, null, false);
+                Map<String, Object> result = callFull(mockImage());
 
                 assertThat(result.get("food_name")).isEqualTo("Phở bò");
                 assertThat(result.get("gl_level")).isEqualTo("high");
@@ -90,8 +106,7 @@ class PipelineServiceTest {
                                 "Rau xào", 200.0, 100.0, 8.0, 3.0, "high"));
                 when(ragClient.getAdvice(any(), any(), any(), any(), anyBoolean())).thenReturn(Map.of("advice", "ok"));
 
-                Map<String, Object> result = service.analyzeFull(
-                                mockImage(), null, null, null, null, null, null, false);
+                Map<String, Object> result = callFull(mockImage());
                 assertThat(result.get("gl_level")).isEqualTo("low");
         }
 
@@ -101,8 +116,7 @@ class PipelineServiceTest {
                                 "Cháo", 300.0, 200.0, 30.0, 15.0, "medium"));
                 when(ragClient.getAdvice(any(), any(), any(), any(), anyBoolean())).thenReturn(Map.of("advice", "ok"));
 
-                Map<String, Object> result = service.analyzeFull(
-                                mockImage(), null, null, null, null, null, null, false);
+                Map<String, Object> result = callFull(mockImage());
                 assertThat(result.get("gl_level")).isEqualTo("medium");
         }
 
@@ -112,8 +126,7 @@ class PipelineServiceTest {
                                 "Cơm tấm", 500.0, 400.0, 60.0, 35.0, "high"));
                 when(ragClient.getAdvice(any(), any(), any(), any(), anyBoolean())).thenReturn(Map.of("advice", "ok"));
 
-                Map<String, Object> result = service.analyzeFull(
-                                mockImage(), null, null, null, null, null, null, false);
+                Map<String, Object> result = callFull(mockImage());
                 assertThat(result.get("gl_level")).isEqualTo("high");
         }
 
@@ -128,8 +141,9 @@ class PipelineServiceTest {
                                                 "alert_type", "hyperglycemia",
                                                 "immediate_action", "Check glucose immediately")));
 
+                // glucoseLevel = 280.0 (high), no customFoodName
                 Map<String, Object> result = service.analyzeFull(
-                                mockImage(), null, 280.0, null, null, null, null, false);
+                                mockImage(), null, null, 280.0, null, null, null, null, false);
 
                 List<String> warnings = (List<String>) result.get("warnings");
                 assertThat(warnings).anyMatch(w -> w.contains("hyperglycemia"));
@@ -142,12 +156,12 @@ class PipelineServiceTest {
                                 "Unknown", 100.0, 50.0, 10.0, 5.0, "low"));
                 when(ragClient.getAdvice(any(), any(), any(), any(), anyBoolean())).thenReturn(Map.of("advice", "ok"));
 
-                Map<String, Object> result = service.analyzeFull(
-                                mockImage(), null, null, null, null, null, null, false);
+                Map<String, Object> result = callFull(mockImage());
 
                 assertThat((Double) result.get("confidence")).isEqualTo(0.5);
                 List<String> warnings = (List<String>) result.get("warnings");
-                assertThat(warnings).anyMatch(w -> w.toLowerCase().contains("quality"));
+                // Warning from PipelineService is in Vietnamese: "Chất lượng ước lượng thấp..."
+                assertThat(warnings).anyMatch(w -> w.contains("ước lượng") || w.toLowerCase().contains("quality"));
         }
 
         @Test
@@ -156,22 +170,19 @@ class PipelineServiceTest {
                                 "Phở", 400.0, 300.0, 50.0, 30.0, "high"));
                 when(ragClient.getAdvice(any(), any(), any(), any(), anyBoolean())).thenReturn(Map.of("advice", "ok"));
 
-                Map<String, Object> result = service.analyzeFull(
-                                mockImage(), null, null, null, null, null, null, false);
+                Map<String, Object> result = callFull(mockImage());
 
                 assertThat(result.get("disclaimer")).isNotNull();
                 assertThat((String) result.get("disclaimer")).contains("tham khảo");
         }
 
         @Test
-        @SuppressWarnings("unchecked")
         void pipelineTimeMsIsTracked() throws Exception {
                 when(visionClient.estimateVolume(any(), any(), anyBoolean())).thenReturn(visionResult(
                                 "Bún", 300.0, 250.0, 40.0, 20.0, "medium"));
                 when(ragClient.getAdvice(any(), any(), any(), any(), anyBoolean())).thenReturn(Map.of("advice", "ok"));
 
-                Map<String, Object> result = service.analyzeFull(
-                                mockImage(), null, null, null, null, null, null, false);
+                Map<String, Object> result = callFull(mockImage());
 
                 assertThat(result).containsKey("pipeline_time_ms");
                 assertThat(((Number) result.get("pipeline_time_ms")).doubleValue()).isGreaterThanOrEqualTo(0);
@@ -180,7 +191,6 @@ class PipelineServiceTest {
         }
 
         @Test
-        @SuppressWarnings("unchecked")
         void ragCacheHitSkipsServiceCall() throws Exception {
                 when(visionClient.estimateVolume(any(), any(), anyBoolean())).thenReturn(visionResult(
                                 "Cơm trắng", 400.0, 300.0, 45.0, 13.0, "high"));
@@ -191,14 +201,13 @@ class PipelineServiceTest {
                                 "insulin_recommendation", Map.of("total_units", 3.0, "calculation_details", "cached")));
 
                 Map<String, Object> result = service.analyzeFull(
-                                mockImage(), "vn_com_trang", 120.0, "type_2", 10.0, 50.0, 120.0, false);
+                                mockImage(), "vn_com_trang", null, 120.0, "type_2", 10.0, 50.0, 120.0, false);
 
                 assertThat(result.get("advice")).isEqualTo("Cached advice text");
                 verify(ragClient, never()).getAdvice(any(), any(), any(), any(), anyBoolean());
         }
 
         @Test
-        @SuppressWarnings("unchecked")
         void ragCacheMissCallsServiceAndCaches() throws Exception {
                 when(visionClient.estimateVolume(any(), any(), anyBoolean())).thenReturn(visionResult(
                                 "Phở bò", 500.0, 400.0, 50.0, 25.0, "high"));
@@ -208,8 +217,7 @@ class PipelineServiceTest {
                 when(ragClient.getAdvice(any(), any(), any(), any(), anyBoolean())).thenReturn(Map.of(
                                 "advice", "Fresh advice"));
 
-                Map<String, Object> result = service.analyzeFull(
-                                mockImage(), null, null, null, null, null, null, false);
+                Map<String, Object> result = callFull(mockImage());
 
                 assertThat(result.get("advice")).isEqualTo("Fresh advice");
                 verify(ragClient).getAdvice(any(), any(), any(), any(), anyBoolean());
@@ -223,10 +231,23 @@ class PipelineServiceTest {
                 when(ragClient.getAdvice(any(), any(), any(), any(), anyBoolean())).thenReturn(Map.of(
                                 "advice", "**Bold advice** with *italic* text"));
 
-                Map<String, Object> result = service.analyzeFull(
-                                mockImage(), null, null, null, null, null, null, false);
+                Map<String, Object> result = callFull(mockImage());
 
                 assertThat(result.get("advice")).isEqualTo("Bold advice with italic text");
+        }
+
+        @Test
+        void customFoodNameOverridesVisionName() throws Exception {
+                when(visionClient.estimateVolume(any(), any(), anyBoolean())).thenReturn(visionResult(
+                                "Unknown", 300.0, 200.0, 40.0, 18.0, "medium"));
+                when(ragClient.getAdvice(any(), any(), any(), any(), anyBoolean())).thenReturn(Map.of("advice", "ok"));
+
+                // customFoodName should override the "Unknown" from Vision
+                service.analyzeFull(
+                                mockImage(), null, "Bún bò Huế", null, null, null, null, null, false);
+
+                // RAG should be called with "Bún bò Huế", not "Unknown"
+                verify(ragClient).getAdvice(eq("Bún bò Huế"), any(), any(), any(), anyBoolean());
         }
 
         // ── Helpers ──────────────────────────────────────────────────────
