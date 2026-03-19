@@ -482,6 +482,7 @@ async def estimate_volume(
             food_mask=seg_result.refined_mask,
             cm_per_pixel=cal_result.cm_per_pixel,
             food_id=effective_food_id,
+            bowl_bbox=bowl_bbox,
         )
 
         # Override quality to "low" when no reference was found
@@ -544,12 +545,17 @@ async def estimate_volume(
 
             # Formula breakdown
             food_px = seg_result.food_area_pixels
+            fill_info = (
+                f"  fill_ratio = {vol_result.fill_ratio:.2f}\n"
+                if vol_result.is_liquid_dish else ""
+            )
             debug_formula = (
                 f"V = ∫∫ depth(x,y) dA\n"
                 f"  = Σ max(0, depth_food − table_level) × pixel_area_cm²\n"
                 f"  pixel_area = {cal_result.cm_per_pixel:.4f}² = {cal_result.cm_per_pixel**2:.6f} cm²\n"
                 f"  table_level = {debug_table or 'N/A'} cm\n"
                 f"  food_pixels = {food_px}\n"
+                f"{fill_info}"
                 f"  V = {vol_result.volume_cm3:.1f} cm³ = {vol_result.volume_ml:.1f} mL\n"
                 f"  Weight = V × solid_ratio({vol_result.solid_ratio}) × density({vol_result.density_g_per_ml}) = {vol_result.weight_g:.1f} g\n"
                 f"  Carb = weight × carb_per_100g / 100 = {vol_result.carb_g:.1f} g\n"
@@ -688,6 +694,7 @@ async def validate_single(
             food_mask=seg_result.refined_mask,
             cm_per_pixel=cal_result.cm_per_pixel,
             food_id=food_id,
+            bowl_bbox=bowl_bbox,
         )
 
         pipeline_ms = (__import__("time").time() - t_start) * 1000

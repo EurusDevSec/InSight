@@ -352,35 +352,147 @@ class TestQualityAssessment:
 
 
 # ============================================================
-# Tests: Bowl volume prior for soup dishes
+# Tests: Dynamic bowl-fill estimation for soup dishes
 # ============================================================
-class TestBowlVolumePrior:
-    """Test that liquid dishes use bowl volume prior instead of depth integral."""
+class TestBowlFillEstimation:
+    """Test that liquid dishes scale bowl prior by fill ratio from depth map."""
 
-    def test_pho_uses_bowl_prior(self, estimator, flat_depth_food):
-        """Phở bò (liquid) should use 500mL bowl prior."""
-        depth, mask = flat_depth_food
-        result = estimator.estimate(depth, mask, cm_per_pixel=0.1, food_id="vn_pho_bo")
+    @pytest.fixture
+    def full_bowl_scene(self):
+        """
+        200×200 image simulating a FULL bowl seen from above.
+
+        Layout:
+          - Table (background): depth = 1.0 cm (low, far from camera)
+          - Bowl rim (ring): depth = 4.0 cm (high, close to camera)
+          - Bowl interior (liquid surface): depth = 3.8 cm (near rim = full)
+          - Food mask covers center 80×80 pixels
+
+        Bowl bbox: [40, 40, 160, 160] (centered, 120×120 px)
+        """
+        depth = np.full((200, 200), 1.0, dtype=np.float64)  # table
+
+        yy, xx = np.ogrid[:200, :200]
+        cx, cy, hw, hh = 100.0, 100.0, 60.0, 60.0
+        dist_sq = ((xx - cx) / hw) ** 2 + ((yy - cy) / hh) ** 2
+
+        # Rim ring (85-100% of half-widths)
+        rim = (dist_sq > 0.85 ** 2) & (dist_sq <= 1.0)
+        depth[rim] = 4.0
+
+        # Interior (< 65% of half-widths) — full bowl, liquid near rim
+        interior = dist_sq <= 0.65 ** 2
+        depth[interior] = 3.8
+
+        # Transition zone
+        mid = (dist_sq > 0.65 ** 2) & (dist_sq <= 0.85 ** 2)
+        depth[mid] = 3.5
+
+        mask = np.zeros((200, 200), dtype=bool)
+        mask[60:140, 60:140] = True  # food in center
+
+        bowl_bbox = [40.0, 40.0, 160.0, 160.0]
+        return depth, mask, bowl_bbox
+
+    @pytest.fixture
+    def half_bowl_scene(self):
+        """
+        200×200 image simulating a HALF-EMPTY bowl.
+
+        Same as full_bowl but interior liquid surface is much lower.
+          - Interior depth = 2.0 cm (between table=1.0 and rim=4.0)
+        """
+        depth = np.full((200, 200), 1.0, dtype=np.float64)  # table
+
+        yy, xx = np.ogrid[:200, :200]
+        cx, cy, hw, hh = 100.0, 100.0, 60.0, 60.0
+        dist_sq = ((xx - cx) / hw) ** 2 + ((yy - cy) / hh) ** 2
+
+        rim = (dist_sq > 0.85 ** 2) & (dist_sq <= 1.0)
+        depth[rim] = 4.0
+
+        # Interior — half-empty, liquid surface much lower
+        interior = dist_sq <= 0.65 ** 2
+        depth[interior] = 2.0
+
+        mid = (dist_sq > 0.65 ** 2) & (dist_sq <= 0.85 ** 2)
+        depth[mid] = 2.5
+
+        mask = np.zeros((200, 200), dtype=bool)
+        mask[60:140, 60:140] = True
+
+        bowl_bbox = [40.0, 40.0, 160.0, 160.0]
+        return depth, mask, bowl_bbox
+
+    def test_full_bowl_near_prior(self, estimator, full_bowl_scene):
+        """Full bowl of phở should give volume close to the bowl prior (500mL)."""
+        depth, mask, bbox = full_bowl_scene
+        result = estimator.estimate(
+            depth, mask, cm_per_pixel=0.1, food_id="vn_pho_bo", bowl_bbox=bbox,
+        )
+        # fill_ratio should be ~0.93 (3.8-1.0)/(4.0-1.0) ≈ 0.93
+        assert result.volume_ml > 400.0, f"Full bowl too low: {result.volume_ml}"
+        assert result.fill_ratio > 0.85
+
+    def test_half_bowl_much_less(self, estimator, half_bowl_scene):
+        """Half-empty bowl should give significantly less volume."""
+        depth, mask, bbox = half_bowl_scene
+        result = estimator.estimate(
+            depth, mask, cm_per_pixel=0.1, food_id="vn_pho_bo", bowl_bbox=bbox,
+        )
+        # fill_ratio should be ~0.33 (2.0-1.0)/(4.0-1.0) ≈ 0.33
+        assert result.volume_ml < 300.0, f"Half bowl too high: {result.volume_ml}"
+        assert result.fill_ratio < 0.5
+
+    def test_full_vs_half_differ(self, estimator, full_bowl_scene, half_bowl_scene):
+        """Full bowl must produce higher volume than half bowl."""
+        d_full, m_full, bb_full = full_bowl_scene
+        d_half, m_half, bb_half = half_bowl_scene
+        r_full = estimator.estimate(
+            d_full, m_full, cm_per_pixel=0.1, food_id="vn_bun_bo_hue", bowl_bbox=bb_full,
+        )
+        r_half = estimator.estimate(
+            d_half, m_half, cm_per_pixel=0.1, food_id="vn_bun_bo_hue", bowl_bbox=bb_half,
+        )
+        assert r_full.volume_ml > r_half.volume_ml * 1.5, (
+            f"Full ({r_full.volume_ml:.0f}mL) should be >1.5× half ({r_half.volume_ml:.0f}mL)"
+        )
+
+    def test_no_bowl_bbox_falls_back_to_prior(self, estimator, full_bowl_scene):
+        """Without bowl_bbox, liquid dish should use full bowl prior (fallback)."""
+        depth, mask, _ = full_bowl_scene
+        result = estimator.estimate(
+            depth, mask, cm_per_pixel=0.1, food_id="vn_pho_bo",
+            # No bowl_bbox → fill_ratio = 1.0
+        )
         assert abs(result.volume_ml - 500.0) < 1.0
+        assert result.fill_ratio == 1.0
 
-    def test_bun_bo_hue_uses_bowl_prior(self, estimator, flat_depth_food):
-        """Bún bò Huế (liquid) should use 550mL bowl prior."""
-        depth, mask = flat_depth_food
-        result = estimator.estimate(depth, mask, cm_per_pixel=0.1, food_id="vn_bun_bo_hue")
-        assert abs(result.volume_ml - 550.0) < 1.0
+    def test_solid_food_ignores_bowl_bbox(self, estimator, full_bowl_scene):
+        """Solid dish should use depth integral, not bowl prior, even with bbox."""
+        depth, mask, bbox = full_bowl_scene
+        result = estimator.estimate(
+            depth, mask, cm_per_pixel=0.1, food_id="vn_com_trang", bowl_bbox=bbox,
+        )
+        assert result.volume_ml < 200  # depth integral, not bowl prior
+        assert result.fill_ratio == 1.0  # fill_ratio stays 1.0 for solid
 
-    def test_solid_food_uses_depth_integral(self, estimator, flat_depth_food):
-        """Cơm trắng (solid) should NOT use bowl prior — uses depth integral."""
-        depth, mask = flat_depth_food
-        result = estimator.estimate(depth, mask, cm_per_pixel=0.1, food_id="vn_com_trang")
-        # Depth integral: raw=125, corrected=43.75
-        assert result.volume_ml < 100  # Much less than any bowl prior
+    def test_rim_too_low_defaults_to_full(self, estimator):
+        """When rim height <= 0.1 cm (bbox on table), fill_ratio should be 1.0."""
+        # Everything at table level — no rim contrast
+        depth = np.full((200, 200), 1.0, dtype=np.float64)
+        depth[60:140, 60:140] = 1.05  # barely above table
 
-    def test_chao_uses_bowl_prior(self, estimator, flat_depth_food):
-        """Cháo (liquid porridge) should use 350mL bowl prior."""
-        depth, mask = flat_depth_food
-        result = estimator.estimate(depth, mask, cm_per_pixel=0.1, food_id="vn_chao")
-        assert abs(result.volume_ml - 350.0) < 1.0
+        mask = np.zeros((200, 200), dtype=bool)
+        mask[60:140, 60:140] = True
+
+        bbox = [40.0, 40.0, 160.0, 160.0]
+        result = estimator.estimate(
+            depth, mask, cm_per_pixel=0.1, food_id="vn_pho_bo", bowl_bbox=bbox,
+        )
+        # fill_ratio should fall back to 1.0 (rim_height ≈ 0.0 ≤ 0.1)
+        assert result.fill_ratio == 1.0
+        assert abs(result.volume_ml - 500.0) < 1.0
 
 
 # ============================================================

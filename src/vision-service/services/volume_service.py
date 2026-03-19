@@ -260,6 +260,9 @@ class VolumeResult:
     # Timing
     estimation_time_ms: float
 
+    # Bowl fill (liquid dishes only)
+    fill_ratio: float = 1.0         # Bowl fill level 0.15-1.0 (1.0 = full)
+
     # Debug
     table_level_cm: float = 0.0     # Table surface depth used as baseline
 
@@ -300,6 +303,7 @@ class VolumeEstimator:
         food_mask: np.ndarray,
         cm_per_pixel: float,
         food_id: Optional[str] = None,
+        bowl_bbox: Optional[List[float]] = None,
     ) -> VolumeResult:
         """
         Estimate food volume and compute GL.
@@ -314,6 +318,9 @@ class VolumeEstimator:
                           from CalibrationResult.cm_per_pixel.
             food_id:      Nutrition DB food ID (e.g. "vn_com_trang").
                           Defaults to "vn_com_trang" if None or not found.
+            bowl_bbox:    Bowl bounding box [x1, y1, x2, y2] in pixels
+                          from reference detection. Used for liquid dishes
+                          to estimate bowl fill level.
 
         Returns:
             VolumeResult containing volume, weight, carb, GL, and metadata.
@@ -373,18 +380,25 @@ class VolumeEstimator:
         volume_raw = float(np.sum(heights) * pixel_area_cm2)
         mean_height = float(np.mean(heights))
 
+        fill_ratio = 1.0  # Default: assume full serving
+
         if nutrition.is_liquid:
-            # SOUP / LIQUID DISHES: use bowl volume prior.
-            # Depth estimation cannot see bowl interior depth — it only
-            # captures the liquid surface.  A prior based on typical
-            # Vietnamese serving size is far more accurate.
+            # SOUP / LIQUID DISHES: scale bowl volume prior by fill ratio.
+            # The prior represents a FULL bowl. We estimate how full the
+            # bowl actually is by comparing interior vs rim depth.
             bowl_prior = _BOWL_VOLUME_PRIOR.get(resolved_id, _DEFAULT_BOWL_VOLUME_ML)
             depth_volume = volume_raw * _SOLID_VOLUME_CORRECTION
-            volume_cm3 = bowl_prior
+
+            fill_ratio = self._estimate_bowl_fill_ratio(
+                depth_map_cm, bowl_bbox, table_level,
+            )
+            volume_cm3 = bowl_prior * fill_ratio
+
             logger.info(
-                "Liquid dish '%s': using bowl prior %.0f mL "
-                "(depth integral was %.0f mL raw, %.0f corrected)",
-                resolved_id, bowl_prior, volume_raw, depth_volume,
+                "Liquid dish '%s': bowl_prior=%.0f mL × fill_ratio=%.2f "
+                "→ volume=%.0f mL (depth integral was %.0f raw, %.0f corrected)",
+                resolved_id, bowl_prior, fill_ratio, volume_cm3,
+                volume_raw, depth_volume,
             )
         else:
             # SOLID DISHES: apply empirical correction to depth integral.
@@ -442,6 +456,7 @@ class VolumeEstimator:
             mean_food_height_cm=mean_height,
             estimation_quality=quality,
             quality_reason=reason,
+            fill_ratio=fill_ratio,
             table_level_cm=table_level,
             estimation_time_ms=elapsed_ms,
         )
@@ -558,6 +573,77 @@ class VolumeEstimator:
             solid_ratio=1.0,
             density_g_per_ml=1.08,
         )
+
+    def _estimate_bowl_fill_ratio(
+        self,
+        depth_map_cm: np.ndarray,
+        bowl_bbox: Optional[List[float]],
+        table_level: float,
+    ) -> float:
+        """
+        Estimate how full a bowl is using rim-vs-interior depth contrast.
+
+        Compares the average depth of the bowl interior (liquid surface)
+        against the bowl rim depth. A full bowl has liquid near the rim;
+        a half-empty bowl has liquid surface much lower.
+
+        Returns fill_ratio in [0.15, 1.0].  Falls back to 1.0 when
+        bowl_bbox is unavailable or rim depth is too low (YOLO box
+        extends to table surface).
+        """
+        if bowl_bbox is None:
+            return 1.0
+
+        h, w = depth_map_cm.shape[:2]
+        x1, y1, x2, y2 = [int(v) for v in bowl_bbox]
+
+        # Bowl center and half-widths
+        cx = (x1 + x2) / 2.0
+        cy = (y1 + y2) / 2.0
+        hw = (x2 - x1) / 2.0  # half-width in pixels
+        hh = (y2 - y1) / 2.0  # half-height in pixels
+
+        if hw < 5 or hh < 5:
+            return 1.0  # bbox too small to be meaningful
+
+        # Build elliptical distance map (normalized: 1.0 = on bbox edge)
+        yy, xx = np.ogrid[:h, :w]
+        dist_sq = ((xx - cx) / hw) ** 2 + ((yy - cy) / hh) ** 2
+
+        # Interior ellipse: center 65% — where liquid surface is visible
+        interior_mask = dist_sq <= 0.65 ** 2
+        # Rim ring: 85-100% of half-widths — the bowl rim band
+        rim_mask = (dist_sq > 0.85 ** 2) & (dist_sq <= 1.0 ** 2)
+
+        interior_depths = depth_map_cm[interior_mask]
+        rim_depths = depth_map_cm[rim_mask]
+
+        if len(interior_depths) < 10 or len(rim_depths) < 10:
+            return 1.0  # Not enough pixels for reliable estimation
+
+        # Heights above table
+        interior_height = float(np.mean(interior_depths)) - table_level
+        rim_height = float(np.percentile(rim_depths, 80)) - table_level
+
+        # Edge case: rim barely above table (YOLO box too wide)
+        if rim_height <= 0.1:
+            logger.debug(
+                "Bowl rim height %.3f cm ≤ 0.1 — bbox may extend to table, "
+                "defaulting fill_ratio=1.0",
+                rim_height,
+            )
+            return 1.0
+
+        ratio = interior_height / rim_height
+        fill_ratio = float(np.clip(ratio, 0.15, 1.0))
+
+        logger.info(
+            "Bowl fill estimation: interior_h=%.2f cm, rim_h=%.2f cm, "
+            "raw_ratio=%.3f, clamped=%.2f",
+            interior_height, rim_height, ratio, fill_ratio,
+        )
+
+        return fill_ratio
 
     def _assess_quality(
         self,

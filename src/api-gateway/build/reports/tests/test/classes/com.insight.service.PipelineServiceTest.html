@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - PipelineServiceTest</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>PipelineServiceTest</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/com.insight.service.html">com.insight.service</a> &gt; PipelineServiceTest</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">13</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">1.175s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success" id="successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="tabs">
+<ul class="tabLinks">
+<li>
+<a href="#tab0">Tests</a>
+</li>
+<li>
+<a href="#tab1">Standard output</a>
+</li>
+</ul>
+<div id="tab0" class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">adviceTextIsCleanedOfMarkdown()</td>
+<td class="success">0.003s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">customFoodNameOverridesVisionName()</td>
+<td class="success">0.005s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">emergencyAlertAddedToWarnings()</td>
+<td class="success">0.008s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">fullPipelineReturnsCorrectResult()</td>
+<td class="success">0.032s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">glLevelHigh()</td>
+<td class="success">0.004s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">glLevelLow()</td>
+<td class="success">0.003s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">glLevelMedium()</td>
+<td class="success">0.004s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">lowQualityEstimationAddsWarning()</td>
+<td class="success">0.003s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">pipelineGracefullyHandlesRagFailure()</td>
+<td class="success">0.022s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">pipelineTimeMsIsTracked()</td>
+<td class="success">0.012s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">ragCacheHitSkipsServiceCall()</td>
+<td class="success">0.003s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">ragCacheMissCallsServiceAndCaches()</td>
+<td class="success">1.073s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">responseAlwaysHasDisclaimer()</td>
+<td class="success">0.003s</td>
+<td class="success">passed</td>
+</tr>
+</table>
+</div>
+<div id="tab1" class="tab">
+<h2>Standard output</h2>
+<span class="code">
+<pre>14:21:15.164 [Test worker] INFO com.insight.service.PipelineService -- Step 1/2: Calling Vision service...
+14:21:15.179 [Test worker] INFO com.insight.service.PipelineService -- Step 2/2: Calling RAG service...
+14:21:15.183 [Test worker] INFO com.insight.service.PipelineService -- Pipeline complete: Ph? b? ? GL=25.0 (high) in 26ms (vision=22ms, rag=3ms)
+14:21:15.356 [Test worker] INFO com.insight.service.PipelineService -- Step 1/2: Calling Vision service...
+14:21:15.357 [Test worker] INFO com.insight.service.PipelineService -- Step 2/2: Calling RAG service...
+14:21:15.360 [Test worker] INFO com.insight.service.PipelineService -- Pipeline complete: Cơm tr?ng ? GL=13.7 (medium) in 3ms (vision=1ms, rag=0ms)
+14:21:15.388 [Test worker] INFO com.insight.service.PipelineService -- Step 1/2: Calling Vision service...
+14:21:15.389 [Test worker] INFO com.insight.service.PipelineService -- Custom food name provided: 'Bún b? Hu?' (overriding 'Unknown')
+14:21:15.389 [Test worker] INFO com.insight.service.PipelineService -- Step 2/2: Calling RAG service...
+14:21:15.389 [Test worker] INFO com.insight.service.PipelineService -- Pipeline complete: Bún b? Hu? ? GL=18.0 (medium) in 1ms (vision=1ms, rag=0ms)
+14:21:15.399 [Test worker] INFO com.insight.service.PipelineService -- Step 1/2: Calling Vision service...
+14:21:15.399 [Test worker] INFO com.insight.service.PipelineService -- Step 2/2: Calling RAG service...
+14:21:15.401 [Test worker] WARN com.insight.service.PipelineService -- RAG service unavailable, returning Vision-only results: RAG service unavailable
+14:21:15.401 [Test worker] INFO com.insight.service.PipelineService -- Pipeline complete: Ph? b? ? GL=25.0 (high) in 2ms (vision=0ms, rag=0ms)
+14:21:15.418 [Test worker] INFO com.insight.service.PipelineService -- Step 1/2: Calling Vision service...
+14:21:15.418 [Test worker] INFO com.insight.service.PipelineService -- Step 2/2: Calling RAG service...
+14:21:15.419 [Test worker] INFO com.insight.service.PipelineService -- Pipeline complete: Bún ? GL=20.0 (medium) in 1ms (vision=0ms, rag=1ms)
+14:21:15.432 [Test worker] INFO com.insight.service.PipelineService -- Step 1/2: Calling Vision service...
+14:21:15.432 [Test worker] INFO com.insight.service.PipelineService -- Step 2/2: Calling RAG service...
+14:21:15.433 [Test worker] INFO com.insight.service.PipelineService -- Pipeline complete: Cháo ? GL=15.0 (medium) in 1ms (vision=0ms, rag=1ms)
+14:21:15.436 [Test worker] INFO com.insight.service.PipelineService -- Step 1/2: Calling Vision service...
+14:21:15.436 [Test worker] INFO com.insight.service.PipelineService -- Step 2/2: Calling RAG service...
+14:21:15.440 [Test worker] INFO com.insight.service.PipelineService -- Pipeline complete: Cơm ? GL=33.0 (high) in 4ms (vision=0ms, rag=0ms)
+14:21:15.445 [Test worker] INFO com.insight.service.PipelineService -- Step 1/2: Calling Vision service...
+14:21:15.445 [Test worker] INFO com.insight.service.PipelineService -- Step 2/2: Calling RAG service...
+14:21:15.446 [Test worker] INFO com.insight.service.PipelineService -- Pipeline complete: Cơm t?m ? GL=35.0 (high) in 1ms (vision=0ms, rag=0ms)
+14:21:15.448 [Test worker] INFO com.insight.service.PipelineService -- Step 1/2: Calling Vision service...
+14:21:15.448 [Test worker] INFO com.insight.service.PipelineService -- Step 2/2: Calling RAG service...
+14:21:15.448 [Test worker] INFO com.insight.service.PipelineService -- RAG cache HIT for Cơm tr?ng
+14:21:15.449 [Test worker] INFO com.insight.service.PipelineService -- Pipeline complete: Cơm tr?ng ? GL=13.0 (medium) in 1ms (vision=0ms, rag=1ms)
+14:21:15.452 [Test worker] INFO com.insight.service.PipelineService -- Step 1/2: Calling Vision service...
+14:21:15.453 [Test worker] INFO com.insight.service.PipelineService -- Step 2/2: Calling RAG service...
+14:21:15.453 [Test worker] INFO com.insight.service.PipelineService -- Pipeline complete: Cơm ? GL=15.0 (medium) in 1ms (vision=1ms, rag=0ms)
+14:21:15.455 [Test worker] INFO com.insight.service.PipelineService -- Step 1/2: Calling Vision service...
+14:21:15.456 [Test worker] INFO com.insight.service.PipelineService -- Step 2/2: Calling RAG service...
+14:21:15.456 [Test worker] INFO com.insight.service.PipelineService -- Pipeline complete: Rau xào ? GL=3.0 (low) in 1ms (vision=1ms, rag=0ms)
+14:21:15.459 [Test worker] INFO com.insight.service.PipelineService -- Step 1/2: Calling Vision service...
+14:21:15.460 [Test worker] INFO com.insight.service.PipelineService -- Step 2/2: Calling RAG service...
+14:21:15.460 [Test worker] INFO com.insight.service.PipelineService -- Pipeline complete: Unknown ? GL=5.0 (low) in 1ms (vision=1ms, rag=0ms)
+14:21:15.464 [Test worker] INFO com.insight.service.PipelineService -- Step 1/2: Calling Vision service...
+14:21:15.464 [Test worker] INFO com.insight.service.PipelineService -- Step 2/2: Calling RAG service...
+14:21:15.464 [Test worker] INFO com.insight.service.PipelineService -- Pipeline complete: Ph? ? GL=30.0 (high) in 0ms (vision=0ms, rag=0ms)
+</pre>
+</span>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="http://www.gradle.org">Gradle 8.6</a> at Mar 19, 2026, 2:21:16 PM</p>
+</div>
+</div>
+</body>
+</html>
