@@ -187,6 +187,12 @@ public class PipelineService {
         response.put("glycemic_load", glycemicLoad);
         response.put("gl_level", glLevel);
         response.put("confidence", confidence);
+        // ── Uncertainty range (pass-through from Vision) ─────────────
+        response.put("carb_range_low", getNum(visionResult, "carb_range_low", 0));
+        response.put("carb_range_high", getNum(visionResult, "carb_range_high", 0));
+        response.put("gl_range_low", getNum(visionResult, "gl_range_low", 0));
+        response.put("gl_range_high", getNum(visionResult, "gl_range_high", 0));
+        response.put("confidence_pct", (int) getNum(visionResult, "confidence_pct", 60));
         response.put("advice", advice);
         response.put("insulin_suggestion", insulinSuggestion);
         response.put("warnings", warnings);

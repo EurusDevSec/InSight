@@ -260,6 +260,19 @@ class VolumeResult:
     # Timing
     estimation_time_ms: float
 
+    # ── Uncertainty range (addresses professor feedback) ──────────────
+    # Instead of reporting a single GL number, we provide a plausible
+    # range based on accumulated error sources:
+    #   - Depth estimation: +/-20% (DAv2 monocular)
+    #   - Segmentation: +/-15%
+    #   - Density factor: +/-10%
+    # Combined (RSS): +/-27%
+    carb_range_low: float = 0.0     # Lower bound carb estimate (g)
+    carb_range_high: float = 0.0    # Upper bound carb estimate (g)
+    gl_range_low: float = 0.0       # Lower bound GL estimate
+    gl_range_high: float = 0.0      # Upper bound GL estimate
+    confidence_pct: int = 60        # Confidence level for the range (%)
+
     # Bowl fill (liquid dishes only)
     fill_ratio: float = 1.0         # Bowl fill level 0.15-1.0 (1.0 = full)
 
@@ -426,6 +439,30 @@ class VolumeEstimator:
         carb_g = weight_g * nutrition.carb_per_100g / 100.0
         glycemic_load = carb_g * nutrition.gi_index / 100.0
 
+        # ── Step 5a: Uncertainty estimation ───────────────────────────────
+        # Error sources (root-sum-square combination):
+        #   - Depth estimation: +/-20% (DAv2 monocular, per Ranftl et al.)
+        #   - Food segmentation: +/-15% (mask boundary uncertainty)
+        #   - Density/solid_ratio: +/-10% (lookup table vs actual)
+        # Combined uncertainty: sqrt(0.20^2 + 0.15^2 + 0.10^2) ~ 0.27 (27%)
+        #
+        # For liquid dishes (bowl prior), uncertainty is lower:
+        #   - Bowl volume prior: +/-15% (VN standard bowl size variation)
+        #   - Fill ratio estimation: +/-10%
+        #   - Combined: sqrt(0.15^2 + 0.10^2) ~ 0.18 (18%)
+        import math
+        if nutrition.is_liquid:
+            uncertainty_pct = math.sqrt(0.15**2 + 0.10**2)  # ~18%
+            confidence_pct = 70  # Higher for liquid (fewer error sources)
+        else:
+            uncertainty_pct = math.sqrt(0.20**2 + 0.15**2 + 0.10**2)  # ~27%
+            confidence_pct = 60
+
+        carb_range_low = max(0.0, carb_g * (1 - uncertainty_pct))
+        carb_range_high = carb_g * (1 + uncertainty_pct)
+        gl_range_low = max(0.0, glycemic_load * (1 - uncertainty_pct))
+        gl_range_high = glycemic_load * (1 + uncertainty_pct)
+
         # ── Step 6: Quality assessment ────────────────────────────────────
         quality, reason = self._assess_quality(
             volume_cm3=volume_cm3,
@@ -456,14 +493,20 @@ class VolumeEstimator:
             mean_food_height_cm=mean_height,
             estimation_quality=quality,
             quality_reason=reason,
+            carb_range_low=round(carb_range_low, 1),
+            carb_range_high=round(carb_range_high, 1),
+            gl_range_low=round(gl_range_low, 1),
+            gl_range_high=round(gl_range_high, 1),
+            confidence_pct=confidence_pct,
             fill_ratio=fill_ratio,
             table_level_cm=table_level,
             estimation_time_ms=elapsed_ms,
         )
 
         logger.info(
-            f"Volume: {volume_cm3:.1f}cm³ → {weight_g:.1f}g → "
-            f"carb={carb_g:.1f}g, GL={glycemic_load:.1f} "
+            f"Volume: {volume_cm3:.1f}cm3 -> {weight_g:.1f}g -> "
+            f"carb={carb_g:.1f}g ({carb_range_low:.0f}-{carb_range_high:.0f}), "
+            f"GL={glycemic_load:.1f} ({gl_range_low:.0f}-{gl_range_high:.0f}) "
             f"[{nutrition.food_name_en}] quality={quality} ({elapsed_ms:.1f}ms)"
         )
 

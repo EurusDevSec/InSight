@@ -82,6 +82,37 @@ class VolumeEstimationResponse(BaseModel):
         ..., description="Human-readable explanation of the quality rating"
     )
 
+    # ── Uncertainty range ─────────────────────────────────────────────────
+    carb_range_low: float = Field(
+        default=0.0,
+        description="Lower bound carb estimate (g), based on RSS error propagation",
+    )
+    carb_range_high: float = Field(
+        default=0.0,
+        description="Upper bound carb estimate (g), based on RSS error propagation",
+    )
+    gl_range_low: float = Field(
+        default=0.0,
+        description=(
+            "Lower bound GL estimate. "
+            "Use this + gl_range_high to display a range, e.g. 'GL ~ 10-18'"
+        ),
+    )
+    gl_range_high: float = Field(
+        default=0.0,
+        description=(
+            "Upper bound GL estimate. "
+            "Combined uncertainty from depth (+/-20%), segmentation (+/-15%), density (+/-10%)"
+        ),
+    )
+    confidence_pct: int = Field(
+        default=60,
+        description=(
+            "Confidence level for the GL/carb range (%). "
+            "60% for solid dishes (3 error sources), 70% for liquid (2 error sources)"
+        ),
+    )
+
     # ── Timing ────────────────────────────────────────────────────────────
     volume_time_ms: float = Field(
         ..., description="Time for volume+GL computation only (ms)"

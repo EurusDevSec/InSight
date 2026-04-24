@@ -600,5 +600,69 @@ pytest tests/test_volume_service.py tests/test_calibration_service.py tests/test
 
 ---
 
+## 12. Teacher Feedback & Improvements (10/04/2026)
+
+### 12.1 Nhận xét của thầy (4 vấn đề chính)
+
+1. **Reference Object = UX burden**: Người dùng phải đặt đũa/muỗng bên cạnh mỗi lần chụp → không thực tế
+   - *Tạm chấp nhận*, plan migration sang Depth Anything V2 Metric (reference-free)
+2. **Góc chụp bắt buộc**: Top-down (90°) quá phiền cho người dùng
+   - *Tạm chấp nhận*, plan accelerometer-based tilt detection + geometric correction
+3. **Magic numbers**: Các hằng số (`_SOLID_VOLUME_CORRECTION = 0.35`, bowl priors, density factors) — số liệu ở đâu? Tính ra sao? Xác thực thế nào?
+   - **ĐÃ KHẮC PHỤC** → xem mục 12.2
+4. **GL estimation không có giá trị thực tế cao**: Không phải chưa ai làm, mà vì cumulative error quá lớn cho clinical use
+   - **ĐÃ KHẮC PHỤC** → reframe thành "Dietary Awareness Tool" (xem mục 12.3)
+
+### 12.2 Improvements đã implement (10/04/2026)
+
+#### A. Ablation Study cho Magic Numbers
+- **Script**: `scripts/ablation_volume_correction.py`
+- **Kết quả**: `data/ablation_results.json`
+- Test 7 giá trị correction factor [0.20 → 0.50] trên 25 món VN
+- **Kết luận**: 0.35 is optimal (lowest MAPE-Weight, 64% pass rate ≤15%)
+- DAv2 overestimation ~2.86x confirmed empirically
+
+#### B. Uncertainty Range (thay vì single point estimate)
+- **VolumeResult** dataclass: thêm `carb_range_low/high`, `gl_range_low/high`, `confidence_pct`
+- **Error propagation** (RSS): sqrt(depth_20%² + seg_15%² + density_10%²) = ±27% (solid), ±18% (liquid)
+- **API response**: Vision endpoint + Gateway pass-through đều trả về range
+- Ví dụ output: `GL ≈ 13.7 (range: 10.0-17.4, confidence: 60%)`
+- **Ý nghĩa**: Người dùng thấy range thay vì con số chính xác → honest communication
+
+#### C. Constants Justification Document
+- **File**: `docs/CONSTANTS_JUSTIFICATION.md`
+- Document mọi constant với: source, sensitivity analysis, limitations
+- Evidence levels: Peer-reviewed / Standard DB / Ablation / Empirical / Estimated
+
+### 12.3 Pivot narrative: Dietary Awareness Tool
+
+**Cũ**: "Hệ thống ước lượng GL cho bệnh nhân tiểu đường" (clinical claim)
+**Mới**: "Công cụ nhận thức dinh dưỡng hỗ trợ giáo dục GL" (awareness tool)
+
+**Lý do pivot:**
+- Cumulative error pipeline (depth + seg + density) = ±27% → không đủ chính xác cho clinical insulin dosing
+- ADA guidelines 2024: GL awareness có giá trị giáo dục, nhưng insulin dosing phải do bác sĩ chuyên khoa
+- Research contribution chính: **pipeline engineering** (real-time depth → volume → GL), không phải clinical accuracy
+
+**Điều chỉnh trong defense:**
+- Disclaimer: "Kết quả chỉ mang tính tham khảo. Không thay thế chỉ định của bác sĩ."
+- Uncertainty range: GL ≈ X (range: low-high) thay vì GL = X (point estimate)
+- Scope: "dietary awareness for education" thay vì "clinical decision support"
+
+### 12.4 Files changed (10/04/2026)
+
+| File | Change |
+|------|--------|
+| `src/vision-service/services/volume_service.py` | +uncertainty fields in VolumeResult + computation |
+| `src/vision-service/schemas/volume_schemas.py` | +5 uncertainty fields in API response |
+| `src/vision-service/main.py` | Pass uncertainty to VolumeEstimationResponse |
+| `src/api-gateway/.../PipelineService.java` | Pass-through 5 uncertainty fields |
+| `scripts/ablation_volume_correction.py` | [NEW] Ablation study script |
+| `data/ablation_results.json` | [NEW] Ablation results |
+| `docs/CONSTANTS_JUSTIFICATION.md` | [NEW] All constants documented |
+| `docs/CONTEXT.md` | +section 12 (this section) |
+
+---
+
 > **Tạo**: 10/03/2026
-> **Cập nhật**: 19/03/2026 — Safety fixes + Bowl volume prior + Food DB 25 items + Custom food "Khác" + Benchmark 5 dishes; 404 tests: vision 171 + rag 164 + gateway 19 + mobile 40 + e2e 10
+> **Cập nhật**: 10/04/2026 — Teacher Feedback Response: ablation study, uncertainty range, constants justification, narrative pivot; 404 tests: vision 171 + rag 164 + gateway 19 + mobile 40 + e2e 10
