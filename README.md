@@ -18,3 +18,15 @@ docker compose up -d
 
 # Check health
 docker compose ps
+
+# Run Mobile App
+flutter run -d chrome
+
+# rag service
+cd src/rag-service && python main.py
+
+# vision service
+cd src/vision-service && python main.py
+
+#api gateway
+cd src/api-gateway && ./gradlew bootRun
