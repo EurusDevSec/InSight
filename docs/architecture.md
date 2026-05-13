@@ -1,6 +1,6 @@
 # Kiến trúc hệ thống InSight
 
-> Tài liệu chi tiết về kiến trúc kỹ thuật của hệ thống ước lượng Glycemic Load
+> Tài liệu chi tiết về kiến trúc kỹ thuật **thực tế đã triển khai** của hệ thống ước lượng Glycemic Load
 
 ---
 
@@ -19,169 +19,162 @@
 
 ### 1.1 Phong cách kiến trúc
 
-Hệ thống InSight được xây dựng theo kiến trúc **Hybrid Edge-Cloud Event-Driven** kết hợp **Clean Architecture**:
+Hệ thống InSight được xây dựng theo kiến trúc **Hybrid Edge-Cloud** gồm 3 backend microservices giao tiếp qua **REST/HTTP**:
 
-- **Edge Computing:** Xử lý sơ bộ trên thiết bị mobile (YOLO detection, image preprocessing)
-- **Cloud Processing:** Xử lý nặng trên server (Depth estimation, RAG Agent)
-- **Event-Driven:** Giao tiếp giữa services qua Kafka events
-- **Clean Architecture:** Tách biệt rõ ràng giữa các layer (Presentation, Domain, Data)
+- **API Gateway (Spring Boot):** Orchestration, cache, audit
+- **Vision Service (Python FastAPI):** Depth estimation → Volume → GL
+- **RAG Service (Python FastAPI):** Knowledge retrieval → Insulin advice
+- **Mobile (Flutter):** Giao diện người dùng, chụp ảnh, hiển thị kết quả
 
 ### 1.2 Nguyên tắc thiết kế
 
-- **Separation of Concerns:** Mỗi service làm một việc
-- **Loose Coupling:** Services giao tiếp qua message queue
-- **Fail-Safe:** Có fallback cho mọi tình huống (Panic Mode)
-- **User-Centric:** Ưu tiên tốc độ và UX hơn độ chính xác tuyệt đối
+- **Separation of Concerns:** Mỗi service đảm nhiệm một vai trò rõ ràng
+- **REST-first:** Giao tiếp giữa services qua HTTP REST (RestTemplate)
+- **Fail-Safe:** RAG fail → trả Vision-only + warning; Redis fail → bỏ cache
+- **User-Centric:** Ưu tiên tốc độ (≤5s chuẩn, ≤1s Panic Mode)
+- **Honest Reporting:** Báo cáo uncertainty range thay vì single point estimate
 
 ---
 
 ## 2. Sơ đồ thành phần hệ thống
 
-### 2.1 High-Level Architecture (Tổng quan dễ hiểu)
-
-Mô hình hoạt động như một **Bệnh viện thu nhỏ**:
-
-- **Mobile (Y tá):** Xử lý sơ cứu, lọc nhiễu, phản ứng nhanh.
-- **Cloud (Bác sĩ):** Xử lý chuyên sâu, chẩn đoán hình ảnh 3D và kê đơn thuốc.
+### 2.1 High-Level Architecture
 
 ```mermaid
 graph LR
-    subgraph "TIỀN TUYẾN (Mobile App)"
+    subgraph "Mobile App (Flutter)"
         User((Người dùng)) -->|Chụp ảnh| Mobile[App InSight]
-        Mobile -->|1. Sàng lọc & Cắt vật thể| EdgeAI[AI Sơ bộ (YOLO Int8)]
-        Mobile -.->|⚠️ Mất mạng/Khẩn cấp| Panic[Panic Mode (Offline)]
+        Mobile -.->|Mất mạng| Panic[Panic Mode]
     end
 
-    EdgeAI ==>|2. Vận chuyển tốc độ cao (gRPC)| Gateway[API Gateway]
+    Mobile ==>|REST/HTTP multipart| Gateway[API Gateway]
 
-    subgraph "HẬU PHƯƠNG (Cloud Server)"
-        Gateway -->|3. Hàng đợi xử lý| Queue[Kafka Queue]
-        Queue --> Vision[AI Thị giác 3D<br/>(Depth Anything)]
-        Vision -->|Thể tích| Logic[Tính toán Dinh dưỡng]
-        Logic <-->|4. Hội chẩn| RAG[Bác sĩ AI (RAG Agent)]
+    subgraph "Cloud Server"
+        Gateway -->|HTTP POST| Vision[Vision Service<br/>Python FastAPI]
+        Gateway -->|HTTP POST| RAG[RAG Service<br/>Python FastAPI]
+        Vision -->|Volume + GL| Gateway
+        RAG -->|Insulin Advice| Gateway
     end
 
-    Panic -.->|Ước lượng nhanh| User
-    Logic ==>|Chính xác cá nhân hóa| User
+    Gateway ==>|JSON response| Mobile
+    Panic -.->|Cache local| User
 ```
 
-### 2.2 Component Diagram (Chi tiết)
+### 2.2 Component Diagram (Chi tiết thực tế)
 
 ```mermaid
 graph TD
-    subgraph "Mobile Layer"
-        UI[Flutter UI<br/>• Camera Screen<br/>• Result Screen<br/>• Panic Mode]
-        EdgeProcessor[Edge Processor<br/>• YOLO Detection<br/>• Image Crop<br/>• Cutlery Detection]
-        LocalDB[SQLite<br/>• Food Templates<br/>• User History<br/>• Quán Quen Config]
+    subgraph "Mobile Layer (Flutter)"
+        UI[Flutter UI<br/>• Home, Camera, FoodForm<br/>• Result, Panic<br/>• MVVM + Provider]
+        LocalCache[Local Cache<br/>• Panic Mode data<br/>• 25 món VN]
     end
 
-    subgraph "Gateway Layer"
-        APIGateway[API Gateway<br/>• Rate Limiting<br/>• Auth Validation<br/>• Request Routing]
-        LoadBalancer[Load Balancer<br/>• Health Check<br/>• Circuit Breaker]
+    subgraph "Gateway Layer (Spring Boot 3.2.3)"
+        APIGateway[AnalysisController<br/>• POST /api/gateway/analyze<br/>• Multipart upload]
+        Pipeline[PipelineService<br/>• Orchestrate Vision + RAG<br/>• Safety checks<br/>• Graceful degradation]
+        Cache[CacheService<br/>• Redis SHA-256 key<br/>• TTL 1 giờ]
+        Kafka[KafkaEventPublisher<br/>• meal-analysis-events<br/>• Non-blocking audit]
     end
 
-    subgraph "Vision Layer"
-        DepthEstimator[Depth Estimator<br/>• Depth Anything V2<br/>• TorchServe]
-        VolumeCalculator[Volume Calculator<br/>• Integral Computation<br/>• Density Factor]
-        CutleryDetector[Cutlery Detector<br/>• Reference Object<br/>• Scale Calibration]
+    subgraph "Vision Layer (Python FastAPI)"
+        Depth[DepthService<br/>• Depth Anything V2 Small<br/>• 181ms CUDA]
+        Reference[ReferenceService<br/>• YOLOv8s COCO<br/>• 6 vật tham chiếu VN]
+        Calibration[CalibrationService<br/>• px/cm conversion<br/>• Quality assessment]
+        Segmentation[SegmentationService<br/>• Depth+Color hybrid<br/>• Elliptical bowl ROI]
+        Volume[VolumeEstimator<br/>• Tích phân depth<br/>• Density factor → GL<br/>• Uncertainty range]
     end
 
-    subgraph "Logic Layer"
-        GLCalculator[GL Calculator<br/>• Volume → Weight<br/>• Weight → Carb<br/>• Carb → GL]
-        InsulinAdvisor[Insulin Advisor<br/>• RAG Retrieval<br/>• Context Injection<br/>• Response Generation]
-        UserContext[User Context<br/>• Glucose Level<br/>• Medication<br/>• History]
+    subgraph "RAG Layer (Python FastAPI)"
+        KB[Knowledge Base<br/>• 26 docs, 46 chunks<br/>• Milvus HNSW]
+        RAGPipe[RAG Pipeline<br/>• Gemini 2.0-flash<br/>• Chain-of-Thought prompt]
+        Clinical[Personalization<br/>• 6 mức glucose<br/>• Emergency protocols<br/>• Safety caps 30U]
     end
 
     subgraph "Data Layer"
-        FoodDB[(Food Database<br/>• Density Factors<br/>• Carb per 100g)]
-        MedicalKB[(Medical KB<br/>• ADA Guidelines<br/>• MOH Guidelines)]
-        UserDB[(User Database<br/>• Profiles<br/>• History<br/>• CGM Data)]
+        FoodDB[(JSON files<br/>• vn_food_nutrition.json<br/>• density_factors.json)]
+        Milvus[(Milvus 2.3<br/>• Medical embeddings)]
+        Redis[(Redis 7<br/>• Response cache)]
+        KafkaBroker[(Kafka<br/>• Audit events)]
     end
 
-    UI --> EdgeProcessor
-    EdgeProcessor --> LocalDB
     UI --> APIGateway
-    APIGateway --> LoadBalancer
-    LoadBalancer --> DepthEstimator
-    LoadBalancer --> GLCalculator
-    DepthEstimator --> VolumeCalculator
-    VolumeCalculator --> CutleryDetector
-    CutleryDetector --> GLCalculator
-    GLCalculator --> InsulinAdvisor
-    InsulinAdvisor --> UserContext
-    InsulinAdvisor --> MedicalKB
-    GLCalculator --> FoodDB
-    UserContext --> UserDB
+    APIGateway --> Pipeline
+    Pipeline --> Cache
+    Pipeline --> Kafka
+    Pipeline -->|RestTemplate HTTP| Depth
+    Depth --> Reference
+    Reference --> Calibration
+    Calibration --> Segmentation
+    Segmentation --> Volume
+    Volume --> FoodDB
+    Pipeline -->|RestTemplate HTTP| RAGPipe
+    RAGPipe --> KB
+    KB --> Milvus
+    RAGPipe --> Clinical
+    Cache --> Redis
+    Kafka --> KafkaBroker
 ```
 
 ---
 
 ## 3. Luồng xử lý
 
-### 3.1 Luồng chuẩn (Standard Mode)
+### 3.1 Luồng chuẩn (Standard Mode — ≤ 5 giây)
 
 ```mermaid
 sequenceDiagram
     autonumber
     participant User as 👤 User
     participant App as 📱 Flutter App
-    participant Edge as 🔧 Edge AI
     participant Gateway as ☕ API Gateway
-    participant Vision as 🐍 Vision Engine
-    participant Logic as ☕ Logic Service
-    participant RAG as 🤖 RAG Agent
-    participant DB as 🗄️ Database
+    participant Vision as 🐍 Vision Service
+    participant RAG as 🤖 RAG Service
 
     User->>App: Chụp ảnh món ăn
-    App->>Edge: Xử lý sơ bộ
+    App->>App: Chọn loại món (25 món VN)
 
-    Edge->>Edge: YOLO Detection (Food + Cutlery)
-    Edge->>Edge: Crop image theo bounding box
-    Edge->>Edge: Detect vật tham chiếu (bát/thìa)
-
-    alt Phát hiện món nước (Phở, Bún)
-        Edge->>App: Cần thêm thông tin
-        App->>User: Form: "Đây là Phở hay Bún?"
-        User->>App: Chọn loại món
+    alt Món nước (Phở, Bún)
+        App->>User: Form chọn loại
+        User->>App: Chọn "Phở bò"
     end
 
-    App->>Gateway: Upload (ảnh + loại món + reference)
-    Gateway->>Gateway: Validate + Auth
-    Gateway->>Vision: Request Volume Estimation
+    App->>Gateway: POST /api/gateway/analyze<br/>(multipart: ảnh + food_id + glucose)
+    Gateway->>Gateway: Check Redis cache
 
-    activate Vision
-    Vision->>Vision: Depth Anything V2 Inference
-    Vision->>Vision: Generate Depth Map
-    Vision->>Vision: Apply Calibration (reference object)
-    Vision->>Vision: Calculate Volume (∫∫ depth dA)
-    Vision->>Vision: Apply Density Factor
-    Vision-->>Gateway: Volume (ml) + Confidence
-    deactivate Vision
+    alt Cache miss
+        Gateway->>Vision: POST /api/vision/estimate-volume<br/>(RestTemplate HTTP)
 
-    Gateway->>Logic: Calculate GL
-    activate Logic
-    Logic->>DB: Get Food Density & Carb/100g
-    DB-->>Logic: Food Data
-    Logic->>Logic: Volume → Weight (ρ)
-    Logic->>Logic: Weight → Carbs
-    Logic->>Logic: Carbs → GL
+        activate Vision
+        Vision->>Vision: Depth Anything V2 → Depth map
+        Vision->>Vision: YOLOv8s → Reference object + scale
+        Vision->>Vision: Calibrate px → cm
+        Vision->>Vision: Segment food region
+        Vision->>Vision: ∫∫ depth·dA → Volume → GL
+        Vision->>Vision: RSS uncertainty (±27% / ±18%)
+        Vision-->>Gateway: Volume, GL, uncertainty range
+        deactivate Vision
 
-    Logic->>RAG: Request Insulin Advice
-    activate RAG
-    RAG->>DB: Get User Context (Glucose, Meds)
-    RAG->>RAG: Retrieve Medical Guidelines
-    RAG->>RAG: Generate Actionable Response
-    RAG-->>Logic: "60g Carb → Tiêm thêm 1 Unit"
-    deactivate RAG
+        Gateway->>RAG: POST /api/rag/advise<br/>(RestTemplate HTTP)
 
-    Logic-->>Gateway: GL + Recommendation + Disclaimer
-    deactivate Logic
+        activate RAG
+        RAG->>RAG: Classify glucose (6 levels)
+        RAG->>RAG: Check emergency protocols
+        RAG->>RAG: Retrieve KB chunks (Milvus)
+        RAG->>RAG: Generate advice (Gemini API)
+        RAG->>RAG: Grounding validation
+        RAG-->>Gateway: Insulin advice + warnings
+        deactivate RAG
 
-    Gateway-->>App: Response
-    App->>User: Hiển thị kết quả (<5 giây)
+        Gateway->>Gateway: Combine results + disclaimer
+        Gateway->>Gateway: Save to Redis cache
+        Gateway->>Gateway: Publish Kafka audit event
+    end
+
+    Gateway-->>App: JSON response
+    App->>User: Hiển thị GL + range + advice (≤5s)
 ```
 
-### 3.2 Luồng nhanh (Panic Mode)
+### 3.2 Luồng nhanh (Panic Mode — ≤ 1 giây)
 
 ```mermaid
 sequenceDiagram
@@ -191,57 +184,29 @@ sequenceDiagram
     participant Cache as 💾 Local Cache
 
     User->>App: Bấm "Ước lượng nhanh"
-    App->>User: Hiện thư viện ảnh món ăn
-
-    Note over App: Thư viện: Cơm, Phở, Bún,<br/>Bánh mì, Xôi, Cháo...
-
+    App->>User: Hiện thư viện 25 món VN
     User->>App: Chọn ảnh giống nhất
-
-    alt Có quán quen đã calibrate
-        App->>Cache: Lookup quán quen
-        Cache-->>App: Density Factor riêng
-    else Dùng giá trị mặc định
-        App->>Cache: Lookup giá trị trung bình
-        Cache-->>App: Carb trung bình
-    end
-
-    App->>App: Tính GL từ cache
-    App->>User: Hiển thị kết quả (<1 giây)
-
-    Note over User,App: ⚠️ Kèm badge "Ước lượng"
+    App->>Cache: Lookup carb trung bình
+    Cache-->>App: Carb + GL mặc định
+    App->>User: Hiển thị kết quả (≤1s)<br/>⚠️ Badge "Ước lượng"
 ```
 
-### 3.3 Luồng đồ uống (có Carb ẩn)
+### 3.3 Luồng xử lý lỗi (Graceful Degradation)
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    participant User as 👤 User
-    participant App as 📱 Flutter App
-    participant Edge as 🔧 Edge AI
-    participant Gateway as ☕ API Gateway
+    participant Gateway as ☕ Gateway
+    participant Vision as 🐍 Vision
+    participant RAG as 🤖 RAG
 
-    User->>App: Chụp ảnh đồ uống
-    App->>Edge: Detect object
-    Edge->>Edge: Nhận diện: "Trà sữa"
-    Edge->>App: Loại = Đồ uống
+    Gateway->>Vision: estimate-volume
+    Vision-->>Gateway: ✅ GL = 13.7
 
-    App->>User: Form 1: "Size: S/M/L/XL?"
-    User->>App: Chọn "L"
+    Gateway->>RAG: advise
+    RAG--xGateway: ❌ Connection refused
 
-    App->>User: Form 2: "Độ ngọt?"
-    User->>App: Chọn "100%"
-
-    App->>User: Form 3: "Có trân châu?"
-    User->>App: Chọn "Có"
-
-    App->>Gateway: Upload + Metadata
-
-    Note over Gateway: Carb = Base(L, 100%) + Topping
-    Note over Gateway: = 50g + 20g = 70g Carb
-
-    Gateway-->>App: 70g Carb, GL = 35
-    App->>User: Hiển thị kết quả
+    Note over Gateway: RAG failed → return Vision-only
+    Gateway-->>App: GL + uncertainty + warning<br/>"Advisory service unavailable"
 ```
 
 ---
@@ -254,256 +219,154 @@ sequenceDiagram
 flowchart TB
     subgraph Input
         Camera[📷 Camera]
-        CGM[📊 CGM Device]
-        Manual[✍️ Manual Input]
+        Manual[✍️ Food Form]
     end
 
-    subgraph Processing
-        EdgeAI[🔧 Edge AI]
-        VisionEngine[🐍 Vision Engine]
-        GLCalc[📐 GL Calculator]
-        RAGAgent[🤖 RAG Agent]
+    subgraph "API Gateway (Orchestrator)"
+        Pipeline[PipelineService]
+    end
+
+    subgraph "Vision Service"
+        VisionEngine[Vision Pipeline<br/>Depth→Calibrate→Segment→Volume→GL]
+    end
+
+    subgraph "RAG Service"
+        RAGAgent[RAG Pipeline<br/>Retrieve→Augment→Generate]
     end
 
     subgraph Storage
-        UserDB[(👤 User DB)]
-        FoodDB[(🍜 Food DB)]
-        MedicalKB[(📚 Medical KB)]
-        Cache[(⚡ Cache)]
+        FoodJSON[(📁 JSON files<br/>nutrition + density)]
+        MilvusDB[(🔍 Milvus<br/>Medical KB)]
+        RedisCache[(⚡ Redis Cache)]
+        KafkaAudit[(📋 Kafka Audit)]
     end
 
     subgraph Output
-        Result[📊 GL Result]
+        Result[📊 GL + Uncertainty Range]
         Advice[💊 Insulin Advice]
-        History[📈 History Log]
     end
 
-    Camera --> EdgeAI
-    CGM --> UserDB
-    Manual --> UserDB
+    Camera --> Pipeline
+    Manual --> Pipeline
 
-    EdgeAI --> VisionEngine
-    VisionEngine --> GLCalc
-    GLCalc --> FoodDB
-    GLCalc --> RAGAgent
-    RAGAgent --> MedicalKB
-    RAGAgent --> UserDB
+    Pipeline -->|HTTP| VisionEngine
+    Pipeline -->|HTTP| RAGAgent
+    Pipeline --> RedisCache
+    Pipeline --> KafkaAudit
 
-    GLCalc --> Result
+    VisionEngine --> FoodJSON
+    RAGAgent --> MilvusDB
+
+    VisionEngine --> Result
     RAGAgent --> Advice
-    Result --> Cache
-    Advice --> History
-    History --> UserDB
-```
-
-### 4.2 Data Flow Chi tiết (C4 Level 2)
-
-```mermaid
-flowchart LR
-    subgraph External
-        U[👤 Bệnh nhân]
-        D[👨‍⚕️ Bác sĩ]
-        CGM[📊 CGM Device]
-    end
-
-    subgraph "InSight System"
-        subgraph Mobile
-            MA[📱 Flutter App]
-            LC[💾 Local Cache]
-        end
-
-        subgraph Backend
-            API[API Gateway]
-            VS[Vision Service]
-            LS[Logic Service]
-            RAG[RAG Service]
-        end
-
-        subgraph Data
-            DB[(PostgreSQL)]
-            VDB[(Milvus)]
-            Cache[(Redis)]
-        end
-    end
-
-    U -->|Ảnh| MA
-    CGM -->|Glucose| MA
-    MA <-->|Sync| LC
-    MA -->|gRPC| API
-    API -->|Image| VS
-    VS -->|Volume| API
-    API -->|Calculate| LS
-    LS -->|Query| RAG
-    RAG -->|Retrieve| VDB
-    LS -->|CRUD| DB
-    API -->|Cache| Cache
-    RAG -->|Advice| API
-    API -->|Result| MA
-    MA -->|Display| U
-
-    D -->|Monitor| API
-    API -->|Analytics| D
 ```
 
 ---
 
 ## 5. Kiến trúc từng layer
 
-### 5.1 Mobile Layer (Flutter)
+### 5.1 Mobile Layer (Flutter — MVVM + Provider)
 
 ```
-lib/
-├── core/
-│   ├── constants/
-│   ├── utils/
-│   └── di/                 # Dependency Injection
-├── data/
-│   ├── models/             # Data models
-│   ├── repositories/       # Repository implementations
-│   └── datasources/
-│       ├── local/          # SQLite, SharedPrefs
-│       └── remote/         # gRPC client
-├── domain/
-│   ├── entities/           # Business entities
-│   ├── repositories/       # Repository interfaces
-│   └── usecases/           # Business logic
-├── presentation/
-│   ├── screens/
-│   │   ├── camera/         # Chụp ảnh
-│   │   ├── result/         # Hiển thị kết quả
-│   │   ├── panic/          # Panic Mode
-│   │   └── settings/       # Cài đặt, quán quen
-│   ├── widgets/
-│   └── bloc/               # State management
-└── edge/
-    ├── yolo/               # YOLO detection
-    ├── onnx/               # ONNX runtime
-    └── preprocessing/      # Image preprocessing
-```
-
-### 5.2 Backend Layer (Java + Python)
-
-```
-backend/
-├── api-gateway/                    # Spring Boot Gateway
-│   ├── src/main/java/
-│   │   ├── config/
-│   │   ├── controller/
-│   │   ├── filter/                 # Auth, Rate limiting
-│   │   └── grpc/                   # gRPC endpoints
-│   └── src/main/proto/             # Protobuf definitions
-│
-├── vision-service/                 # Python Vision Engine
+src/mobile/insight_app/
+├── lib/
+│   ├── main.dart
+│   ├── app.dart
+│   ├── config/
+│   │   └── routes.dart           # go_router
 │   ├── models/
-│   │   ├── depth_anything/         # Depth estimation
-│   │   └── cutlery_detector/       # Reference detection
-│   ├── services/
-│   │   ├── depth_service.py
-│   │   ├── volume_service.py
-│   │   └── calibration_service.py
-│   └── api/
-│       └── grpc_server.py
-│
-├── logic-service/                  # Java Logic Service
-│   ├── src/main/java/
-│   │   ├── domain/
-│   │   │   ├── entity/
-│   │   │   ├── repository/
-│   │   │   └── service/
-│   │   ├── application/
-│   │   │   ├── usecase/
-│   │   │   └── dto/
-│   │   └── infrastructure/
-│   │       ├── persistence/
-│   │       ├── messaging/          # Kafka
-│   │       └── external/           # CGM API
-│   └── src/main/resources/
-│
-└── rag-service/                    # RAG Agent (Python FastAPI)
-    ├── knowledge_base/             # KB: chunking, embedding, search
-    ├── rag_pipeline/               # LLM client, prompt builder, RAG service
-    ├── personalization/            # Clinical rules, emergency, grounding
-    ├── tests/                      # 154 tests
-    └── main.py                     # FastAPI: /api/rag/advise, /health
-
+│   │   ├── food_item.dart
+│   │   ├── meal_analysis.dart    # + DebugData
+│   │   └── patient_context.dart
+│   ├── viewmodels/
+│   │   ├── meal_viewmodel.dart   # MVVM + Provider
+│   │   └── panic_viewmodel.dart
+│   ├── screens/
+│   │   ├── home_screen.dart
+│   │   ├── camera_screen.dart
+│   │   ├── food_form_screen.dart  # 25 món VN + debug toggle
+│   │   ├── result_screen.dart     # GL + uncertainty + developer panel
+│   │   └── panic_screen.dart
+│   └── widgets/
+│       ├── gl_indicator.dart
+│       └── disclaimer_banner.dart
+└── test/                          # 40 tests
 ```
 
-### 5.3 Data Layer
+### 5.2 API Gateway (Spring Boot 3.2.3, Java 17)
 
-![alt text](<User Meal Logging Ecosystem-2026-03-07-005230.png>)
-
-```mermaid
-erDiagram
-    USER ||--o{ MEAL_LOG : logs
-    USER ||--o{ GLUCOSE_READING : has
-    USER ||--o{ FAVORITE_RESTAURANT : saves
-
-    MEAL_LOG ||--|{ MEAL_ITEM : contains
-    MEAL_ITEM }|--|| FOOD : references
-
-    FOOD ||--o{ DENSITY_FACTOR : has
-
-    USER {
-        uuid id PK
-        string email
-        string name
-        json medication
-        json insulin_settings
-        datetime created_at
-    }
-
-    MEAL_LOG {
-        uuid id PK
-        uuid user_id FK
-        datetime logged_at
-        float total_carbs
-        float total_gl
-        string insulin_suggestion
-        boolean disclaimer_shown
-    }
-
-    MEAL_ITEM {
-        uuid id PK
-        uuid meal_log_id FK
-        uuid food_id FK
-        float volume_ml
-        float weight_g
-        float carbs_g
-        float confidence_score
-    }
-
-    FOOD {
-        uuid id PK
-        string name_vi
-        string name_en
-        float carb_per_100g
-        float gi_index
-        string category
-    }
-
-    DENSITY_FACTOR {
-        uuid id PK
-        uuid food_id FK
-        string variant
-        float solid_ratio
-        float density
-    }
-
-    GLUCOSE_READING {
-        uuid id PK
-        uuid user_id FK
-        float value_mgdl
-        datetime measured_at
-        string source
-    }
-
-    FAVORITE_RESTAURANT {
-        uuid id PK
-        uuid user_id FK
-        string name
-        json custom_density_factors
-    }
 ```
+src/api-gateway/
+└── src/main/java/com/insight/
+    ├── ApiGatewayApplication.java
+    ├── controller/
+    │   └── AnalysisController.java    # POST /api/gateway/analyze (multipart)
+    ├── service/
+    │   ├── PipelineService.java       # Orchestrate Vision + RAG
+    │   ├── CacheService.java          # Redis SHA-256, TTL 1h
+    │   └── KafkaEventPublisher.java   # meal-analysis-events
+    ├── client/
+    │   ├── VisionServiceClient.java   # RestTemplate → Vision
+    │   └── RagServiceClient.java      # RestTemplate → RAG
+    └── config/
+        ├── RestTemplateConfig.java
+        └── RedisConfig.java
+```
+
+### 5.3 Vision Service (Python FastAPI)
+
+```
+src/vision-service/
+├── main.py                        # FastAPI app, 7 endpoints
+├── models/
+│   └── depth_model.py             # DAv2 Small wrapper (singleton)
+├── services/
+│   ├── depth_service.py           # Depth map generation
+│   ├── reference_service.py       # YOLOv8s COCO + VN tableware
+│   ├── calibration_service.py     # px/cm + quality assessment
+│   ├── segmentation_service.py    # Depth+Color hybrid
+│   ├── volume_service.py          # Volume → Weight → Carb → GL + uncertainty
+│   └── validation_service.py      # APE/MAPE benchmark
+├── schemas/
+│   └── volume_schemas.py          # Pydantic response + uncertainty fields
+└── tests/                         # 171 tests
+```
+
+### 5.4 RAG Service (Python FastAPI)
+
+```
+src/rag-service/
+├── main.py                        # FastAPI: /api/rag/advise + /health
+├── knowledge_base/
+│   ├── schemas.py                 # Document, Chunk models
+│   ├── chunking.py                # Semantic chunking
+│   ├── embedding.py               # sentence-transformers 384D
+│   └── search.py                  # Hybrid: BM25 + vector + re-ranking
+├── rag_pipeline/
+│   ├── schemas.py                 # RAG request/response
+│   ├── llm_client.py             # OpenAI-compatible (Gemini default)
+│   ├── prompt_builder.py          # Vietnamese SYSTEM_PROMPT
+│   └── rag_service.py            # Orchestrator
+├── personalization/
+│   ├── emergency.py               # 6 glucose levels
+│   ├── clinical_rules.py          # Rule-based insulin (NOT LLM)
+│   └── grounding.py               # Validate LLM output
+├── knowledge/medical/
+│   └── guidelines.json            # 26 docs, 7 categories, 5 sources
+└── tests/                         # 164 tests
+```
+
+### 5.5 Data Layer
+
+Hệ thống sử dụng file JSON tĩnh cho nutrition data (không dùng PostgreSQL cho food data):
+
+| Nguồn | File/Service | Nội dung |
+|-------|-------------|----------|
+| Food DB | `data/nutrition_db/vn_food_nutrition.json` | 25 món VN: GI, carb/100g |
+| Density | `data/nutrition_db/density_factors.json` | 27 mục: solid_ratio, density |
+| Medical KB | Milvus 2.3 | 46 chunks, HNSW index |
+| Cache | Redis 7 | SHA-256 key, TTL 1h |
+| Audit | Kafka | `meal-analysis-events` topic |
 
 ---
 
@@ -514,46 +377,41 @@ erDiagram
 | Công nghệ    | Phiên bản | Lý do lựa chọn                               |
 | ------------ | --------- | -------------------------------------------- |
 | Flutter      | 3.x       | Cross-platform, 60fps, hot reload            |
-| ONNX Runtime | 1.17      | Chạy model AI trên mobile, Int8 quantization |
-| gRPC         | -         | Nhanh hơn REST 7-10x, strongly typed         |
-| SQLite       | -         | Offline storage, Panic Mode cache            |
+| Provider     | -         | State management đơn giản cho MVVM           |
+| go_router    | -         | Declarative routing                          |
 
 ### 6.2 Backend
 
 | Công nghệ         | Phiên bản | Lý do lựa chọn                               |
 | ----------------- | --------- | -------------------------------------------- |
-| Java 21           | LTS       | Virtual Threads, GraalVM ready (API Gateway) |
-| Spring Boot       | 3.3       | API Gateway only, ecosystem phồng phú        |
+| Java 17           | LTS       | Spring Boot 3.2.3 compatibility              |
+| Spring Boot       | 3.2.3     | REST API Gateway, RestTemplate               |
 | Python            | 3.11+     | AI/ML ecosystem, PyTorch, FastAPI            |
-| Depth Anything V2 | Latest    | SOTA monocular depth estimation              |
-| Gemini API        | -         | Free-tier LLM, OpenAI-compatible endpoint    |
+| Depth Anything V2 | Small     | SOTA monocular depth, 24.8M params           |
+| YOLOv8s           | COCO      | Reference object detection, fallback mode    |
+| Gemini API        | 2.0-flash | Free-tier LLM, OpenAI-compatible             |
 
 ### 6.3 Data & Infrastructure
 
 | Công nghệ      | Phiên bản | Lý do lựa chọn                |
 | -------------- | --------- | ----------------------------- |
-| PostgreSQL     | 16        | ACID, JSON support, mature    |
 | Milvus         | 2.3       | Vector search, HNSW index     |
-| Redis          | 7         | In-memory cache, pub/sub      |
-| Apache Kafka   | -         | Event-driven, high throughput |
+| Redis          | 7         | Response cache, SHA-256 key   |
+| Apache Kafka   | -         | Audit trail, non-blocking     |
 | Docker Compose | -         | Dev environment consistency   |
+| GitHub Actions | -         | CI/CD pipeline                |
 
-### 6.4 Observability
+### 6.4 Giao tiếp giữa services
 
-| Công nghệ              | Mục đích            |
-| ---------------------- | ------------------- |
-| Prometheus + Grafana   | Metrics, dashboard  |
-| Loki + Promtail        | Centralized logging |
-| OpenTelemetry + Jaeger | Distributed tracing |
+| Từ | Đến | Protocol | Chi tiết |
+|----|-----|----------|----------|
+| Flutter | Gateway | REST/HTTP | `POST /api/gateway/analyze` (multipart) |
+| Gateway | Vision | REST/HTTP | `RestTemplate` → `POST /api/vision/estimate-volume` |
+| Gateway | RAG | REST/HTTP | `RestTemplate` → `POST /api/rag/advise` |
+| Gateway | Redis | Redis protocol | `CacheService` — SHA-256 key lookup |
+| Gateway | Kafka | Kafka protocol | `KafkaEventPublisher` — fire-and-forget |
 
-### 6.5 Security
-
-| Công nghệ        | Mục đích                      |
-| ---------------- | ----------------------------- |
-| Keycloak         | OAuth2/OIDC, SSO              |
-| API Gateway Auth | JWT validation, rate limiting |
-| TLS 1.3          | Transport encryption          |
-| AES-256          | Data at rest encryption       |
+> **Lưu ý:** Hệ thống sử dụng REST/HTTP cho tất cả giao tiếp giữa services. Không sử dụng gRPC hay Protobuf.
 
 ---
 
@@ -562,8 +420,8 @@ erDiagram
 - [Depth Anything V2](https://github.com/DepthAnything/Depth-Anything-V2)
 - [Google Gemini API](https://ai.google.dev/gemini-api/docs)
 - [Milvus Documentation](https://milvus.io/docs)
-- [Spring Boot 3.3 Reference](https://docs.spring.io/spring-boot/docs/3.3.x/reference/html/)
+- [Spring Boot 3.2 Reference](https://docs.spring.io/spring-boot/docs/3.2.x/reference/html/)
 
 ---
 
-_Cập nhật lần cuối: 28-01-2026_
+_Cập nhật lần cuối: 13/05/2026 — Đồng bộ với kiến trúc thực tế đã triển khai_

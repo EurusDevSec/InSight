@@ -73,7 +73,7 @@ graph TB
     end
 
     subgraph "💾 Data Layer"
-        PG["PostgreSQL 16"]
+        PG["JSON Files<br/><i>nutrition + density</i>"]
         MV["Milvus 2.3<br/><i>46 vectors</i>"]
         RD["Redis 7<br/><i>Cache + Rate limit</i>"]
         KK["Kafka<br/><i>Audit trail</i>"]
@@ -483,7 +483,7 @@ InSight/
 │   │   ├── services/                  # 6 services (depth → validation)
 │   │   ├── schemas/                   # 6 Pydantic schema files
 │   │   ├── tests/                     # 171 tests
-│   │   └── api/                       # gRPC proto (legacy)
+│   │   └── api/                       # API schemas (legacy, unused)
 │   │
 │   ├── 📁 rag-service/               # Python FastAPI — 🧠 RAG Agent
 │   │   ├── main.py                    # /health + /api/rag/advise

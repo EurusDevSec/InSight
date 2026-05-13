@@ -14,7 +14,7 @@
 | **Timeline**   | 06/03/2026 → 31/03/2026 (25 ngày, 5 phases, 14 sprints)                                                               |
 | **Nhóm**       | Hoàng (Leader/Architect), Việt (Core Dev/Vision), Hoài (Support/Frontend)                                             |
 | **Core idea**  | Chụp ảnh món ăn → Depth map (DAv2) → Volume → GL → RAG tư vấn Insulin                                                 |
-| **Tech Stack** | Flutter + Java Spring Boot (API Gateway) + Python FastAPI (Vision + RAG) + gRPC + Kafka + PostgreSQL + Milvus + Redis |
+| **Tech Stack** | Flutter + Java Spring Boot (API Gateway) + Python FastAPI (Vision + RAG) + REST/HTTP + Kafka + Milvus + Redis |
 
 ---
 
@@ -54,7 +54,7 @@ InSight/
 │   │   │   ├── test_segmentation_service.py # 18 tests (Task 2.4)
 │   │   │   ├── test_volume_service.py   # 31 tests (Task 2.5)
 │   │   │   └── test_validation_service.py   # 56 tests (Task 2.6)
-│   │   ├── api/                    # gRPC proto files
+│   │   ├── api/                    # API schemas (legacy proto, unused)
 │   │   └── requirements.txt
 │   ├── api-gateway/                # Spring Boot API Gateway
 │   │   ├── src/main/java/com/insight/

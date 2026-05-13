@@ -16,19 +16,19 @@ Chúng ta không chọn công nghệ vì nó "hot", mà vì nó giải quyết t
 - **Có ích gì?** Giảm tải cho server, tăng tốc độ phản hồi, và quan trọng là trải nghiệm người dùng mượt mà (Real-time feedback).
 - **Cách hoạt động:** Model AI được train bằng Python (PyTorch) -> Export sang định dạng `.onnx` -> Nhúng vào App Flutter -> App dùng CPU/NPU điện thoại để suy luận.
 
-### 1.2 Communication: gRPC (Google Remote Procedure Call)
+### 1.2 Communication: REST/HTTP
 
-- **Tại sao chọn?** REST API truyền dữ liệu dạng văn bản (JSON), rất chậm khi truyền file ảnh lớn. gRPC truyền dữ liệu dạng nhị phân (Binary - Protobuf).
-- **Có ích gì?** **Nhanh hơn 7-10 lần** so với REST. Tiết kiệm băng thông mobile. Định nghĩa kiểu dữ liệu chặt chẽ (Strongly Typed), tránh lỗi "gửi string mà nhận int".
-- **Cách hoạt động:** Mobile đóng gói ảnh thành các byte nhị phân -> Gửi qua HTTP/2 -> Server Java nhận và giải mã cực nhanh.
+- **Thực tế triển khai:** Hệ thống sử dụng **REST/HTTP** (không dùng gRPC) cho tất cả giao tiếp giữa services.
+- **Tại sao REST thay vì gRPC?** Flutter HTTP client đơn giản hơn gRPC dart lib, debug dễ hơn với Postman/curl. Latency ≤5s vẫn đạt.
+- **Cách hoạt động:** Mobile gửi ảnh multipart POST → Gateway (Spring Boot `RestTemplate`) forward tới Vision/RAG FastAPI → JSON response trả về.
 
-### 1.3 Backend Core: Java 21 + Spring Boot 3.3 (API Gateway)
+### 1.3 Backend Core: Java 17 + Spring Boot 3.2.3 (API Gateway)
 
 - **Tại sao chọn?**
-  - **Java 21:** LTS mới nhất.
-  - **Spring Boot 3.3 + Virtual Threads (Project Loom):** Dùng cho API Gateway — tiếp nhận request từ mobile, xác thực, điều phối.
-- **Có ích gì?** API Gateway có thể xử lý hàng chục nghìn kết nối đồng thời mà không bị sập.
-- **Lưu ý:** RAG service và Vision service đều dùng Python FastAPI — chỉ API Gateway là Java.
+  - **Java 17:** LTS ổn định.
+  - **Spring Boot 3.2.3:** Dùng cho API Gateway — tiếp nhận request từ mobile, điều phối Vision + RAG.
+- **Có ích gì?** `PipelineService` orchestrate: gọi Vision → gọi RAG → combine + disclaimer → trả về Flutter.
+- **Lưu ý:** RAG service và Vision service đều dùng Python FastAPI — chỉ API Gateway là Java. Không có Logic Service riêng.
 
 ### 1.4 Vision Engine: Python + Depth Anything V2
 
@@ -55,26 +55,24 @@ Chúng ta không chọn công nghệ vì nó "hot", mà vì nó giải quyết t
 
 Đây là bản đồ quy hoạch "Thành phố InSight". Hệ thống chia làm 6 vùng (Zones) biệt lập để dễ quản lý:
 
-1.  **Zone 1 (Edge):** Tiền đồn. App trên tay người dùng. Xử lý sơ bộ.
-2.  **Zone 2 (Gateway):** Cổng thành. Java Backend đón nhận mọi yêu cầu, kiểm tra an ninh (Auth), điều phối luồng đi.
-3.  **Zone 3 (Core Processing):** Nhà máy xử lý hình ảnh. Nơi Python "xào nấu" ảnh thành số liệu thể tích.
-4.  **Zone 4 (The Brain):** Bộ não trung tâm. Nơi Java kết hợp số liệu thể tích + kiến thức y khoa để ra quyết định.
-5.  **Zone 5 (Observability):** Tháp canh. Prometheus/Grafana giám sát xem server nào đang chậm, service nào đang lỗi.
-6.  **Zone 6 (Data):** Kho chứa. Postgres lưu user, Milvus lưu kiến thức, Redis lưu tạm (cache).
+1.  **Zone 1 (Mobile):** Flutter app — chụp ảnh, chọn món, hiển thị kết quả + Panic Mode.
+2.  **Zone 2 (Gateway):** Spring Boot — orchestrate Vision + RAG, Redis cache, Kafka audit.
+3.  **Zone 3 (Vision):** Python FastAPI — Depth map → Calibrate → Segment → Volume → GL.
+4.  **Zone 4 (RAG):** Python FastAPI — Retrieve y khoa từ Milvus → Gemini LLM → Insulin advice.
+5.  **Zone 5 (Data):** JSON files (nutrition), Milvus (medical KB), Redis (cache), Kafka (audit).
 
-**Ý nghĩa:** Chia nhỏ để trị (Microservices). Nếu "Nhà máy ảnh" (Zone 3) bị lỗi, người dùng vẫn đăng nhập, xem lịch sử (Zone 2, 6) được, không sập toàn bộ app.
+**Ý nghĩa:** Chia nhỏ để trị (Microservices). Nếu RAG bị lỗi → Gateway trả Vision-only (Graceful Degradation). Monitoring chưa triển khai (chưa dùng Prometheus/Grafana).
 
 ### 2.2 Sơ đồ 2: Sequence Flow (Hành trình người dùng)
 
 Mô tả từng bước một (Step-by-step) của một chức năng cốt lõi: **Chụp ảnh tính Carbs**.
 
-1.  **User chụp:** App dùng AI local (ONNX) để crop đúng món ăn.
-2.  **Upload:** Ảnh bay qua gRPC tới Java Core.
-3.  **Vision hoạt động:** Java Core ném ảnh sang Python Vision. Python chạy Depth Model, tính ra "150ml cơm". Trả lại Java.
-4.  **Java tính toán:** Java tra bảng: 150ml cơm = 200g cơm = 56g Carbs.
-5.  **Tư vấn:** Java hỏi RAG Agent: "Bệnh nhân đường huyết 180, ăn 56g Carbs thì tiêm bao nhiêu?".
-6.  **Trả kết quả:** RAG trả lời. Java đóng gói tất cả gửi về App.
-7.  **Hiển thị:** App hiện mô hình 3D AR lên đĩa cơm + Lời khuyên bác sĩ.
+1.  **User chụp:** App chụp ảnh + chọn loại món từ danh sách 25 món VN.
+2.  **Upload:** Ảnh multipart POST qua REST tới Gateway.
+3.  **Vision xử lý:** Gateway forward sang Python Vision. Pipeline: Depth → Reference → Calibrate → Segment → Volume → GL. Trả lại Gateway.
+4.  **RAG tư vấn:** Gateway hỏi RAG: "GL=13.7, đường huyết 180, ăn 30g Carbs thì tiêm bao nhiêu?". RAG tra Milvus + Gemini → insulin advice.
+5.  **Trả kết quả:** Gateway combine Vision + RAG + disclaimer → JSON response.
+6.  **Hiển thị:** App hiện GL lớn, uncertainty range, insulin advice + disclaimer banner.
 
 **Ý nghĩa:** Cho thấy sự phối hợp nhịp nhàng (Orchestration) giữa các service.
 
@@ -92,19 +90,17 @@ Mô tả dòng chảy của dữ liệu (Data Pipeline).
 
 ## 3. Cách Hoạt Động Tổng Thể Của Dự Án
 
-Dự án hoạt động theo mô hình **Event-Driven Hybrid Cloud**:
+Dự án hoạt động theo mô hình **Hybrid Cloud + REST Orchestration**:
 
 1.  **Hybrid (Lai):**
-    - Phần "nhẹ" (Crop ảnh, UI) chạy ở **Edge** (Điện thoại).
-    - Phần "nặng" (3D Depth, LLM) chạy ở **Cloud** (Server).
+    - Phần "nhẹ" (UI, Panic Mode cache) chạy ở **Edge** (Điện thoại).
+    - Phần "nặng" (Depth estimation, LLM) chạy ở **Cloud** (Server).
     - -> Tối ưu chi phí server và trải nghiệm người dùng.
 
-2.  **Event-Driven (Hướng sự kiện):**
-    - Các service không chờ đợi nhau một cách thụ động (Blocking).
-    - Khi Java nhận ảnh, nó bắn một sự kiện `IMAGE_RECEIVED` vào hàng đợi (Kafka).
-    - Python Vision Service đang rảnh sẽ "nhặt" sự kiện đó về xử lý.
-    - Xử lý xong, Python bắn sự kiện `VOLUME_CALCULATED` ngược lại.
-    - -> Giúp hệ thống không bị tắc nghẽn (Non-blocking) khi có quá nhiều người dùng cùng lúc.
+2.  **REST Orchestration (Điều phối đồng bộ):**
+    - Gateway nhận request → gọi Vision (HTTP) → gọi RAG (HTTP) → combine response.
+    - Kafka chỉ dùng cho **audit events** (fire-and-forget, non-blocking), KHÔNG dùng cho giao tiếp giữa services.
+    - Redis cache giảm tải: cùng input → trả cache thay vì tính lại.
 
 3.  **SOTA Integration:**
     - Kết hợp **Computer Vision** (Mắt) để nhìn thế giới vật lý và **GenAI/LLM** (Não) để hiểu và tư vấn. Đây là xu hướng **Multimodal AI** (AI đa phương thức) hiện đại nhất.
@@ -117,4 +113,4 @@ InSight không chỉ là một cái App, nó là một **Hệ phân tán (Distri
 
 - Nó dùng **Toán học** (Tích phân) để giải quyết bài toán lượng.
 - Nó dùng **AI** (Vision + LLM) để giải quyết bài toán chất.
-- Nó dùng **Engineering** (Microservices, gRPC, Virtual Threads) để đảm bảo tốc độ và độ ổn định.
+- Nó dùng **Engineering** (Microservices, REST orchestration, Graceful Degradation) để đảm bảo tốc độ và độ ổn định.

@@ -3,6 +3,16 @@
 > **Hệ thống ước lượng Glycemic Load thời gian thực cho bệnh nhân tiểu đường**
 > Sử dụng Computer Vision 3D và RAG Agent cá nhân hóa
 > Thời gian: 06/03/2026 - 31/03/2026 (25 ngày)
+
+> [!NOTE]
+> **Đây là kế hoạch ban đầu.** Kiến trúc thực tế đã thay đổi so với plan:
+> - gRPC → **REST/HTTP** (RestTemplate) — đơn giản hơn, đủ đáp ứng latency ≤5s
+> - Logic Service riêng → **Logic tích hợp trong Vision Service** (VolumeEstimator)
+> - Java 21 + Spring Boot 3.3 → **Java 17 + Spring Boot 3.2.3**
+> - BLoC → **MVVM + Provider + go_router**
+> - Keycloak / Prometheus+Grafana / ELK → **Chưa triển khai** (ưu tiên core features)
+>
+> Xem `docs/architecture.md` cho kiến trúc thực tế đã triển khai.
 > Thực hiện: Hoàng (Lead) | Việt (Core Dev) | Hoài (Support Dev)
 > Loại hình: Nghiên cứu ứng dụng (Applied Research) — Đồ án tốt nghiệp
 >
