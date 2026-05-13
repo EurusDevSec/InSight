@@ -43,7 +43,7 @@ dependencies:
   # New — UI Enhancement
   google_fonts: ^6.2.1
   shared_preferences: ^2.3.4
-  fl_chart: ^0.70.2
+  fl_chart: ^1.2.0
   shimmer: ^3.0.0
   smooth_page_indicator: ^1.2.1
 

@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:insight_app/ui/home/home_screen.dart';
 import 'package:insight_app/ui/panic/panic_screen.dart';
-
 import 'package:insight_app/viewmodels/panic_viewmodel.dart';
+import 'package:insight_app/viewmodels/history_viewmodel.dart';
+import 'package:insight_app/viewmodels/settings_viewmodel.dart';
+import 'package:insight_app/data/services/local_storage_service.dart';
 
 /// Task 4.3 — E2E Acceptance Criteria Tests
 ///
@@ -14,7 +17,38 @@ import 'package:insight_app/viewmodels/panic_viewmodel.dart';
 /// 4.3.2: Panic Mode ≤ 1 second (client-side cached data)
 /// 4.3.3: Disclaimer UI displayed on all results
 /// Stability: No crashes in 10 consecutive runs
+
+/// Helper: wrap HomeScreen with required providers + router.
+Future<Widget> _wrapHomeScreen() async {
+  SharedPreferences.setMockInitialValues({});
+  final storage = LocalStorageService();
+  await storage.init();
+
+  final router = GoRouter(
+    initialLocation: '/',
+    routes: [
+      GoRoute(path: '/', builder: (_, __) => const HomeScreen()),
+      GoRoute(path: '/camera', builder: (_, __) => const SizedBox()),
+      GoRoute(path: '/panic', builder: (_, __) => const SizedBox()),
+      GoRoute(path: '/profile', builder: (_, __) => const SizedBox()),
+      GoRoute(path: '/history', builder: (_, __) => const SizedBox()),
+    ],
+  );
+
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => HistoryViewModel(storage)),
+      ChangeNotifierProvider(create: (_) => SettingsViewModel(storage)),
+    ],
+    child: MaterialApp.router(routerConfig: router),
+  );
+}
+
 void main() {
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   group('E2E 4.3.2 — Panic Mode Latency', () {
     test('selecting a dish completes within 1 second', () {
       final vm = PanicViewModel();
@@ -49,18 +83,16 @@ void main() {
   group('E2E 4.3.3 — Disclaimer UI', () {
     testWidgets('disclaimer always visible on HomeScreen',
         (tester) async {
-      final router = GoRouter(
-        initialLocation: '/',
-        routes: [
-          GoRoute(path: '/', builder: (_, __) => const HomeScreen()),
-          GoRoute(path: '/camera', builder: (_, __) => const SizedBox()),
-          GoRoute(path: '/panic', builder: (_, __) => const SizedBox()),
-        ],
+      await tester.pumpWidget(await _wrapHomeScreen());
+      await tester.pumpAndSettle();
+
+      // Scroll to find disclaimer
+      await tester.dragUntilVisible(
+        find.textContaining('tham khảo'),
+        find.byType(SingleChildScrollView),
+        const Offset(0, -200),
       );
 
-      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
-
-      // Disclaimer text must be visible (inline Container, not DisclaimerBanner)
       expect(find.textContaining('tham khảo'), findsOneWidget);
       expect(find.textContaining('bác sĩ'), findsOneWidget);
       expect(find.byIcon(Icons.warning_amber), findsOneWidget);
@@ -68,17 +100,15 @@ void main() {
 
     testWidgets('disclaimer contains warning icon and advisory text',
         (tester) async {
-      // Render the HomeScreen which has inline disclaimer
-      final router = GoRouter(
-        initialLocation: '/',
-        routes: [
-          GoRoute(path: '/', builder: (_, __) => const HomeScreen()),
-          GoRoute(path: '/camera', builder: (_, __) => const SizedBox()),
-          GoRoute(path: '/panic', builder: (_, __) => const SizedBox()),
-        ],
-      );
+      await tester.pumpWidget(await _wrapHomeScreen());
+      await tester.pumpAndSettle();
 
-      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      // Scroll to find disclaimer
+      await tester.dragUntilVisible(
+        find.textContaining('Không thay thế chỉ định'),
+        find.byType(SingleChildScrollView),
+        const Offset(0, -200),
+      );
 
       expect(find.byIcon(Icons.warning_amber), findsOneWidget);
       expect(find.textContaining('Không thay thế chỉ định'), findsOneWidget);

@@ -93,7 +93,7 @@ class MealViewModel extends ChangeNotifier {
         debug: debugMode,
       );
       result = analysis;
-      advice = analysis.advice;
+      advice = analysis.advice ?? 'Không thể tạo tư vấn lúc này — vui lòng thử lại.';
       insulinSuggestion = analysis.insulinSuggestion;
     } catch (e) {
       error = e.toString();

@@ -8,8 +8,11 @@ import '../ui/food_form/food_form_screen.dart';
 import '../ui/result/result_screen.dart';
 import '../ui/panic/panic_screen.dart';
 import '../ui/history/history_screen.dart';
+import '../ui/history/meal_detail_screen.dart';
 import '../ui/settings/settings_screen.dart';
 import '../ui/profile/patient_profile_screen.dart';
+import '../ui/analytics/analytics_screen.dart';
+import '../ui/chat/chat_screen.dart';
 
 /// Create router — call with hasOnboarded flag.
 GoRouter createRouter({required bool hasOnboarded}) {
@@ -41,7 +44,16 @@ GoRouter createRouter({required bool hasOnboarded}) {
               ),
             ],
           ),
-          // Tab 1: History
+          // Tab 1: Analytics
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/analytics',
+                builder: (context, state) => const AnalyticsScreen(),
+              ),
+            ],
+          ),
+          // Tab 2: History
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -50,7 +62,7 @@ GoRouter createRouter({required bool hasOnboarded}) {
               ),
             ],
           ),
-          // Tab 2: Settings
+          // Tab 3: Settings
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -83,6 +95,18 @@ GoRouter createRouter({required bool hasOnboarded}) {
         path: '/profile',
         builder: (context, state) => const PatientProfileScreen(),
       ),
+      GoRoute(
+        path: '/history/detail',
+        builder: (context, state) {
+          final meal = state.extra as Map<String, dynamic>;
+          return MealDetailScreen(meal: meal);
+        },
+      ),
+      GoRoute(
+        path: '/chat',
+        builder: (context, state) => const ChatScreen(),
+      ),
     ],
   );
 }
+

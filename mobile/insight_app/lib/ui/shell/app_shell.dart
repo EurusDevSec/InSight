@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-/// Bottom navigation shell — wraps Home, History, Settings tabs.
+/// Bottom navigation shell — wraps Home, Analytics, History, Settings tabs.
+/// Includes a floating chat button.
 class AppShell extends StatelessWidget {
   final int currentIndex;
   final Widget child;
@@ -30,11 +32,17 @@ class AppShell extends StatelessWidget {
         child: BottomNavigationBar(
           currentIndex: currentIndex,
           onTap: onTap,
+          type: BottomNavigationBarType.fixed,
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home_rounded),
               activeIcon: Icon(Icons.home_rounded),
               label: 'Trang chủ',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.bar_chart_rounded),
+              activeIcon: Icon(Icons.bar_chart_rounded),
+              label: 'Phân tích',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.history_rounded),
@@ -48,6 +56,12 @@ class AppShell extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'chatFab',
+        onPressed: () => context.push('/chat'),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: const Icon(Icons.smart_toy_rounded, color: Colors.white),
       ),
     );
   }

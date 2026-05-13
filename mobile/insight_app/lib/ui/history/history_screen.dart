@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -113,6 +114,7 @@ class HistoryScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: InsightCard(
+        onTap: () => context.push('/history/detail', extra: meal),
         child: Row(
           children: [
             // GL circle

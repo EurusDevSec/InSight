@@ -88,4 +88,34 @@ class ApiService {
       return false;
     }
   }
+
+  // ── Chat: AI assistant ───────────────────────────────────────────
+
+  /// Send a chat message through the Gateway → RAG pipeline.
+  Future<Map<String, dynamic>> chat({
+    required String message,
+    List<Map<String, dynamic>>? history,
+    Map<String, dynamic>? patientContext,
+  }) async {
+    final uri = Uri.parse('$gatewayBaseUrl/api/gateway/chat');
+
+    final body = <String, dynamic>{
+      'message': message,
+    };
+    if (history != null) body['history'] = history;
+    if (patientContext != null) body['patient_context'] = patientContext;
+
+    final response = await _client.post(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    }
+    throw Exception(
+      'Chat failed (${response.statusCode}): ${response.body}',
+    );
+  }
 }

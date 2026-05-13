@@ -9,6 +9,7 @@ import 'viewmodels/meal_viewmodel.dart';
 import 'viewmodels/panic_viewmodel.dart';
 import 'viewmodels/history_viewmodel.dart';
 import 'viewmodels/settings_viewmodel.dart';
+import 'viewmodels/chat_viewmodel.dart';
 
 /// Root app widget with MVVM + Provider setup.
 class InsightApp extends StatelessWidget {
@@ -29,6 +30,7 @@ class InsightApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => PanicViewModel()),
         ChangeNotifierProvider(create: (_) => HistoryViewModel(storageService)),
         ChangeNotifierProvider(create: (_) => SettingsViewModel(storageService)),
+        ChangeNotifierProvider(create: (_) => ChatViewModel(apiService)),
       ],
       child: Consumer<SettingsViewModel>(
         builder: (context, settings, _) {
