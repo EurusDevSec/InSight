@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -36,6 +37,29 @@ class SettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
 
+          // ─── Patient Profile ───
+          _sectionTitle(context, 'Hồ sơ'),
+          InsightCard(
+            onTap: () => context.push('/profile'),
+            child: ListTile(
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.info.withAlpha(25),
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                ),
+                child: const Icon(Icons.person, color: AppColors.info, size: 22),
+              ),
+              title: Text('Hồ sơ bệnh nhân', style: GoogleFonts.inter(fontWeight: FontWeight.w500)),
+              subtitle: Text(
+                'Cá nhân hóa tư vấn insulin',
+                style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted),
+              ),
+              trailing: const Icon(Icons.chevron_right),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
           // ─── Data ───
           _sectionTitle(context, 'Dữ liệu'),
           InsightCard(

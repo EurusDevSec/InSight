@@ -2,11 +2,14 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import '../../config/constants.dart';
+import '../../ui/widgets/food_emoji_icon.dart';
 import '../../viewmodels/meal_viewmodel.dart';
 
-/// Quick food form — 1-tap selections for food type, size, and toppings.
+/// Quick food form — categorized tabs + glucose input.
 class FoodFormScreen extends StatefulWidget {
   const FoodFormScreen({super.key});
 
@@ -14,60 +17,47 @@ class FoodFormScreen extends StatefulWidget {
   State<FoodFormScreen> createState() => _FoodFormScreenState();
 }
 
-class _FoodFormScreenState extends State<FoodFormScreen> {
+class _FoodFormScreenState extends State<FoodFormScreen>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   String? _dishType;
   String? _size;
   final List<String> _toppings = [];
   final _customFoodController = TextEditingController();
+  final _glucoseController = TextEditingController();
+  late TabController _tabController;
+
+  static const _categories = {
+    'Cơm': ['Cơm tấm', 'Cơm trắng', 'Cơm gà', 'Cơm chiên', 'Cơm bình dân'],
+    'Phở/Bún/Mì': [
+      'Phở bò', 'Phở gà', 'Bún bò', 'Bún chả', 'Bún riêu',
+      'Bún mắm', 'Bún thịt nướng', 'Hủ tiếu', 'Mì xào',
+      'Mì Quảng', 'Cao lầu', 'Bánh canh',
+    ],
+    'Khác': [
+      'Bánh mì', 'Bánh cuốn', 'Bánh xèo', 'Gỏi cuốn',
+      'Xôi', 'Cháo', 'Bột chiên', 'Khác',
+    ],
+  };
+
+  static const _sizes = ['Nhỏ', 'Vừa', 'Lớn'];
+  static const _toppingOptions = [
+    'Thêm rau', 'Thêm thịt', 'Nước sốt', 'Trứng', 'Đồ chua', 'Tương ớt',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: _categories.length, vsync: this);
+  }
 
   @override
   void dispose() {
     _customFoodController.dispose();
+    _glucoseController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
-
-  static const _dishTypes = [
-    // Cơm
-    'Cơm tấm',
-    'Cơm trắng',
-    'Cơm gà',
-    'Cơm chiên',
-    'Cơm bình dân',
-    // Phở / Bún / Mì
-    'Phở bò',
-    'Phở gà',
-    'Bún bò',
-    'Bún chả',
-    'Bún riêu',
-    'Bún mắm',
-    'Bún thịt nướng',
-    'Hủ tiếu',
-    'Mì xào',
-    'Mì Quảng',
-    'Cao lầu',
-    'Bánh canh',
-    // Bánh / Khác
-    'Bánh mì',
-    'Bánh cuốn',
-    'Bánh xèo',
-    'Gỏi cuốn',
-    'Xôi',
-    'Cháo',
-    'Bột chiên',
-    'Khác',
-  ];
-
-  static const _sizes = ['Nhỏ', 'Vừa', 'Lớn'];
-
-  static const _toppingOptions = [
-    'Thêm rau',
-    'Thêm thịt',
-    'Nước sốt',
-    'Trứng',
-    'Đồ chua',
-    'Tương ớt',
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -83,105 +73,135 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Image preview — uses Image.memory for web+mobile compatibility
+                // ─── Progress indicator ───
+                _buildProgress(),
+                const SizedBox(height: AppSpacing.md),
+
+                // ─── Image preview ───
                 if (vm.selectedImage != null)
                   FutureBuilder<Uint8List>(
                     future: vm.selectedImage!.readAsBytes(),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
-                        return const SizedBox(
-                          height: 200,
-                          child: Center(child: CircularProgressIndicator()),
+                        return Container(
+                          height: 180,
+                          decoration: BoxDecoration(
+                            color: AppColors.cardDark,
+                            borderRadius: BorderRadius.circular(AppRadius.md),
+                          ),
+                          child: const Center(child: CircularProgressIndicator()),
                         );
                       }
                       return ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppRadius.md),
                         child: Image.memory(
                           snapshot.data!,
-                          height: 200,
+                          height: 180,
                           width: double.infinity,
                           fit: BoxFit.cover,
                         ),
                       );
                     },
                   ),
-                // Top-down photo guidance
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Row(
-                    children: [
-                      Icon(Icons.camera_alt, size: 16, color: Colors.blue[700]),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          'Chụp từ trên xuống (top-down) cho kết quả chính xác nhất',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.blue[700],
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ),
-                    ],
+                const SizedBox(height: AppSpacing.md),
+
+                // ─── Dish type with tabs ───
+                Text(
+                  'Loại món (tùy chọn)',
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 24),
-
-                // Dish type (optional — auto-detected from image if not selected)
-                Text('Loại món (tùy chọn)', style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 4),
                 Text(
                   'Bỏ qua để hệ thống tự nhận diện từ ảnh',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: AppColors.textMuted,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _dishTypes.map((type) {
-                    final selected = _dishType == type;
-                    return ChoiceChip(
-                      label: Text(type),
-                      selected: selected,
-                      onSelected: (_) {
-                        setState(() {
-                          // Toggle: tap again to deselect → auto-detect
-                          if (_dishType == type) {
-                            _dishType = null;
-                            vm.setFoodType(null);
-                            vm.setCustomFoodName(null);
-                          } else {
-                            _dishType = type;
-                            vm.setFoodType(type);
-                            if (type != 'Khác') {
-                              vm.setCustomFoodName(null);
-                              _customFoodController.clear();
-                            }
-                          }
-                        });
-                      },
-                    );
-                  }).toList(),
+                const SizedBox(height: AppSpacing.md),
+
+                // Tab bar
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.cardDarkElevated,
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                  ),
+                  child: TabBar(
+                    controller: _tabController,
+                    labelColor: AppColors.primary,
+                    unselectedLabelColor: AppColors.textMuted,
+                    indicatorColor: AppColors.primary,
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    dividerColor: Colors.transparent,
+                    labelStyle: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    tabs: _categories.keys
+                        .map((cat) => Tab(text: cat))
+                        .toList(),
+                  ),
                 ),
-                // Custom food name input when "Khác" is selected
+                const SizedBox(height: AppSpacing.md),
+
+                // Tab content
+                SizedBox(
+                  height: 130,
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: _categories.values.map((dishes) {
+                      return SingleChildScrollView(
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: dishes.map((type) {
+                            final selected = _dishType == type;
+                            return ChoiceChip(
+                              avatar: FoodEmojiIcon(foodName: type, size: 16),
+                              label: Text(type),
+                              selected: selected,
+                              onSelected: (_) {
+                                setState(() {
+                                  if (_dishType == type) {
+                                    _dishType = null;
+                                    vm.setFoodType(null);
+                                    vm.setCustomFoodName(null);
+                                  } else {
+                                    _dishType = type;
+                                    vm.setFoodType(type);
+                                    if (type != 'Khác') {
+                                      vm.setCustomFoodName(null);
+                                      _customFoodController.clear();
+                                    }
+                                  }
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+
+                // Custom food name
                 if (_dishType == 'Khác') ...[
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppSpacing.md),
                   TextField(
                     controller: _customFoodController,
                     decoration: InputDecoration(
                       labelText: 'Tên món ăn',
-                      hintText: 'VD: Bún đậu mắm tôm, Bánh tráng trộn...',
-                      border: const OutlineInputBorder(),
+                      hintText: 'VD: Bún đậu mắm tôm...',
                       prefixIcon: const Icon(Icons.restaurant),
-                      helperText: 'Nhập tên món để AI tư vấn chính xác hơn',
-                      helperStyle: TextStyle(color: Colors.grey[600]),
                     ),
                     onChanged: (value) => vm.setCustomFoodName(
                       value.trim().isEmpty ? null : value.trim(),
@@ -189,11 +209,12 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
                     textCapitalization: TextCapitalization.sentences,
                   ),
                 ],
-                const SizedBox(height: 24),
+                const SizedBox(height: AppSpacing.lg),
 
-                // Size
-                Text('Khẩu phần', style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 8),
+                // ─── Size ───
+                Text('Khẩu phần',
+                    style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600)),
+                const SizedBox(height: AppSpacing.sm),
                 Wrap(
                   spacing: 8,
                   children: _sizes.map((size) {
@@ -208,12 +229,12 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
                     );
                   }).toList(),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: AppSpacing.lg),
 
-                // Toppings
+                // ─── Toppings ───
                 Text('Thêm (tùy chọn)',
-                    style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 8),
+                    style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600)),
+                const SizedBox(height: AppSpacing.sm),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -230,24 +251,42 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
                     );
                   }).toList(),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: AppSpacing.lg),
 
-                // Developer Mode toggle
+                // ─── Glucose input ───
+                Text('Đường huyết hiện tại (tùy chọn)',
+                    style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600)),
+                const SizedBox(height: AppSpacing.sm),
+                TextField(
+                  controller: _glucoseController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'mg/dL',
+                    hintText: 'VD: 120',
+                    prefixIcon: const Icon(Icons.bloodtype),
+                    suffixText: 'mg/dL',
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+
+                // ─── Developer Mode ───
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Developer Mode'),
-                  subtitle: const Text('Hiển thị depth map, formula, RAG chunks'),
+                  title: Text('Developer Mode', style: GoogleFonts.inter()),
+                  subtitle: Text(
+                    'Hiển thị depth map, formula, RAG chunks',
+                    style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted),
+                  ),
                   secondary: Icon(
                     Icons.developer_mode,
-                    color: vm.debugMode ? Colors.greenAccent : Colors.grey,
+                    color: vm.debugMode ? Colors.greenAccent : AppColors.textMuted,
                   ),
                   value: vm.debugMode,
                   onChanged: (_) => vm.toggleDebugMode(),
                 ),
+                const SizedBox(height: AppSpacing.md),
 
-                const SizedBox(height: 16),
-
-                // Analyze button
+                // ─── Analyze button ───
                 SizedBox(
                   width: double.infinity,
                   height: 56,
@@ -272,28 +311,28 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
                         : const Icon(Icons.analytics),
                     label: Text(
                       vm.isLoading ? 'Đang phân tích...' : 'Phân tích GL',
-                      style: const TextStyle(fontSize: 18),
+                      style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
 
                 // Error display
                 if (vm.error != null) ...[
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.md),
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(AppSpacing.md),
                     decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      borderRadius: BorderRadius.circular(8),
+                      color: AppColors.emergency.withAlpha(20),
+                      borderRadius: BorderRadius.circular(AppRadius.md),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.error_outline, color: Colors.red),
-                        const SizedBox(width: 8),
+                        const Icon(Icons.error_outline, color: AppColors.emergency),
+                        const SizedBox(width: AppSpacing.sm),
                         Expanded(
                           child: Text(
                             vm.error!,
-                            style: const TextStyle(color: Colors.red),
+                            style: GoogleFonts.inter(color: AppColors.emergency, fontSize: 13),
                           ),
                         ),
                       ],
@@ -305,6 +344,52 @@ class _FoodFormScreenState extends State<FoodFormScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildProgress() {
+    return Row(
+      children: [
+        _progressDot(1, 'Chụp', true),
+        Expanded(child: Container(height: 2, color: AppColors.primary)),
+        _progressDot(2, 'Chọn', true),
+        Expanded(
+          child: Container(height: 2, color: AppColors.textMuted.withAlpha(40)),
+        ),
+        _progressDot(3, 'Kết quả', false),
+      ],
+    );
+  }
+
+  Widget _progressDot(int step, String label, bool active) {
+    return Column(
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: active ? AppColors.primary : AppColors.textMuted.withAlpha(40),
+            shape: BoxShape.circle,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            '$step',
+            style: GoogleFonts.inter(
+              color: active ? Colors.white : AppColors.textMuted,
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 11,
+            color: active ? AppColors.primary : AppColors.textMuted,
+          ),
+        ),
+      ],
     );
   }
 }

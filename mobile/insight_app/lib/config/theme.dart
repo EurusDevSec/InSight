@@ -66,14 +66,17 @@ class AppTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.cardDarkElevated,
-        selectedColor: AppColors.primary.withAlpha(60),
-        labelStyle: GoogleFonts.inter(fontSize: 14),
+        selectedColor: AppColors.primary.withAlpha(80),
+        labelStyle: GoogleFonts.inter(fontSize: 14, color: Colors.white),
+        secondaryLabelStyle: GoogleFonts.inter(fontSize: 14, color: Colors.white),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.sm),
+          side: BorderSide(color: Colors.white.withAlpha(20)),
         ),
+        checkmarkColor: Colors.white,
       ),
       dividerTheme: DividerThemeData(
-        color: Colors.white.withAlpha(20),
+        color: Colors.white.withAlpha(40),
       ),
       textTheme: GoogleFonts.interTextTheme(base.textTheme).apply(
         bodyColor: Colors.white,
@@ -99,8 +102,9 @@ class AppTheme {
           borderRadius: BorderRadius.circular(AppRadius.md),
           borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
-        labelStyle: GoogleFonts.inter(color: AppColors.textMuted),
-        hintStyle: GoogleFonts.inter(color: AppColors.textMuted),
+        labelStyle: GoogleFonts.inter(color: const Color(0xFFBDBDBD)),
+        hintStyle: GoogleFonts.inter(color: const Color(0xFF9E9E9E)),
+        suffixStyle: GoogleFonts.inter(color: const Color(0xFFBDBDBD)),
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {

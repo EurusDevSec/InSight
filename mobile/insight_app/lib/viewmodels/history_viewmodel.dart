@@ -37,6 +37,12 @@ class HistoryViewModel extends ChangeNotifier {
     return groups;
   }
 
+  /// Add a meal to history and persist to storage.
+  Future<void> addMeal(Map<String, dynamic> meal) async {
+    await _storage.addMealToHistory(meal);
+    notifyListeners();
+  }
+
   Future<void> clearHistory() async {
     await _storage.clearHistory();
     notifyListeners();

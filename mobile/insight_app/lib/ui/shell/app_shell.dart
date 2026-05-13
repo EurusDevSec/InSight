@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../config/constants.dart';
-
 /// Bottom navigation shell — wraps Home, History, Settings tabs.
 class AppShell extends StatelessWidget {
   final int currentIndex;

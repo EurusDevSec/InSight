@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
+import '../../config/constants.dart';
+import '../../ui/widgets/insight_card.dart';
 import '../../viewmodels/meal_viewmodel.dart';
 
-/// Camera / gallery screen for capturing meal images.
+/// Camera / gallery screen for capturing meal images — with guide overlay.
 class CameraScreen extends StatelessWidget {
   const CameraScreen({super.key});
 
@@ -36,27 +39,51 @@ class CameraScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.add_a_photo,
-                size: 100,
-                color: Colors.grey[400],
+              const Spacer(),
+
+              // Camera illustration
+              Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withAlpha(20),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.add_a_photo_rounded,
+                  size: 56,
+                  color: AppColors.primary,
+                ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.lg),
               Text(
                 'Chọn cách chụp ảnh',
-                style: Theme.of(context).textTheme.titleLarge,
+                style: GoogleFonts.inter(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Đặt vật tham chiếu (bát, thìa) cạnh món ăn\nđể kết quả chính xác hơn',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey[600]),
+              const SizedBox(height: AppSpacing.sm),
+
+              const Spacer(),
+
+              // Tips
+              InsightCard(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Column(
+                  children: [
+                    _tipRow(Icons.vertical_align_bottom, 'Chụp từ trên xuống (top-down)'),
+                    const SizedBox(height: AppSpacing.sm),
+                    _tipRow(Icons.straighten, 'Đặt bát/thìa cạnh món ăn'),
+                    const SizedBox(height: AppSpacing.sm),
+                    _tipRow(Icons.light_mode, 'Đảm bảo đủ ánh sáng'),
+                  ],
+                ),
               ),
-              const SizedBox(height: 48),
+              const SizedBox(height: AppSpacing.lg),
 
               // Camera button
               SizedBox(
@@ -65,10 +92,11 @@ class CameraScreen extends StatelessWidget {
                 child: FilledButton.icon(
                   onPressed: () => _pickImage(context, ImageSource.camera),
                   icon: const Icon(Icons.camera_alt),
-                  label: const Text('Chụp ảnh mới', style: TextStyle(fontSize: 16)),
+                  label: Text('Chụp ảnh mới',
+                      style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600)),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.md),
 
               // Gallery button
               SizedBox(
@@ -77,13 +105,30 @@ class CameraScreen extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: () => _pickImage(context, ImageSource.gallery),
                   icon: const Icon(Icons.photo_library),
-                  label: const Text('Chọn từ thư viện', style: TextStyle(fontSize: 16)),
+                  label: Text('Chọn từ thư viện',
+                      style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600)),
                 ),
               ),
+              const SizedBox(height: AppSpacing.lg),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _tipRow(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: AppColors.primary),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Text(
+            text,
+            style: GoogleFonts.inter(fontSize: 13, color: AppColors.textMuted),
+          ),
+        ),
+      ],
     );
   }
 }
