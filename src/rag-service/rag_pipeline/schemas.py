@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from enum import Enum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 # ── Enums ──────────────────────────────────────────────────────────
@@ -72,7 +72,7 @@ class AdviceRequest(BaseModel):
     """Input for the RAG advisory endpoint."""
 
     meal_description: str = Field(
-        ..., min_length=1, description="Name or description of the meal"
+        default="Unknown food", description="Name or description of the meal"
     )
     glycemic_load: float | None = Field(
         default=None, ge=0, description="Estimated GL from Vision pipeline"
@@ -84,6 +84,15 @@ class AdviceRequest(BaseModel):
         default_factory=PatientContext,
         description="Patient clinical context for personalization",
     )
+
+    @model_validator(mode="before")
+    @classmethod
+    def _coerce_empty_meal(cls, values: dict) -> dict:
+        """Gateway may send empty meal_description → coerce to default."""
+        desc = values.get("meal_description")
+        if not desc or (isinstance(desc, str) and not desc.strip()):
+            values["meal_description"] = "Unknown food"
+        return values
 
 
 # ── Insulin Recommendation ────────────────────────────────────────
