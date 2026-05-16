@@ -164,7 +164,7 @@ sequenceDiagram
         RAG->>RAG: Grounding validation
         RAG-->>Gateway: Insulin advice + warnings
         deactivate RAG
-
+  
         Gateway->>Gateway: Combine results + disclaimer
         Gateway->>Gateway: Save to Redis cache
         Gateway->>Gateway: Publish Kafka audit event
